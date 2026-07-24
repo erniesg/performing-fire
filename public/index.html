@@ -46,6 +46,20 @@
   #site-footer a { color:rgba(232,213,192,.55); text-decoration:none; padding:4px 8px;
     border:1px solid rgba(255,120,40,.18); border-radius:999px; background:rgba(20,8,4,.55); }
   #site-footer a:hover { color:#ffe6cc; border-color:rgba(255,150,60,.5); }
+  .lang-toggle { position:fixed; top:16px; right:16px; display:flex; gap:6px; z-index:5; }
+  .lang-toggle button { padding:5px 10px; font-size:11px; letter-spacing:.08em; cursor:pointer;
+    color:rgba(255,225,200,.75); background:rgba(20,8,4,.55); border:1px solid rgba(255,120,40,.18);
+    border-radius:999px; backdrop-filter:blur(8px); transition:all .18s ease; user-select:none; }
+  .lang-toggle button:hover { border-color:rgba(255,150,60,.5); color:#ffe6cc; }
+  .lang-toggle button[aria-pressed="true"] { border-color:rgba(255,160,70,.9); color:#fff;
+    box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
+  /* CJK typography — system stacks only (Hangul, Han, Kana), no webfont downloads */
+  html[lang="ko"] body { font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    word-break:keep-all; line-break:strict; }
+  html[lang^="zh"] body { font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    word-break:normal; line-break:strict; }
+  html[lang="ja"] body { font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
+    word-break:normal; line-break:strict; }
 </style>
 </head>
 <body>
@@ -54,13 +68,103 @@
 <canvas id="preview" width="176" height="132"></canvas>
 <div id="hud">
   <h1>Performing Fir<span id="eterm">e</span></h1>
-  <p class="eq">interactive fire study · hand tracking enabled</p>
-  <p>pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
+  <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking enabled</p>
+  <p data-i18n="idx.controls">pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
 </div>
+<nav class="lang-toggle" aria-label="Language">
+  <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button>
+  <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
+  <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+</nav>
 <div id="chips"></div>
 <div id="status">starting…</div>
-<div id="err"></div>
-<footer id="site-footer"><a href="/experiments/">all experiments</a></footer>
+<div id="err" data-i18n="idx.webgl"></div>
+<footer id="site-footer"><a href="/experiments/" data-i18n="idx.footer">all experiments</a></footer>
+
+<script>
+/* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
+(function () {
+  "use strict";
+  var SUPPORTED = ["en", "ko", "zh", "ja"];
+  var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
+  var STORE_KEY = "pf-lang";
+  var TITLE_KEY = "idx.title";
+  var dicts = {};
+  var active = "en";
+
+  function resolveLang() {
+    var q = null;
+    try { q = new URLSearchParams(window.location.search).get("lang"); } catch (e) {}
+    if (q && SUPPORTED.indexOf(q) !== -1) { return q; }
+    var stored = null;
+    try { stored = window.localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (stored && SUPPORTED.indexOf(stored) !== -1) { return stored; }
+    var nav = String(window.navigator.language || "").slice(0, 2).toLowerCase();
+    if (SUPPORTED.indexOf(nav) !== -1) { return nav; }
+    return "en";
+  }
+
+  function t(key) {
+    var d = dicts[active];
+    if (d && typeof d[key] === "string" && d[key]) { return d[key]; }
+    var en = dicts.en;
+    if (en && typeof en[key] === "string") { return en[key]; }
+    return "";
+  }
+
+  function load(lang) {
+    if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
+    return window.fetch("i18n/" + lang + ".json")
+      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+      .then(function (json) { dicts[lang] = json; return json; })
+      .catch(function () { return null; }); /* offline / file:// — defaults in the markup stay up */
+  }
+
+  function hydrate() {
+    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder]");
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var key = el.getAttribute("data-i18n");
+      var text = key ? t(key) : "";
+      if (text) { el.textContent = text; }
+      var phKey = el.getAttribute("data-i18n-placeholder");
+      var ph = phKey ? t(phKey) : "";
+      if (ph) { el.setAttribute("placeholder", ph); }
+    }
+    var title = t(TITLE_KEY);
+    if (title) { document.title = title; }
+  }
+
+  function markToggle() {
+    var btns = document.querySelectorAll(".lang-toggle [data-lang]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", String(btns[i].getAttribute("data-lang") === active));
+    }
+  }
+
+  function setLang(lang, persist) {
+    if (SUPPORTED.indexOf(lang) === -1) { lang = "en"; }
+    active = lang;
+    if (persist) { try { window.localStorage.setItem(STORE_KEY, lang); } catch (e) {} }
+    document.documentElement.lang = HTML_LANG[lang];
+    markToggle();
+    Promise.all([load("en"), load(lang)]).then(function () {
+      hydrate();
+      document.dispatchEvent(new CustomEvent("pf:lang", { detail: { lang: lang } }));
+    });
+  }
+
+  window.PF_I18N = { t: t, resolveLang: resolveLang, setLang: setLang, current: function () { return active; } };
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
+    if (btn) { setLang(btn.getAttribute("data-lang"), true); }
+  });
+
+  setLang(resolveLang(), false);
+})();
+</script>
 
 <script type="module">
 /* ============================================================
@@ -650,6 +754,7 @@ const handSlots = [null, null];
 const mouseHand = {active:false, x:0, y:0, px:0, py:0, vx:0, vy:0, speed:0, pinch:false};
 
 function setStatus(msg){ statusEl.textContent = msg; }
+const tr = (key, fallback) => (window.PF_I18N && window.PF_I18N.t(key)) || fallback;
 
 /* normalized [0,1] device coords -> sim coords at the z=0 cloth plane */
 function ndToSim(nx, ny){
@@ -680,23 +785,23 @@ async function tryCamera(){
     video.srcObject = stream;
     await video.play();
     tracking = true;
-    setStatus('hand tracking on — raise a hand · pinch (thumb+index) to grab');
+    setStatus(tr('idx.status.tracking', 'hand tracking on — raise a hand · pinch (thumb+index) to grab'));
   }catch(err){
     console.warn(err);
     const name = err && err.name ? err.name : String(err);
     camMsg = name==='NotAllowedError' ? 'camera blocked — allow it in browser/site settings, then click here'
            : name==='NotFoundError'   ? 'no camera found — click to retry'
            : 'camera error: '+name+' — click to retry';
-    setStatus('camera unavailable ('+name+') — click the preview panel to retry · mouse works meanwhile');
+    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — click the preview panel to retry · mouse works meanwhile').replace('{name}', name));
   }
 }
 async function initTracking(){
-  setStatus('loading hand-tracking model…');
+  setStatus(tr('idx.status.loading', 'loading hand-tracking model…'));
   try{ await loadModel(); }
   catch(err){
     console.warn(err);
     camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
-    setStatus('model load failed ('+(err.message||err)+') — mouse mode: move to stir, drag to grab');
+    setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
     return;
   }
   await tryCamera();
@@ -806,7 +911,8 @@ const names = Object.keys(PERSONAS);
 for(const name of names){
   const el=document.createElement('div');
   el.className='chip'+(name==='fire'?' active':'');
-  el.textContent=PERSONAS[name].label;
+  el.dataset.i18n='idx.persona.'+name; /* re-hydrated on language switch */
+  el.textContent=tr('idx.persona.'+name, PERSONAS[name].label);
   el.addEventListener('pointerdown', e=>e.stopPropagation());
   el.addEventListener('click', ()=>setPersona(name));
   el.dataset.name=name;
@@ -1016,7 +1122,7 @@ function watchdog(){
     heat[i]=0; foldS[i]=0;
   }
   grabs.clear();
-  setStatus('sim reset (numerical blow-up caught)');
+  setStatus(tr('idx.status.reset', 'sim reset (numerical blow-up caught)'));
 }
 
 /* ---------------- main loop ---------------- */
