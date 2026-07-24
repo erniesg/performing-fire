@@ -41,6 +41,11 @@
     box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
   #err { position:fixed; inset:0; display:none; align-items:center; justify-content:center;
     color:#f66; font-size:14px; }
+  #site-footer { position:fixed; right:16px; bottom:156px; font-size:10.5px; letter-spacing:.12em;
+    text-transform:uppercase; }
+  #site-footer a { color:rgba(232,213,192,.55); text-decoration:none; padding:4px 8px;
+    border:1px solid rgba(255,120,40,.18); border-radius:999px; background:rgba(20,8,4,.55); }
+  #site-footer a:hover { color:#ffe6cc; border-color:rgba(255,150,60,.5); }
 </style>
 </head>
 <body>
@@ -55,6 +60,7 @@
 <div id="chips"></div>
 <div id="status">starting…</div>
 <div id="err"></div>
+<footer id="site-footer"><a href="/experiments/">all experiments</a></footer>
 
 <script type="module">
 /* ============================================================

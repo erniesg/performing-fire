@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performing Fire — Experiments Index</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+:root { color-scheme: dark; }
+html, body { background: #0A0A10; }
+body {
+  margin: 0;
+  color: #C6CBD2;
+  background: #0A0A10;
+  font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", monospace;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: #37FF8B; color: #06060A; }
+.pf { max-width: 980px; margin: 0 auto; padding: 18px clamp(12px, 3vw, 28px) 0; }
+.pf a { color: inherit; }
+:focus-visible { outline: 2px solid var(--tint, #E8E9EE); outline-offset: 2px; border-radius: 2px; }
+
+@keyframes pf-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0; } }
+
+/* ---- station header ---- */
+.station { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; padding: 2px 2px 6px; }
+.station-id { font-size: clamp(24px, 4vw, 32px); letter-spacing: 1px; color: #E8E9EE; text-shadow: 0 0 10px rgba(232, 233, 238, 0.25); margin: 0; }
+.station-onair { margin-left: auto; font-size: 14px; color: #9AA1AA; letter-spacing: 1px; white-space: nowrap; }
+.station-onair .dot { color: #FF5C0D; animation: pf-blink 1.4s steps(1) infinite; }
+.station-sub { margin: 0 2px 22px; font-size: 13px; color: #7C828C; }
+
+/* ---- experiment cards: bezel + CRT face ---- */
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; padding: 0; margin: 0; list-style: none; }
+.card {
+  display: block; height: 100%; text-decoration: none;
+  background: linear-gradient(160deg, #2A2A33, #15151B 62%);
+  border: 1px solid #33333E; border-radius: 14px; padding: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 26px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.card:hover, .card:focus-visible {
+  border-color: var(--tint);
+  box-shadow: 0 0 0 1px var(--tint), 0 0 26px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.card:nth-child(odd)  { --tint: #37FF8B; --glow: rgba(55, 255, 139, 0.38); }
+.card:nth-child(even) { --tint: #2BD9FF; --glow: rgba(43, 217, 255, 0.38); }
+.crt {
+  position: relative; overflow: hidden; height: 100%;
+  background: #050507; border-radius: 8px; padding: 18px 16px 16px;
+}
+.crt::before {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+.crt::after {
+  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px),
+    radial-gradient(135% 135% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
+}
+.card-ch { margin: 0 0 6px; font-size: 12px; letter-spacing: 3px; color: #8F959E; }
+.card-title { margin: 0 0 10px; font-size: 21px; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 10px var(--glow); }
+.card-date { display: block; margin: 0 0 10px; font-size: 12.5px; letter-spacing: 2px; color: #9AA1AA; font-variant-numeric: tabular-nums; }
+.card-summary { margin: 0 0 14px; font-size: 13.5px; color: #C9CFD6; }
+.card-tune { margin: 0; font-size: 12.5px; letter-spacing: 2px; color: #62676F; }
+.card:hover .card-tune, .card:focus-visible .card-tune { color: var(--tint); }
+
+#offair { margin: 8px 2px; font-size: 13px; color: #7C828C; }
+
+/* ---- footer ---- */
+.pf-footer { padding: 26px 2px 42px; text-align: center; font-size: 12.5px; color: #62676F; }
+.pf-footer p { margin: 0 auto; max-width: 80ch; }
+
+/* ---- reduced motion: no blinking ---- */
+@media (prefers-reduced-motion: reduce) {
+  .station-onair .dot { animation: none; }
+  .card, .card-tune { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="pf">
+
+  <header class="station">
+    <h1 class="station-id">PERFORMING FIRE — EXPERIMENTS INDEX</h1>
+    <p class="station-onair"><span class="dot" aria-hidden="true">●</span> RUNNING STUDIES</p>
+  </header>
+  <p class="station-sub">Every study on one dial · 실험 색인 · pick a channel to tune in.</p>
+
+  <main>
+    <ul class="wall" id="wall" aria-label="Experiments"></ul>
+    <p id="offair" hidden>OFF AIR — the experiment list could not be loaded.</p>
+  </main>
+
+  <footer class="pf-footer">
+    <p>2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea 한국문화예술위원회 · July 7 – August 31, 2026</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var wall = document.getElementById("wall");
+  var offair = document.getElementById("offair");
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    node.className = className;
+    if (text) { node.textContent = text; }
+    return node;
+  }
+
+  function renderCard(entry, index) {
+    var item = document.createElement("li");
+    var card = el("a", "card");
+    card.href = entry.url;
+    var face = el("div", "crt");
+    face.appendChild(el("p", "card-ch", "CH " + String(index + 1).padStart(2, "0") + " · " + entry.slug));
+    face.appendChild(el("h2", "card-title", entry.title));
+    var date = el("time", "card-date", entry.date);
+    date.setAttribute("datetime", entry.date);
+    face.appendChild(date);
+    face.appendChild(el("p", "card-summary", entry.summary));
+    face.appendChild(el("p", "card-tune", "TUNE IN ▶"));
+    card.appendChild(face);
+    item.appendChild(card);
+    return item;
+  }
+
+  fetch("./experiments.json")
+    .then(function (res) {
+      if (!res.ok) { throw new Error("HTTP " + res.status); }
+      return res.json();
+    })
+    .then(function (entries) {
+      entries.forEach(function (entry, index) {
+        wall.appendChild(renderCard(entry, index));
+      });
+    })
+    .catch(function () {
+      offair.hidden = false;
+    });
+})();
+</script>
+</body>
+</html>
