@@ -5,13 +5,19 @@
   "assets": {
     "directory": "./public",
   },
-  "routes": [
-    {
-      "pattern": "performingfire.berlayar.ai",
-      "custom_domain": true,
-    },
-  ],
   "env": {
+    "production": {
+      "name": "performingfire",
+      "assets": {
+        "directory": "./public",
+      },
+      "routes": [
+        {
+          "pattern": "performingfire.berlayar.ai",
+          "custom_domain": true,
+        },
+      ],
+    },
     "staging": {
       "name": "performingfire-stg",
       "assets": {
