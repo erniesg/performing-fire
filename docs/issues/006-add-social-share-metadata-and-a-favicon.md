@@ -1,5 +1,7 @@
 # Add social share metadata and a favicon to every page
 
+depends-on: 002
+
 ## Goal
 
 The site has no meta descriptions, Open Graph/Twitter cards, canonical URLs, or favicon — links shared to social platforms and chat apps render bare. Add complete share metadata to `public/index.html`, `public/broadcast.html`, and `public/experiments/index.html`, plus an inline-SVG favicon consistent with the CRT/fire identity. Everything stays static and self-contained: the OG image must be a checked-in asset under `public/`, not a remote URL or a generation service.
