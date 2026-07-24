@@ -1,0 +1,13 @@
+{
+  "name": "performing-fire",
+  "private": true,
+  "description": "Performing Fire (Pεrforming Fire) — microsite for the 2026 APE LAB project",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging"
+  },
+  "devDependencies": {
+    "wrangler": "^4.42.2"
+  }
+}

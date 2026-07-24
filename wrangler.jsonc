@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "performingfire",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./public",
+  },
+  "routes": [
+    {
+      "pattern": "performingfire.berlayar.ai",
+      "custom_domain": true,
+    },
+  ],
+  "env": {
+    "staging": {
+      "name": "performingfire-stg",
+      "assets": {
+        "directory": "./public",
+      },
+      "routes": [
+        {
+          "pattern": "performingfire-stg.berlayar.ai",
+          "custom_domain": true,
+        },
+      ],
+    },
+  },
+}
