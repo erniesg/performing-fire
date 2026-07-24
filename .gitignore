@@ -1,0 +1,10 @@
+# Personal / private material — never commit.
+# The funding proposal PDF and its rendered pages contain personal details.
+docs/*.pdf
+tmp/
+*.DS_Store
+
+# Local scratch
+node_modules/
+.env
+.env.*
