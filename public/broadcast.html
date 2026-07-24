@@ -370,6 +370,20 @@ canvas.snow {
 .pf-footer a { color: #8F959E; letter-spacing: 1px; }
 .pf-footer a:hover, .pf-footer a:focus-visible { color: #37FF8B; }
 
+/* ---- language toggle ---- */
+.lang-toggle { display: flex; align-items: baseline; gap: 2px; }
+.lang-toggle button { font-size: 15px; letter-spacing: 1px; color: #666C76; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.lang-toggle button:hover { color: #C6CBD2; }
+.lang-toggle button[aria-pressed="true"] { color: #37FF8B; text-shadow: 0 0 7px rgba(55, 255, 139, 0.38); }
+.lang-toggle .lang-sep { color: #3A3A46; }
+
+/* ---- CJK typography: system stacks only (Hangul, Han, Kana), no webfont downloads ---- */
+html[lang="ko"] body { font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", monospace; word-break: keep-all; line-break: strict; }
+html[lang^="zh"] body { font-family: ui-monospace, "SF Mono", Menlo, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", monospace; word-break: normal; line-break: strict; }
+html[lang="ja"] body { font-family: ui-monospace, "SF Mono", Menlo, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", monospace; word-break: normal; line-break: strict; }
+html[lang^="zh"] .vt { font-family: 'VT323', "PingFang SC", "Microsoft YaHei", ui-monospace, monospace; }
+html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo", ui-monospace, monospace; }
+
 /* ---- responsive ---- */
 @media (max-width: 1080px) {
   .wall { grid-template-columns: repeat(3, 1fr); }
@@ -409,19 +423,19 @@ canvas.snow {
         <div class="film-bars" aria-hidden="true">
           <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span><span class="b6"></span>
         </div>
-        <p class="scene-kicker vt">PF-TV · TRANSMISSION START · 송출 시작</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.ident.kicker">PF-TV · TRANSMISSION START · 송출 시작</p>
         <p class="scene-title vt">퍼포밍 파이어</p>
-        <p class="scene-sub vt">PERFORMING FIRE — A BROADCAST IN FIVE CHANNELS · 다섯 개의 채널, 하나의 불</p>
-        <p class="scene-hint vt" aria-hidden="true">SCROLL TO TUNE ▼ 스크롤</p>
-        <p><a class="film-skip vt" href="#console">SKIP INTRO ▸ 건너뛰기</a></p>
+        <p class="scene-sub vt" data-i18n="bc.film.ident.sub">PERFORMING FIRE — A BROADCAST IN FIVE CHANNELS · 다섯 개의 채널, 하나의 불</p>
+        <p class="scene-hint vt" aria-hidden="true" data-i18n="bc.film.ident.hint">SCROLL TO TUNE ▼ 스크롤</p>
+        <p><a class="film-skip vt" href="#console" data-i18n="bc.film.ident.skip">SKIP INTRO ▸ 건너뛰기</a></p>
       </div>
     </section>
 
     <section class="scene" data-scene="wall" data-ch="ch00" aria-label="Intro — the monitor wall">
       <div class="scene-inner">
-        <p class="scene-kicker vt">THE MONITOR WALL · 모니터 월</p>
-        <p class="scene-title vt">SIX MONITORS, ONE FIRE</p>
-        <p class="scene-copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.wall.kicker">THE MONITOR WALL · 모니터 월</p>
+        <p class="scene-title vt" data-i18n="bc.film.wall.title">SIX MONITORS, ONE FIRE</p>
+        <p class="scene-copy" data-i18n="bc.film.wall.copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</p>
         <div class="film-wall" aria-hidden="true">
           <span class="film-mon" data-ch="ch01"></span><span class="film-mon" data-ch="ch02"></span><span class="film-mon" data-ch="ch03"></span><span class="film-mon" data-ch="ch04"></span><span class="film-mon" data-ch="ch00"></span><span class="film-mon" data-ch="ident"></span>
         </div>
@@ -430,33 +444,33 @@ canvas.snow {
 
     <section class="scene" data-scene="signal" data-ch="ch01" aria-label="Intro — channel 1, Signal">
       <div class="scene-inner">
-        <p class="scene-kicker vt">CH 01 · SIGNAL 신호</p>
-        <p class="scene-title vt">HOW WILL WE GREET NEW TECHNOLOGY?</p>
-        <p class="scene-copy">The proposal itself: offerings become flames, flames become a collective totem of possible futures. Fire was the first technology we never fully tamed — we learned to live alongside its instability.</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.signal.kicker">CH 01 · SIGNAL 신호</p>
+        <p class="scene-title vt" data-i18n="bc.film.signal.title">HOW WILL WE GREET NEW TECHNOLOGY?</p>
+        <p class="scene-copy" data-i18n="bc.film.signal.copy">The proposal itself: offerings become flames, flames become a collective totem of possible futures. Fire was the first technology we never fully tamed — we learned to live alongside its instability.</p>
       </div>
     </section>
 
     <section class="scene" data-scene="voices" data-ch="ch02" aria-label="Intro — channel 2, Voices">
       <div class="scene-inner">
-        <p class="scene-kicker vt">CH 02 · VOICES 목소리</p>
-        <p class="scene-title vt">TWELVE CALLERS ON THE LINE</p>
-        <p class="scene-copy">"Teach the machine to hesitate." · "기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다." — and a line held open for you.</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.voices.kicker">CH 02 · VOICES 목소리</p>
+        <p class="scene-title vt" data-i18n="bc.film.voices.title">TWELVE CALLERS ON THE LINE</p>
+        <p class="scene-copy" data-i18n="bc.film.voices.copy">“Teach the machine to hesitate.” · “기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다.” — and a line held open for you.</p>
       </div>
     </section>
 
     <section class="scene" data-scene="guide" data-ch="ch03" aria-label="Intro — channel 3, Program guide">
       <div class="scene-inner">
-        <p class="scene-kicker vt">CH 03 · LOG 편성표</p>
-        <p class="scene-title vt">THE PROGRAM GUIDE IS THE CHANGELOG</p>
-        <p class="scene-copy">Phase 1 · JUL 07 → AUG 31 2026. Every research week, prototype test, and burn is scheduled like a broadcast — and aired when it happens.</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.guide.kicker">CH 03 · LOG 편성표</p>
+        <p class="scene-title vt" data-i18n="bc.film.guide.title">THE PROGRAM GUIDE IS THE CHANGELOG</p>
+        <p class="scene-copy" data-i18n="bc.film.guide.copy">Phase 1 · JUL 07 → AUG 31 2026. Every research week, prototype test, and burn is scheduled like a broadcast — and aired when it happens.</p>
       </div>
     </section>
 
     <section class="scene" data-scene="scores" data-ch="ch04" aria-label="Intro — channel 4, Scores">
       <div class="scene-inner">
-        <p class="scene-kicker vt">CH 04 · SCORE 지시문</p>
-        <p class="scene-title vt">INSTRUCTIONS FOR FIRE PLAY</p>
-        <p class="scene-copy">AI reads each offering and returns a Score — an open proposition anyone can perform. SCORE No.01: write the technology you fear on your palm. Wait until the warmth reaches the word.</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.scores.kicker">CH 04 · SCORE 지시문</p>
+        <p class="scene-title vt" data-i18n="bc.film.scores.title">INSTRUCTIONS FOR FIRE PLAY</p>
+        <p class="scene-copy" data-i18n="bc.film.scores.copy">AI reads each offering and returns a Score — an open proposition anyone can perform. SCORE No.01: write the technology you fear on your palm. Wait until the warmth reaches the word.</p>
       </div>
     </section>
 
@@ -465,10 +479,10 @@ canvas.snow {
         <div class="crt film-crt" aria-hidden="true">
           <canvas class="snow" width="96" height="72"></canvas>
         </div>
-        <p class="scene-kicker vt">CH 00 · STATIC 크레딧</p>
-        <p class="scene-title vt">THE BROADCAST IS LIVE</p>
-        <p class="scene-copy">Credits roll on CH 00. The dial below is yours — tune a channel, and leave your voice in the fire.</p>
-        <p class="scene-hint vt" aria-hidden="true">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</p>
+        <p class="scene-kicker vt" data-i18n="bc.film.static.kicker">CH 00 · STATIC 크레딧</p>
+        <p class="scene-title vt" data-i18n="bc.film.static.title">THE BROADCAST IS LIVE</p>
+        <p class="scene-copy" data-i18n="bc.film.static.copy">Credits roll on CH 00. The dial below is yours — tune a channel, and leave your voice in the fire.</p>
+        <p class="scene-hint vt" aria-hidden="true" data-i18n="bc.film.static.hint">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</p>
       </div>
     </section>
 
@@ -481,14 +495,20 @@ canvas.snow {
   <header class="station">
     <h1 class="station-id vt">PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</h1>
     <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> ON AIR · 2026.07.23</p>
+    <nav class="lang-toggle vt" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+    </nav>
   </header>
-  <p class="station-sub">A Living Totem of Futures · 미래의 살아있는 토템 · 5 channels, one fire.</p>
+  <p class="station-sub" data-i18n="bc.station.sub">A Living Totem of Futures · 미래의 살아있는 토템 · 5 channels, one fire.</p>
 
   <div class="stage" id="console">
 
     <!-- ================= MONITOR WALL ================= -->
     <section aria-label="Monitor wall — channel previews">
-      <p class="wall-hint vt">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</p>
+      <p class="wall-hint vt" data-i18n="bc.wall.hint">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</p>
       <div class="wall">
         <button class="wall-btn bezel" type="button" data-tune="ch01" aria-pressed="false" aria-label="Tune to channel 1, Signal">
           <span class="crt wall-crt">
@@ -546,44 +566,44 @@ canvas.snow {
             <!-- ======== CH 01 SIGNAL ======== -->
             <section class="channel" data-ch="ch01" aria-label="Channel 1 — Signal">
               <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> LIVE · 신호</p>
-              <p class="kicker">THIS IS PERFORMING FIRE, TRANSMITTING FROM PHASE 1 · 2026 APE LAB, TRACK B (PAIK NAM JUNE)</p>
-              <h2 class="ch-title vt">HOW WILL WE GREET NEW TECHNOLOGY?</h2>
-              <p class="ch-title-kr vt">우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
-              <p class="body-copy">Performing Fire is an interactive media installation that gathers what artists think and feel about technology — questions, hopes, fears, imaginations — and turns them into a single living fire. Each offering becomes its own flame, with its own shape, motion, and light. Over the exhibition the fire grows: a collective totem of possible futures.</p>
-              <h3 class="sub vt">TRANSMISSION NOTES · 방송 원고</h3>
-              <p class="body-copy">The future of technology is usually imagined in two directions: possibility and threat. Performing Fire starts somewhere else — from the unstable relationship in which humans change technology and are changed by it in return. Fire was the first technology we never fully tamed; we learned instead to live alongside its instability. Perhaps what we need now is not fear of the new, nor unconditional acceptance, but 불장난 — fire play: an experimental relationship with what can affect us but cannot be fully predicted or controlled.</p>
-              <h3 class="sub vt">SIGNAL PATH · 송출 경로</h3>
+              <p class="kicker" data-i18n="bc.ch01.kicker">THIS IS PERFORMING FIRE, TRANSMITTING FROM PHASE 1 · 2026 APE LAB, TRACK B (PAIK NAM JUNE)</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch01.title">HOW WILL WE GREET NEW TECHNOLOGY?</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch01.titleSub">우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
+              <p class="body-copy" data-i18n="bc.ch01.intro">Performing Fire is an interactive media installation that gathers what artists think and feel about technology — questions, hopes, fears, imaginations — and turns them into a single living fire. Each offering becomes its own flame, with its own shape, motion, and light. Over the exhibition the fire grows: a collective totem of possible futures.</p>
+              <h3 class="sub vt" data-i18n="bc.ch01.notesHead">TRANSMISSION NOTES · 방송 원고</h3>
+              <p class="body-copy" data-i18n="bc.ch01.notes">The future of technology is usually imagined in two directions: possibility and threat. Performing Fire starts somewhere else — from the unstable relationship in which humans change technology and are changed by it in return. Fire was the first technology we never fully tamed; we learned instead to live alongside its instability. Perhaps what we need now is not fear of the new, nor unconditional acceptance, but 불장난 — fire play: an experimental relationship with what can affect us but cannot be fully predicted or controlled.</p>
+              <h3 class="sub vt" data-i18n="bc.ch01.pathHead">SIGNAL PATH · 송출 경로</h3>
               <ol class="steps">
                 <li>
                   <span class="step-no vt" aria-hidden="true">01</span>
-                  <span class="step-name vt">OFFER 공물</span>
-                  <span class="step-text">At the installation (or here), tell us your question, hope, or fear about technology. Write it, speak it, or show it.</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step1.name">OFFER 공물</span>
+                  <span class="step-text" data-i18n="bc.ch01.step1.text">At the installation (or here), tell us your question, hope, or fear about technology. Write it, speak it, or show it.</span>
                 </li>
                 <li>
                   <span class="step-no vt" aria-hidden="true">02</span>
-                  <span class="step-name vt">TRANSFORM 지시문</span>
-                  <span class="step-text">AI reads each offering — its meaning, temperature, texture — and, in the spirit of Nam June Paik and Fluxus, turns it into a Score: an open proposition anyone can perform in their own way.</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step2.name">TRANSFORM 지시문</span>
+                  <span class="step-text" data-i18n="bc.ch01.step2.text">AI reads each offering — its meaning, temperature, texture — and, in the spirit of Nam June Paik and Fluxus, turns it into a Score: an open proposition anyone can perform in their own way.</span>
                 </li>
                 <li>
                   <span class="step-no vt" aria-hidden="true">03</span>
-                  <span class="step-name vt">BURN 연소</span>
-                  <span class="step-text">Each offering becomes a flame, projected on translucent fabric, shaped by the words that made it. Different perspectives overlap, collide, and form one collective fire.</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step3.name">BURN 연소</span>
+                  <span class="step-text" data-i18n="bc.ch01.step3.text">Each offering becomes a flame, projected on translucent fabric, shaped by the words that made it. Different perspectives overlap, collide, and form one collective fire.</span>
                 </li>
                 <li>
                   <span class="step-no vt" aria-hidden="true">04</span>
-                  <span class="step-name vt">PERFORM 수행</span>
-                  <span class="step-text">In the final weeks, a live performer reinterprets the accumulated voices and Scores with the body — reimagining 달집태우기 (moon-house burning) and 쥐불놀이 (fire play), East Asian rites where communities gathered around fire to wish and to let go.</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step4.name">PERFORM 수행</span>
+                  <span class="step-text" data-i18n="bc.ch01.step4.text">In the final weeks, a live performer reinterprets the accumulated voices and Scores with the body — reimagining 달집태우기 (moon-house burning) and 쥐불놀이 (fire play), East Asian rites where communities gathered around fire to wish and to let go.</span>
                 </li>
               </ol>
-              <p style="margin-top: 26px;"><button class="link-btn vt" type="button" data-tune="ch02">→ TUNE TO CH 02 · LEAVE YOUR VOICE 목소리를 남기세요</button></p>
+              <p style="margin-top: 26px;"><button class="link-btn vt" type="button" data-tune="ch02" data-i18n="bc.ch01.cta">→ TUNE TO CH 02 · LEAVE YOUR VOICE 목소리를 남기세요</button></p>
             </section>
 
             <!-- ======== CH 02 VOICES ======== -->
             <section class="channel" data-ch="ch02" aria-label="Channel 2 — Voices" hidden>
               <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> CALL-IN · 참여</p>
-              <p class="kicker">12 CALLERS ON THE LINE · 수신된 목소리 — artists on what they think and feel about technology</p>
-              <h2 class="ch-title vt">VOICES</h2>
-              <p class="ch-title-kr vt">목소리</p>
+              <p class="kicker" data-i18n="bc.ch02.kicker">12 CALLERS ON THE LINE · 수신된 목소리 — artists on what they think and feel about technology</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch02.title">VOICES</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch02.titleSub">목소리</p>
               <div class="callers">
                 <article class="caller"><span class="caller-id vt">CALLER 01 — PAINTING · SEOUL</span><blockquote>"내가 그리는 그림을 기계가 이해하는 날이 올까 봐 두렵고, 궁금하다."</blockquote></article>
                 <article class="caller"><span class="caller-id vt">CALLER 02 — SOUND ARTIST</span><blockquote>"I want a machine that forgets, the way we forget."</blockquote></article>
@@ -600,64 +620,64 @@ canvas.snow {
               </div>
 
               <div class="tone">
-                <h3 class="ch-title vt" style="font-size: clamp(26px, 4vw, 38px);">WHAT WOULD YOU THROW INTO THE FIRE?</h3>
-                <p class="ch-title-kr vt" style="font-size: clamp(19px, 3vw, 25px);">불 속에 무엇을 던지시겠습니까?</p>
-                <p class="tone-instruction vt">LEAVE A MESSAGE AFTER THE TONE — 삐 소리 후 남겨주세요</p>
+                <h3 class="ch-title vt" style="font-size: clamp(26px, 4vw, 38px);" data-i18n="bc.ch02.throwTitle">WHAT WOULD YOU THROW INTO THE FIRE?</h3>
+                <p class="ch-title-kr vt" style="font-size: clamp(19px, 3vw, 25px);" data-i18n="bc.ch02.throwTitleSub">불 속에 무엇을 던지시겠습니까?</p>
+                <p class="tone-instruction vt" data-i18n="bc.ch02.tone">LEAVE A MESSAGE AFTER THE TONE — 삐 소리 후 남겨주세요</p>
                 <ul class="prompts">
-                  <li><span class="p-label vt">TONIGHT'S PROMPTS 오늘의 질문</span></li>
-                  <li>당신이 두려워하는 기술은 무엇인가요? — What technology do you fear?</li>
-                  <li>What should never be automated? — 자동화되면 안 되는 것은 무엇인가요?</li>
-                  <li>Describe the future you can't stop imagining. — 멈출 수 없이 상상하게 되는 미래를 들려주세요.</li>
+                  <li><span class="p-label vt" data-i18n="bc.ch02.promptsLabel">TONIGHT'S PROMPTS 오늘의 질문</span></li>
+                  <li data-i18n="bc.ch02.prompt1">당신이 두려워하는 기술은 무엇인가요? — What technology do you fear?</li>
+                  <li data-i18n="bc.ch02.prompt2">What should never be automated? — 자동화되면 안 되는 것은 무엇인가요?</li>
+                  <li data-i18n="bc.ch02.prompt3">Describe the future you can't stop imagining. — 멈출 수 없이 상상하게 되는 미래를 들려주세요.</li>
                 </ul>
 
                 <div class="tabs" role="group" aria-label="Message format">
-                  <button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="true">● REC VOICE — 말하다</button>
-                  <button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false">● REC VIDEO — 보이다</button>
-                  <button class="tab-btn vt" type="button" data-tab="type" aria-pressed="false">TYPE — 쓰다</button>
+                  <button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="true" data-i18n="bc.ch02.tabVoice">● REC VOICE — 말하다</button>
+                  <button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false" data-i18n="bc.ch02.tabVideo">● REC VIDEO — 보이다</button>
+                  <button class="tab-btn vt" type="button" data-tab="type" aria-pressed="false" data-i18n="bc.ch02.tabType">TYPE — 쓰다</button>
                 </div>
 
                 <div class="tab-panel" data-tab="voice">
-                  <div class="rec" data-rec="voice" data-ready="READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요.">
-                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode">AUDIO · 음성</span></p>
+                  <div class="rec" data-rec="voice" data-ready="READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요." data-i18n-ready="bc.ch02.readyVoice">
+                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeAudio">AUDIO · 음성</span></p>
                     <p class="rec-status" role="status">READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요.</p>
                     <button class="rec-btn vt" type="button">● REC</button>
-                    <p class="consent-note">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
+                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
                   </div>
                 </div>
 
                 <div class="tab-panel" data-tab="video" hidden>
-                  <div class="rec" data-rec="video" data-ready="READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다.">
-                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode">VIDEO · 영상</span></p>
+                  <div class="rec" data-rec="video" data-ready="READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다." data-i18n-ready="bc.ch02.readyVideo">
+                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeVideo">VIDEO · 영상</span></p>
                     <div class="cam crt">
                       <canvas class="snow" width="64" height="36" aria-hidden="true"></canvas>
                       <span class="cam-rec vt" aria-hidden="true">● REC</span>
-                      <span class="cam-note vt">NO SIGNAL — MOCK PREVIEW 모형 화면</span>
+                      <span class="cam-note vt" data-i18n="bc.ch02.camNote">NO SIGNAL — MOCK PREVIEW 모형 화면</span>
                     </div>
                     <p class="rec-status" role="status">READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다.</p>
                     <button class="rec-btn vt" type="button">● REC</button>
-                    <p class="consent-note">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
+                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
                   </div>
                 </div>
 
                 <div class="tab-panel" data-tab="type" hidden>
                   <form class="offer-form" id="offerForm">
-                    <label class="f-label vt" for="f-name">NAME 이름</label>
-                    <input type="text" id="f-name" name="name" placeholder="your name — or anonymous 익명" autocomplete="off">
-                    <label class="f-label vt" for="f-disc">PRACTICE 분야</label>
-                    <input type="text" id="f-disc" name="discipline" placeholder="e.g. 회화, choreography, sound" autocomplete="off">
-                    <label class="f-label vt" for="f-resp">YOUR OFFERING 공물</label>
-                    <textarea id="f-resp" name="response" required placeholder="a question, a hope, a fear, an imagination… 질문, 희망, 두려움, 상상"></textarea>
+                    <label class="f-label vt" for="f-name" data-i18n="bc.ch02.nameLabel">NAME 이름</label>
+                    <input type="text" id="f-name" name="name" placeholder="your name — or anonymous 익명" data-i18n-placeholder="bc.ch02.namePh" autocomplete="off">
+                    <label class="f-label vt" for="f-disc" data-i18n="bc.ch02.practiceLabel">PRACTICE 분야</label>
+                    <input type="text" id="f-disc" name="discipline" placeholder="e.g. 회화, choreography, sound" data-i18n-placeholder="bc.ch02.practicePh" autocomplete="off">
+                    <label class="f-label vt" for="f-resp" data-i18n="bc.ch02.offeringLabel">YOUR OFFERING 공물</label>
+                    <textarea id="f-resp" name="response" required placeholder="a question, a hope, a fear, an imagination… 질문, 희망, 두려움, 상상" data-i18n-placeholder="bc.ch02.offeringPh"></textarea>
                     <label class="consent">
                       <input type="checkbox" name="consent" required>
-                      <span>My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</span>
+                      <span data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</span>
                     </label>
-                    <button class="send-btn vt" type="submit">SEND TO THE FIRE — 송출</button>
+                    <button class="send-btn vt" type="submit" data-i18n="bc.ch02.send">SEND TO THE FIRE — 송출</button>
                   </form>
                   <div class="queue-confirm" id="queueConfirm" hidden>
-                    <p class="qc-big vt">YOUR MESSAGE IS IN THE QUEUE.</p>
-                    <p class="qc-kr vt">송출 예정.</p>
-                    <p class="qc-sub">QUEUE POSITION 13 — it will become a flame with its own shape, motion, and light.</p>
-                    <button class="link-btn vt" type="button" id="sendAnother">SEND ANOTHER — 하나 더 남기기</button>
+                    <p class="qc-big vt" data-i18n="bc.ch02.queueBig">YOUR MESSAGE IS IN THE QUEUE.</p>
+                    <p class="qc-kr vt" data-i18n="bc.ch02.queueAlt">송출 예정.</p>
+                    <p class="qc-sub" data-i18n="bc.ch02.queueSub">QUEUE POSITION 13 — it will become a flame with its own shape, motion, and light.</p>
+                    <button class="link-btn vt" type="button" id="sendAnother" data-i18n="bc.ch02.sendAnother">SEND ANOTHER — 하나 더 남기기</button>
                   </div>
                 </div>
               </div>
@@ -666,118 +686,118 @@ canvas.snow {
             <!-- ======== CH 03 LOG (EPG) ======== -->
             <section class="channel" data-ch="ch03" aria-label="Channel 3 — Log" hidden>
               <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> EPG · 편성표</p>
-              <p class="kicker">PHASE 1 · JUL 07 → AUG 31 2026 — the program guide is the changelog · 편성표가 곧 작업 일지입니다</p>
-              <h2 class="ch-title vt">PROGRAM GUIDE</h2>
-              <p class="ch-title-kr vt">편성표</p>
+              <p class="kicker" data-i18n="bc.ch03.kicker">PHASE 1 · JUL 07 → AUG 31 2026 — the program guide is the changelog · 편성표가 곧 작업 일지입니다</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch03.title">PROGRAM GUIDE</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch03.titleSub">편성표</p>
               <div class="epg-wrap">
                 <table class="epg">
                   <thead>
-                    <tr><th scope="col">DATE</th><th scope="col">PROGRAM</th><th scope="col">STATUS</th></tr>
+                    <tr><th scope="col" data-i18n="bc.ch03.thDate">DATE</th><th scope="col" data-i18n="bc.ch03.thProgram">PROGRAM</th><th scope="col" data-i18n="bc.ch03.thStatus">STATUS</th></tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="d">07.07</td>
                       <td><span class="prog">PHASE 1 BEGINS 시작</span><span class="desc">Team 04 kicks off: APE CAMP mission debrief, role-setting, and the first argument about what fire actually is.</span></td>
-                      <td><span class="tag tag-aired">AIRED</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
                     </tr>
                     <tr>
                       <td class="d">07.17</td>
                       <td><span class="prog">AI SHARING SESSION · SINGAPORE</span><span class="desc">At National Gallery Singapore (Chen Enjiao), gathering perspectives from practitioners on how artists are living with AI.</span></td>
-                      <td><span class="tag tag-aired">AIRED</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
                     </tr>
                     <tr>
                       <td class="d">07.21</td>
                       <td><span class="prog">RESEARCH WEEK 리서치</span><span class="desc">Nam June Paik &amp; Fluxus event scores; East Asian fire rites; planning visits to Nam June Paik Art Center (《별, 괘》 and 《달들》).</span></td>
-                      <td><span class="tag tag-aired">AIRED</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
                     </tr>
                     <tr>
                       <td class="d">07.23</td>
                       <td><span class="prog">MICROSITE TEST 송출 시험</span><span class="desc">You are looking at it: first test of the response-gathering microsite (text · voice · video).</span></td>
-                      <td><span class="tag tag-on">ACTIVE</span></td>
+                      <td><span class="tag tag-on" data-i18n="bc.ch03.active">ACTIVE</span></td>
                     </tr>
                     <tr class="sched">
                       <td class="d">07.26–08.01</td>
                       <td><span class="prog">STRUCTURE &amp; FIRE VISUALS</span><span class="desc">Installation structure design &amp; fire visual tests.</span></td>
-                      <td><span class="tag tag-sched">SCHEDULED</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
                     </tr>
                     <tr class="sched">
                       <td class="d">08.02–08.08</td>
                       <td><span class="prog">PROTOTYPE TEST 1</span><span class="desc">Text → Score → visual.</span></td>
-                      <td><span class="tag tag-sched">SCHEDULED</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
                     </tr>
                     <tr class="sched">
                       <td class="d">08.09–08.15</td>
                       <td><span class="prog">PROTOTYPE TEST 2</span><span class="desc">Fabric &amp; projection mapping.</span></td>
-                      <td><span class="tag tag-sched">SCHEDULED</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
                     </tr>
                     <tr class="sched">
                       <td class="d">08.16–08.22</td>
                       <td><span class="prog">INTEGRATION TEST 통합</span><span class="desc">All systems, one fire.</span></td>
-                      <td><span class="tag tag-sched">SCHEDULED</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
                     </tr>
                     <tr class="sched">
                       <td class="d">08.31</td>
                       <td><span class="prog">PHASE 1 REPORT 보고</span><span class="desc">End of Phase 1 broadcast.</span></td>
-                      <td><span class="tag tag-sched">SCHEDULED</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <p class="evolution">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+              <p class="evolution" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
             </section>
 
             <!-- ======== CH 04 SCORE ======== -->
             <section class="channel" data-ch="ch04" aria-label="Channel 4 — Score" hidden>
               <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> TEST CARD · 지시문</p>
-              <p class="kicker">AI reads each offering and, in the spirit of Nam June Paik and Fluxus, returns a Score — an open proposition anyone can perform in their own way. Eight samples on rotation.</p>
-              <h2 class="ch-title vt">SCORES</h2>
-              <p class="ch-title-kr vt">지시문</p>
+              <p class="kicker" data-i18n="bc.ch04.kicker">AI reads each offering and, in the spirit of Nam June Paik and Fluxus, returns a Score — an open proposition anyone can perform in their own way. Eight samples on rotation.</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch04.title">SCORES</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch04.titleSub">지시문</p>
               <div class="testcard">
                 <div class="score-card">
                   <span class="score-no vt">SCORE No.01</span>
-                  <h3 class="score-title vt">IGNITION 점화</h3>
-                  <p class="score-text">Write the technology you fear on your palm. Hold it over something warm. Wait until the warmth reaches the word.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score1.title">IGNITION 점화</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score1.text">Write the technology you fear on your palm. Hold it over something warm. Wait until the warmth reaches the word.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.02</span>
-                  <h3 class="score-title vt">MOON HOUSE 달집</h3>
-                  <p class="score-text">Build a small house from things you planned to throw away. Put one wish inside. Do not burn it yet.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score2.title">MOON HOUSE 달집</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score2.text">Build a small house from things you planned to throw away. Put one wish inside. Do not burn it yet.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.03</span>
-                  <h3 class="score-title vt">FEED 공급</h3>
-                  <p class="score-text">Tell your oldest fear to the youngest machine in your home. Note which of you changes.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score3.title">FEED 공급</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score3.text">Tell your oldest fear to the youngest machine in your home. Note which of you changes.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.04</span>
-                  <h3 class="score-title vt">ORBIT 쥐불</h3>
-                  <p class="score-text">Swing a light in a circle until it becomes a line. This is how fast a fear must move to look like hope.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score4.title">ORBIT 쥐불</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score4.text">Swing a light in a circle until it becomes a line. This is how fast a fear must move to look like hope.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.05</span>
-                  <h3 class="score-title vt">ERROR TERM 오차항</h3>
-                  <p class="score-text">Do something one hundred times. Keep only the flicker.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score5.title">ERROR TERM 오차항</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score5.text">Do something one hundred times. Keep only the flicker.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.06</span>
-                  <h3 class="score-title vt">BROADCAST 송출</h3>
-                  <p class="score-text">Hum for thirty seconds to an appliance. If it hums back, you have made a duet. If not, you have made a prayer.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score6.title">BROADCAST 송출</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score6.text">Hum for thirty seconds to an appliance. If it hums back, you have made a duet. If not, you have made a prayer.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.07</span>
-                  <h3 class="score-title vt">HANDOVER 인계</h3>
-                  <p class="score-text">Let a machine finish your sentence. Finish one of its own. Call it even.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score7.title">HANDOVER 인계</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score7.text">Let a machine finish your sentence. Finish one of its own. Call it even.</p>
                 </div>
                 <div class="score-card" hidden>
                   <span class="score-no vt">SCORE No.08</span>
-                  <h3 class="score-title vt">ASH 재</h3>
-                  <p class="score-text">Delete something you made. Describe what remains.</p>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score8.title">ASH 재</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score8.text">Delete something you made. Describe what remains.</p>
                 </div>
               </div>
               <div class="pager">
-                <button class="pager-btn vt" type="button" data-step="-1">◀ PREV</button>
+                <button class="pager-btn vt" type="button" data-step="-1" data-i18n="bc.ch04.prev">◀ PREV</button>
                 <span class="pager-count vt" id="scoreCounter" aria-live="polite">01/08</span>
-                <button class="pager-btn vt" type="button" data-step="1">NEXT ▶</button>
+                <button class="pager-btn vt" type="button" data-step="1" data-i18n="bc.ch04.next">NEXT ▶</button>
               </div>
             </section>
 
@@ -802,7 +822,7 @@ canvas.snow {
                     <p>Arts Council Korea 한국문화예술위원회</p>
                     <p>July 7 – August 31, 2026</p>
                     <p class="cr-role vt">— NOTE —</p>
-                    <p class="cr-note">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
                     <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
                   </div>
                   <div class="roll-block roll-dup" aria-hidden="true">
@@ -822,11 +842,11 @@ canvas.snow {
                     <p>Arts Council Korea 한국문화예술위원회</p>
                     <p>July 7 – August 31, 2026</p>
                     <p class="cr-role vt">— NOTE —</p>
-                    <p class="cr-note">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
                     <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
                   </div>
                 </div>
-                <span class="credits-hint vt" aria-hidden="true">HOVER TO PAUSE 일시정지</span>
+                <span class="credits-hint vt" aria-hidden="true" data-i18n="bc.credits.hint">HOVER TO PAUSE 일시정지</span>
               </div>
             </section>
 
@@ -840,8 +860,8 @@ canvas.snow {
                 <h2 class="ch-title vt">PERFORMING FIRE</h2>
                 <p class="ch-title-kr vt">퍼포밍 파이어</p>
                 <p class="ident-q">A Living Totem of Futures · 미래의 살아있는 토템<br>"How will we greet new technology?" 우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
-                <p class="ident-note">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
-                <p class="ident-tag vt">TRANSMISSION IN PROGRESS · 송출 진행 중</p>
+                <p class="ident-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                <p class="ident-tag vt" data-i18n="bc.ident.tag">TRANSMISSION IN PROGRESS · 송출 진행 중</p>
               </div>
             </section>
 
@@ -865,10 +885,97 @@ canvas.snow {
 
   <footer class="pf-footer">
     <p>2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea 한국문화예술위원회 · July 7 – August 31, 2026</p>
-    <p><a href="/experiments/">ALL EXPERIMENTS — 실험 색인</a></p>
+    <p><a href="/experiments/" data-i18n="bc.footer.experiments">ALL EXPERIMENTS — 실험 색인</a></p>
   </footer>
 
 </div>
+
+<script>
+/* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
+(function () {
+  "use strict";
+  var SUPPORTED = ["en", "ko", "zh", "ja"];
+  var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
+  var STORE_KEY = "pf-lang";
+  var TITLE_KEY = "bc.title";
+  var dicts = {};
+  var active = "en";
+
+  function resolveLang() {
+    var q = null;
+    try { q = new URLSearchParams(window.location.search).get("lang"); } catch (e) {}
+    if (q && SUPPORTED.indexOf(q) !== -1) { return q; }
+    var stored = null;
+    try { stored = window.localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (stored && SUPPORTED.indexOf(stored) !== -1) { return stored; }
+    var nav = String(window.navigator.language || "").slice(0, 2).toLowerCase();
+    if (SUPPORTED.indexOf(nav) !== -1) { return nav; }
+    return "en";
+  }
+
+  function t(key) {
+    var d = dicts[active];
+    if (d && typeof d[key] === "string" && d[key]) { return d[key]; }
+    var en = dicts.en;
+    if (en && typeof en[key] === "string") { return en[key]; }
+    return "";
+  }
+
+  function load(lang) {
+    if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
+    return window.fetch("i18n/" + lang + ".json")
+      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+      .then(function (json) { dicts[lang] = json; return json; })
+      .catch(function () { return null; }); /* offline / file:// — defaults in the markup stay up */
+  }
+
+  function hydrate() {
+    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-ready]");
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var key = el.getAttribute("data-i18n");
+      var text = key ? t(key) : "";
+      if (text) { el.textContent = text; }
+      var phKey = el.getAttribute("data-i18n-placeholder");
+      var ph = phKey ? t(phKey) : "";
+      if (ph) { el.setAttribute("placeholder", ph); }
+      var readyKey = el.getAttribute("data-i18n-ready");
+      var ready = readyKey ? t(readyKey) : "";
+      if (ready) { el.setAttribute("data-ready", ready); }
+    }
+    var title = t(TITLE_KEY);
+    if (title) { document.title = title; }
+  }
+
+  function markToggle() {
+    var btns = document.querySelectorAll(".lang-toggle [data-lang]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", String(btns[i].getAttribute("data-lang") === active));
+    }
+  }
+
+  function setLang(lang, persist) {
+    if (SUPPORTED.indexOf(lang) === -1) { lang = "en"; }
+    active = lang;
+    if (persist) { try { window.localStorage.setItem(STORE_KEY, lang); } catch (e) {} }
+    document.documentElement.lang = HTML_LANG[lang];
+    markToggle();
+    Promise.all([load("en"), load(lang)]).then(function () {
+      hydrate();
+      document.dispatchEvent(new CustomEvent("pf:lang", { detail: { lang: lang } }));
+    });
+  }
+
+  window.PF_I18N = { t: t, resolveLang: resolveLang, setLang: setLang, current: function () { return active; } };
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
+    if (btn) { setLang(btn.getAttribute("data-lang"), true); }
+  });
+
+  setLang(resolveLang(), false);
+})();
+</script>
 
 <script>
 (function () {
@@ -877,6 +984,10 @@ canvas.snow {
   var $$ = function (sel, root) { return [].slice.call((root || document).querySelectorAll(sel)); };
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   function pad2(n) { return String(n).padStart(2, "0"); }
+  function tr(key, fallbackText) {
+    var text = window.PF_I18N ? window.PF_I18N.t(key) : "";
+    return text || fallbackText;
+  }
 
   /* ---------- static noise engine: one shared rAF for every canvas ---------- */
   var snows = $$("canvas.snow").map(function (el) {
@@ -1016,15 +1127,15 @@ canvas.snow {
       rec.state = "captured";
       rec.root.classList.remove("recording");
       rec.root.classList.add("captured");
-      rec.status.textContent = "MESSAGE CAPTURED — " + sec + " SEC. YOUR MESSAGE IS IN THE QUEUE. 송출 예정.";
-      rec.btn.textContent = "● RE-REC 다시 녹음";
+      rec.status.textContent = tr("bc.ch02.captured", "MESSAGE CAPTURED — {sec} SEC. YOUR MESSAGE IS IN THE QUEUE. 송출 예정.").replace("{sec}", sec);
+      rec.btn.textContent = tr("bc.ch02.rerec", "● RE-REC 다시 녹음");
     } else {
       rec.state = "recording";
       rec.start = Date.now();
       rec.root.classList.remove("captured");
       rec.root.classList.add("recording");
-      rec.status.textContent = "RECORDING — PRESS ■ STOP WHEN DONE. 녹음 중입니다.";
-      rec.btn.textContent = "■ STOP";
+      rec.status.textContent = tr("bc.ch02.recording", "RECORDING — PRESS ■ STOP WHEN DONE. 녹음 중입니다.");
+      rec.btn.textContent = tr("bc.ch02.stop", "■ STOP");
     }
   }
   function resetRec(rec) {
@@ -1033,7 +1144,7 @@ canvas.snow {
     rec.root.classList.remove("recording", "captured");
     rec.tc.textContent = "00:00:00";
     rec.status.textContent = rec.root.dataset.ready;
-    rec.btn.textContent = "● REC";
+    rec.btn.textContent = tr("bc.ch02.rec", "● REC");
   }
   function tickRecs() { /* driven by the shared rAF loop */
     for (var i = 0; i < recs.length; i++) {
@@ -1065,6 +1176,11 @@ canvas.snow {
   setActive("ch01");
   showTab("voice");
   window.setTimeout(function () { flashOSD(OSD_NAMES.ch01); }, 450);
+
+  /* re-render idle recorder statuses when the language changes; active takes keep their text */
+  document.addEventListener("pf:lang", function () {
+    recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
+  });
 })();
 </script>
 
