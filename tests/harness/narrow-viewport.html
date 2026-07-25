@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narrow-viewport capture harness</title>
+<style>
+  html, body { margin: 0; background: #0A0A10; }
+  /* the frame box is the crop target: capture it, do not resize the window */
+  #frame { display: block; border: 0; background: #0A0A10; }
+</style>
+</head>
+<body>
+<iframe id="frame" title="Performing Fire — narrow viewport capture"></iframe>
+<script>
+/* Headless Chrome refuses to shrink its window below roughly 500 CSS px, so a 360/390/430
+   px viewport cannot be produced by --window-size. This harness renders the page inside a
+   fixed-size iframe on a wider window; the screenshot is cropped to the #frame box, which
+   really is a 390x844 (or 430x932) viewport as far as the framed document is concerned.
+
+   Usage: narrow-viewport.html?page=broadcast&w=390&h=844
+   Serve the repo root over http:// — file:// blocks the iframe's i18n fetch. */
+(function () {
+  "use strict";
+  /* fixed allow-list: the harness never frames a URL taken from the query string */
+  var PAGES = {
+    broadcast: "../../public/broadcast.html",
+    index: "../../public/index.html"
+  };
+  var params = new URLSearchParams(window.location.search);
+  function size(name, fallback, low, high) {
+    var value = Number(params.get(name));
+    if (!isFinite(value) || value <= 0) { return fallback; }
+    return Math.max(low, Math.min(high, Math.round(value)));
+  }
+  var w = size("w", 390, 240, 2000);
+  var h = size("h", 844, 320, 4000);
+  var page = PAGES[params.get("page")] ? params.get("page") : "broadcast";
+  var lang = params.get("lang");
+
+  var frame = document.getElementById("frame");
+  frame.style.width = w + "px";
+  frame.style.height = h + "px";
+  frame.src = PAGES[page] + (lang ? "?lang=" + encodeURIComponent(lang) : "");
+  document.title = "narrow-viewport " + page + " " + w + "x" + h;
+  /* a capture script can wait on this instead of a fixed sleep */
+  frame.addEventListener("load", function () { document.documentElement.dataset.frameReady = "true"; });
+})();
+</script>
+</body>
+</html>

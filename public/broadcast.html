@@ -366,7 +366,12 @@ canvas.snow {
 .scene-sub { margin: 10px 0 0; font-size: clamp(19px, 2.6vw, 26px); color: var(--tint, #E8E9EE); text-shadow: 0 0 10px var(--glow, rgba(232, 233, 238, 0.3)); opacity: .92; }
 .scene-copy { margin: 20px auto 0; font-size: 15px; color: #C9CFD6; max-width: 56ch; }
 .scene-hint { margin: 44px 0 0; font-size: 17px; letter-spacing: 2px; color: #666C76; animation: pf-hint-bob 1.1s ease-in-out infinite alternate; }
-.film-skip { display: inline-block; margin-top: 18px; padding: 4px 14px; border: 1px solid #2A2A33; border-radius: 6px; color: #8F959E; font-size: 16px; letter-spacing: 1px; text-decoration: none; }
+.film-skip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; /* thumb-sized hit area, on every pointer */
+  margin-top: 18px; padding: 4px 18px; border: 1px solid #2A2A33; border-radius: 6px;
+  color: #8F959E; font-size: 16px; letter-spacing: 1px; text-decoration: none;
+}
 .film-skip:hover, .film-skip:focus-visible { color: #C6CBD2; border-color: #3A3A46; }
 .film-bars { display: grid; grid-template-columns: repeat(6, 1fr); height: clamp(80px, 15vh, 140px); margin: 0 0 36px; border: 1px solid #23232D; border-radius: 8px; overflow: hidden; }
 .film-bars span { display: block; }
@@ -426,6 +431,54 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   .credits { overflow-y: auto; scrollbar-width: thin; }
   .credits-hint { display: none; }
 }
+
+/* ---- touch and small screens: begin ---- */
+/* Touch complements the desktop affordances, it never replaces them: hover still
+   clarifies a monitor and still pauses the credits. These rules add the tap path. */
+.wall-btn.clarified canvas.snow { opacity: .07; filter: blur(2px); transform: scale(1.08); }
+.wall-btn.clarified .wall-preview { opacity: 1; filter: none; transform: none; animation: none; }
+.credits.paused .roll { animation-play-state: paused; }
+.credits { cursor: pointer; } /* the roll pauses on click as well as on hover */
+
+/* one hint per interaction model; the coarse-pointer block swaps which one shows */
+[data-when="touch"] { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+  [data-when="hover"] { display: none; }
+  [data-when="touch"] { display: revert; }
+  /* every control the console asks you to press clears the 44px thumb target;
+     .dial-arrow carries .dial-btn too, and .film-skip is already 44x44 everywhere */
+  .dial-btn, .tab-btn, .pager-btn, .link-btn, .lang-toggle button { min-height: 44px; }
+}
+
+@media (max-width: 560px) {
+  /* scene typography: the desktop floors (38px title, 19px sub) overflow a 360px
+     screen, so every step below is fluid rather than a smaller constant */
+  .scene { min-height: 88vh; padding: 10vh clamp(6px, 2vw, 10px); }
+  .scene-inner { max-width: 100%; }
+  .scene-kicker { margin-bottom: 12px; font-size: clamp(13px, 3.8vw, 18px); letter-spacing: 2px; }
+  .scene-title { font-size: clamp(27px, 8.6vw, 44px); letter-spacing: 1px; overflow-wrap: break-word; }
+  .scene-sub { font-size: clamp(15px, 4.4vw, 19px); }
+  .scene-copy { font-size: clamp(13.5px, 3.9vw, 15px); max-width: 100%; }
+  .scene-hint { margin-top: 30px; font-size: clamp(14px, 4vw, 17px); letter-spacing: 1px; }
+  .film-bars { height: clamp(52px, 11vh, 90px); margin-bottom: 22px; }
+  .film-wall { grid-template-columns: repeat(3, 1fr); gap: 2vw; max-width: 100%; }
+  .film-crt { width: min(100%, 82vw); margin-bottom: 22px; }
+  .wall { grid-template-columns: repeat(2, 1fr); gap: 2.5vw; }
+  .wall-name { font-size: clamp(11px, 3vw, 13px); }
+  .wall-hint { font-size: clamp(14px, 4vw, 17px); }
+  /* the dial wraps to rows of channels, then a full-width row of arrows */
+  .dial { gap: 6px; padding: 0; }
+  .dial-btn { flex: 1 1 28%; padding: 6px clamp(8px, 2.4vw, 13px) 7px; }
+  .dial-sep { flex: 1 0 100%; height: 0; }
+  .dial-arrow { flex: 1 1 40%; }
+  .cr-h { font-size: clamp(26px, 8vw, 40px); }
+  .cr-h-kr { font-size: clamp(19px, 5.5vw, 26px); }
+  .credits-hint { font-size: clamp(12px, 3.4vw, 14px); }
+  .timecode { font-size: clamp(24px, 7vw, 34px); }
+  .rec-btn { padding: 9px clamp(14px, 5vw, 26px); }
+}
+/* ---- touch and small screens: end ---- */
 </style>
 
 <div class="pf">
@@ -441,7 +494,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
         <p class="scene-kicker vt" data-i18n="bc.film.ident.kicker">PF-TV · TRANSMISSION START · 송출 시작</p>
         <p class="scene-title vt">퍼포밍 파이어</p>
         <p class="scene-sub vt" data-i18n="bc.film.ident.sub">PERFORMING FIRE — A BROADCAST IN FIVE CHANNELS · 다섯 개의 채널, 하나의 불</p>
-        <p class="scene-hint vt" aria-hidden="true" data-i18n="bc.film.ident.hint">SCROLL TO TUNE ▼ 스크롤</p>
+        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.ident.hint">SCROLL TO TUNE ▼ 스크롤</span><span data-when="touch" data-i18n="bc.film.ident.hint.touch">SWIPE TO TUNE ▼ 스크롤 대신 탭</span></p>
         <p><a class="film-skip vt" href="#console" data-i18n="bc.film.ident.skip">SKIP INTRO ▸ 건너뛰기</a></p>
       </div>
     </section>
@@ -450,7 +503,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
       <div class="scene-inner">
         <p class="scene-kicker vt" data-i18n="bc.film.wall.kicker">THE MONITOR WALL · 모니터 월</p>
         <p class="scene-title vt" data-i18n="bc.film.wall.title">SIX MONITORS, ONE FIRE</p>
-        <p class="scene-copy" data-i18n="bc.film.wall.copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</p>
+        <p class="scene-copy"><span data-when="hover" data-i18n="bc.film.wall.copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</span><span data-when="touch" data-i18n="bc.film.wall.copy.touch">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — TAP to clarify, tap again to enter.</span></p>
         <div class="film-wall" aria-hidden="true">
           <span class="film-mon" data-ch="ch01"></span><span class="film-mon" data-ch="ch02"></span><span class="film-mon" data-ch="ch03"></span><span class="film-mon" data-ch="ch04"></span><span class="film-mon" data-ch="ch00"></span><span class="film-mon" data-ch="ident"></span>
         </div>
@@ -497,7 +550,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
         <p class="scene-kicker vt" data-i18n="bc.film.static.kicker">CH 00 · STATIC 크레딧</p>
         <p class="scene-title vt" data-i18n="bc.film.static.title">THE BROADCAST IS LIVE</p>
         <p class="scene-copy" data-i18n="bc.film.static.copy">Credits roll on CH 00. The dial below is yours — tune a channel, and leave your voice in the fire.</p>
-        <p class="scene-hint vt" aria-hidden="true" data-i18n="bc.film.static.hint">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</p>
+        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.static.hint">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</span><span data-when="touch" data-i18n="bc.film.static.hint.touch">▼ TAP A CHANNEL BELOW · 아래에서 채널을 탭하세요</span></p>
       </div>
     </section>
 
@@ -523,7 +576,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
 
     <!-- ================= MONITOR WALL ================= -->
     <section aria-label="Monitor wall — channel previews">
-      <p class="wall-hint vt" data-i18n="bc.wall.hint">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</p>
+      <p class="wall-hint vt"><span data-when="hover" data-i18n="bc.wall.hint">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</span><span data-when="touch" data-i18n="bc.wall.hint.touch">TUNE A CHANNEL — TAP TO CLARIFY, TAP AGAIN TO OPEN · 탭하면 선명해지고, 한 번 더 탭하면 열립니다</span></p>
       <div class="wall">
         <button class="wall-btn bezel" type="button" data-tune="ch01" aria-pressed="false" aria-label="Tune to channel 1, Signal">
           <span class="crt wall-crt">
@@ -861,7 +914,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
                     <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
                   </div>
                 </div>
-                <span class="credits-hint vt" aria-hidden="true" data-i18n="bc.credits.hint">HOVER TO PAUSE 일시정지</span>
+                <span class="credits-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.credits.hint">HOVER TO PAUSE 일시정지</span><span data-when="touch" data-i18n="bc.credits.hint.touch">TAP TO PAUSE 탭하여 일시정지</span></span>
               </div>
             </section>
 
@@ -1052,6 +1105,20 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   var burstTimer = 0;
   var osdTimer = 0;
 
+  /* ---------- coarse pointers: tap to clarify, tap again to tune ---------- */
+  var coarse = window.matchMedia("(hover: none) and (pointer: coarse)");
+  var lastPointer = "";
+  /* capture phase so the gesture is known before any button's own click handler runs */
+  document.addEventListener("pointerdown", function (event) { lastPointer = event.pointerType || ""; }, true);
+  document.addEventListener("keydown", function () { lastPointer = ""; }, true);
+  function touchGesture() {
+    return coarse.matches || lastPointer === "touch" || lastPointer === "pen";
+  }
+  var wallBtns = $$(".wall-btn");
+  function clarifyWall(target) { /* at most one monitor clarified; :hover is left alone */
+    wallBtns.forEach(function (btn) { btn.classList.toggle("clarified", btn === target); });
+  }
+
   function flashOSD(text) {
     osd.textContent = text;
     osd.classList.add("show");
@@ -1073,6 +1140,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   function tune(ch) {
     if (!OSD_NAMES[ch]) { return; }
     current = ch;
+    clarifyWall(null); /* the wall goes back to latent once a channel is open */
     if (reduced.matches) { /* hard cut */
       setActive(ch);
       flashOSD(OSD_NAMES[ch]);
@@ -1087,7 +1155,17 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     }, 260);
   }
   $$("[data-tune]").forEach(function (btn) {
-    btn.addEventListener("click", function () { tune(btn.dataset.tune); });
+    btn.addEventListener("click", function (event) {
+      /* detail 0 means keyboard Enter/Space or an assistive-tech activation: those
+         gain nothing from clarifying a preview that is aria-hidden anyway, so they
+         tune in one step. Only a real finger gets the two-tap read-then-open path. */
+      var finger = event.detail > 0 && touchGesture();
+      if (finger && btn.classList.contains("wall-btn") && !btn.classList.contains("clarified")) {
+        clarifyWall(btn); /* first tap reads the preview; a second tap opens the channel */
+        return;
+      }
+      tune(btn.dataset.tune);
+    });
   });
   function step(dir) {
     var i = CHANNELS.indexOf(current); /* ident yields -1: lands on a real channel */
@@ -1186,6 +1264,12 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     confirmBox.hidden = true;
     form.hidden = false;
   });
+
+  /* ---------- CH 00: tap toggles the credits roll (hover still pauses on desktop) ---------- */
+  var credits = $(".credits");
+  if (credits) {
+    credits.addEventListener("click", function () { credits.classList.toggle("paused"); });
+  }
 
   /* ---------- power on ---------- */
   setActive("ch01");
