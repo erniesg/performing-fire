@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Source of truth for the 1200x630 social share card. See README.md in this directory. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="pf-og-title">
+  <title id="pf-og-title">Performing Fire — a living totem of futures</title>
+  <defs>
+    <radialGradient id="ember" cx="50%" cy="97%" r="72%">
+      <stop offset="0" stop-color="#FF7828" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#FF7828" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="2" fill="#000000" opacity="0.18"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="#06060A"/>
+  <rect width="1200" height="630" fill="url(#ember)"/>
+  <rect x="32" y="32" width="1136" height="566" rx="14" fill="none" stroke="#37FF8B" stroke-opacity="0.28" stroke-width="2"/>
+
+  <g transform="translate(64,68) scale(0.9)">
+    <path d="M16 7.4c2.9 3.3 4.8 5.5 4.8 8.8 0 3-2.1 5.1-4.8 5.1s-4.8-2.1-4.8-5.1c0-2.3 1.4-3.8 2.7-5.6.2 1.8 1 2.7 1.7 3.1-.6-2.3-.4-4.6.4-6.3z" fill="#FFB300"/>
+    <path d="M16 14.2c1.4 1.8 2.2 2.9 2.2 4.4 0 1.5-1 2.6-2.2 2.6s-2.2-1.1-2.2-2.6c0-1.5.8-2.6 2.2-4.4z" fill="#37FF8B"/>
+  </g>
+
+  <g font-family="ui-monospace, 'SF Mono', Menlo, 'DejaVu Sans Mono', monospace">
+    <text x="106" y="96" fill="#37FF8B" font-size="24" letter-spacing="3">PF-TV · PHASE 1 · 2026 APE LAB</text>
+    <text x="1128" y="96" fill="#FF3EA5" font-size="24" letter-spacing="3" text-anchor="end">● ON AIR</text>
+
+    <text x="600" y="296" fill="#E8E9EE" font-size="100" letter-spacing="6" text-anchor="middle">PERFORMING FIRE</text>
+    <text x="600" y="368" fill="#FFB300" font-size="46" letter-spacing="8" text-anchor="middle"
+          font-family="'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', ui-monospace, monospace">퍼포밍 파이어</text>
+
+    <line x1="380" y1="412" x2="820" y2="412" stroke="#37FF8B" stroke-opacity="0.35" stroke-width="2"/>
+
+    <text x="600" y="462" fill="#C6CBD2" font-size="25" letter-spacing="2" text-anchor="middle"
+          font-family="'Apple SD Gothic Neo', 'Noto Sans KR', ui-monospace, monospace">A Living Totem of Futures · 미래의 살아있는 토템</text>
+
+    <text x="600" y="574" fill="#8F959E" font-size="22" letter-spacing="4" text-anchor="middle">performingfire.berlayar.ai</text>
+  </g>
+
+  <g>
+    <rect x="356" y="506" width="88" height="6" rx="3" fill="#E8E9EE"/>
+    <rect x="456" y="506" width="88" height="6" rx="3" fill="#37FF8B"/>
+    <rect x="556" y="506" width="88" height="6" rx="3" fill="#FF3EA5"/>
+    <rect x="656" y="506" width="88" height="6" rx="3" fill="#2BD9FF"/>
+    <rect x="756" y="506" width="88" height="6" rx="3" fill="#FFB300"/>
+  </g>
+
+  <rect width="1200" height="630" fill="url(#scan)"/>
+</svg>
