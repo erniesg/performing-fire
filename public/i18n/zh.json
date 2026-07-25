@@ -120,7 +120,7 @@
   "bc.ident.tag": "播送进行中 · TRANSMISSION IN PROGRESS",
   "bc.footer.experiments": "全部实验 — 实验索引",
   "idx.title": "Performing Fire — 互动火焰研究",
-  "idx.tagline": "互动火焰研究 · 已启用手部追踪",
+  "idx.tagline": "互动火焰研究 · 手部追踪按需开启",
   "idx.controls": "捏合抓取并拉伸 · 挥动搅动 · V 摄像头画面 · T 拖尾 · B 泛光 · [ ] 曝光",
   "idx.webgl": "此浏览器不支持 WebGL。",
   "idx.footer": "全部实验",
@@ -131,8 +131,12 @@
   "idx.persona.playful": "顽皮",
   "idx.persona.angry": "愤怒",
   "idx.status.tracking": "手部追踪已开启 — 举起手 · 拇指与食指捏合即可抓取",
-  "idx.status.camera": "摄像头不可用（{name}）— 点击预览面板重试 · 期间可用鼠标操作",
+  "idx.status.camera": "摄像头不可用（{name}）— 触摸火焰重试 · 期间可用鼠标操作",
   "idx.status.loading": "正在加载手部追踪模型…",
   "idx.status.modelFailed": "模型加载失败（{err}）— 鼠标模式：移动搅动，拖拽抓取",
-  "idx.status.reset": "模拟已重置（捕获到数值发散）"
+  "idx.status.reset": "模拟已重置（捕获到数值发散）",
+  "idx.status.ready": "摄像头已关闭 · 移动鼠标即可搅动 — 触摸火焰以使用双手",
+  "idx.status.requesting": "正在请求摄像头…",
+  "idx.camera.enable": "触摸火焰 · TOUCH THE FIRE",
+  "idx.camera.retry": "重试 · TRY AGAIN"
 }

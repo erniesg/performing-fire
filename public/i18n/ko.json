@@ -120,7 +120,7 @@
   "bc.ident.tag": "송출 진행 중 · TRANSMISSION IN PROGRESS",
   "bc.footer.experiments": "모든 실험 — 실험 색인",
   "idx.title": "퍼포밍 파이어 — 인터랙티브 파이어 스터디",
-  "idx.tagline": "인터랙티브 파이어 스터디 · 핸드 트래킹 지원",
+  "idx.tagline": "인터랙티브 파이어 스터디 · 핸드 트래킹은 요청 시",
   "idx.controls": "꼬집어 잡고 늘리기 · 쓸어서 젓기 · V 카메라 보기 · T 잔상 · B 블룸 · [ ] 노출",
   "idx.webgl": "이 브라우저에서는 WebGL을 사용할 수 없습니다.",
   "idx.footer": "모든 실험",
@@ -131,8 +131,12 @@
   "idx.persona.playful": "장난기",
   "idx.persona.angry": "분노",
   "idx.status.tracking": "핸드 트래킹 켜짐 — 손을 들어 보세요 · 엄지와 검지로 꼬집으면 잡을 수 있습니다",
-  "idx.status.camera": "카메라를 사용할 수 없습니다 ({name}) — 미리보기 패널을 클릭해 다시 시도하세요 · 그동안 마우스로 조작할 수 있습니다",
+  "idx.status.camera": "카메라를 사용할 수 없습니다 ({name}) — 불을 만져 다시 시도하세요 · 그동안 마우스로 조작할 수 있습니다",
   "idx.status.loading": "핸드 트래킹 모델 로딩 중…",
   "idx.status.modelFailed": "모델 로드 실패 ({err}) — 마우스 모드: 움직여서 젓고, 드래그로 잡으세요",
-  "idx.status.reset": "시뮬레이션 리셋 (수치 발산 감지)"
+  "idx.status.reset": "시뮬레이션 리셋 (수치 발산 감지)",
+  "idx.status.ready": "카메라 꺼짐 · 마우스로 저어 보세요 — 손을 쓰려면 불을 만지세요",
+  "idx.status.requesting": "카메라 요청 중…",
+  "idx.camera.enable": "불을 만지기 · TOUCH THE FIRE",
+  "idx.camera.retry": "다시 시도 · TRY AGAIN"
 }
