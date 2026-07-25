@@ -241,6 +241,11 @@ canvas.snow {
 .caller { border: 1px solid #262630; background: #0F0F16; border-radius: 8px; padding: 13px 16px 15px; }
 .caller-id { display: block; font-size: 18px; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 7px var(--glow); margin-bottom: 7px; }
 .caller blockquote { margin: 0; font-size: 14.5px; color: #DDE1E6; }
+/* a caller that has been sent but not yet cleared in the Payload admin */
+.caller-pending { border-style: dashed; border-color: #3A3A46; }
+.caller-pending-tag { display: block; margin-top: 9px; font-size: 15px; letter-spacing: 1px; color: #8A9099; }
+/* shown whenever the archive reel is standing in for the live line */
+.voices-fallback { margin: 18px 0 0; font-size: 17px; letter-spacing: 1px; color: #9AA1AA; border-left: 2px solid #FF5C0D; padding-left: 11px; }
 
 /* CH 02 — after the tone */
 .tone { margin-top: 42px; border-top: 1px dashed #2A2A33; padding-top: 30px; }
@@ -672,20 +677,10 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
               <p class="kicker" data-i18n="bc.ch02.kicker">12 CALLERS ON THE LINE · 수신된 목소리 — artists on what they think and feel about technology</p>
               <h2 class="ch-title vt" data-i18n="bc.ch02.title">VOICES</h2>
               <p class="ch-title-kr vt" data-i18n="bc.ch02.titleSub">목소리</p>
-              <div class="callers">
-                <article class="caller"><span class="caller-id vt">CALLER 01 — PAINTING · SEOUL</span><blockquote>"내가 그리는 그림을 기계가 이해하는 날이 올까 봐 두렵고, 궁금하다."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 02 — SOUND ARTIST</span><blockquote>"I want a machine that forgets, the way we forget."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 03 — CURATOR</span><blockquote>"자동화되면 안 되는 것: 애도."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 04 — MEDIA ARTIST</span><blockquote>"Let the model hallucinate. So do we, and we call it art."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 05 — CHOREOGRAPHER</span><blockquote>"I fear the future where my hands are optional."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 06 — WRITER</span><blockquote>"할머니의 목소리를 저장해 두었다. 아직 한 번도 재생하지 못했다."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 07 — PHOTOGRAPHER</span><blockquote>"Every tool I've loved eventually watched me back."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 08 — CERAMICIST</span><blockquote>"기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 09 — POET</span><blockquote>"Teach the machine to hesitate."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 10 — COMPOSER</span><blockquote>"I don't fear replacement. I fear agreement — a future that only ever says yes to me."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 11 — TRANSLATOR &amp; POET</span><blockquote>"번역기가 시를 옮기다 실패하는 지점에서, 나는 시작한다."</blockquote></article>
-                <article class="caller"><span class="caller-id vt">CALLER 12 — FILMMAKER</span><blockquote>"Fire was the first screen we stared into together."</blockquote></article>
-              </div>
+              <!-- Callers are fetched from the shared berlayar Payload CMS; public/fixtures/artist-responses.json
+                   is the seed reel that drives the same render path offline and in gallery installs. -->
+              <p class="voices-fallback vt" id="voicesFallback" role="status" hidden data-i18n="bc.ch02.fallback">TRANSMISSION STATIC — THE LINE IS DOWN, SHOWING THE ARCHIVE REEL. 수신 불안정 — 보관된 목소리를 표시합니다.</p>
+              <div class="callers" id="voicesList" aria-live="polite"></div>
 
               <div class="tone">
                 <h3 class="ch-title vt" style="font-size: clamp(26px, 4vw, 38px);" data-i18n="bc.ch02.throwTitle">WHAT WOULD YOU THROW INTO THE FIRE?</h3>
@@ -1251,19 +1246,147 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     }
   }
 
-  /* ---------- CH 02: TYPE form (mock submit, never navigates) ---------- */
+  /* ---------- CH 02: artist responses via the shared berlayar Payload CMS ----------
+     Read is published-only and public; create is public. Moderation and editing happen in the
+     Payload admin, never here — so the page carries no credentials and no admin URL. Every
+     network path falls back to the seeded fixture, so the channel is never blank. */
+  var RESPONSES_API = "https://berlayar.ai/api/artist-responses";
+  var RESPONSES_QUERY = "?where[status][equals]=published&limit=100&depth=0";
+  var RESPONSES_FIXTURE = "fixtures/artist-responses.json";
+  var QUEUE_KEY = "pf-response-queue";
+  var voicesList = $("#voicesList");
+  var voicesFallback = $("#voicesFallback");
+  var published = [];  /* from the CMS, or from the fixture when the line is down */
+  var pending = [];    /* submitted from this browser, still awaiting review in the admin */
+
+  function currentLang() { return window.PF_I18N ? window.PF_I18N.current() : "en"; }
+
+  function readQueue() {
+    try { return JSON.parse(window.localStorage.getItem(QUEUE_KEY)) || []; } catch (e) { return []; }
+  }
+  function writeQueue(list) {
+    try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  /* built with textContent throughout: CMS text is untrusted and never becomes markup */
+  function callerCard(doc, position, isPending) {
+    var article = document.createElement("article");
+    article.className = isPending ? "caller caller-pending" : "caller";
+    var id = document.createElement("span");
+    id.className = "caller-id vt";
+    var name = String(doc.name || "").trim() || tr("bc.ch02.anonymous", "ANONYMOUS 익명");
+    var line = "CALLER " + pad2(position) + " — " + name;
+    var discipline = String(doc.discipline || "").trim();
+    if (discipline) { line += " · " + discipline; }
+    var lang = String(doc.language || "").trim();
+    if (lang) { line += " · " + lang.toUpperCase(); }
+    id.textContent = line;
+    var quote = document.createElement("blockquote");
+    quote.textContent = String(doc.response || "");
+    article.appendChild(id);
+    article.appendChild(quote);
+    if (isPending) {
+      var tag = document.createElement("span");
+      tag.className = "caller-pending-tag vt";
+      tag.textContent = tr("bc.ch02.pending", "PENDING REVIEW — 검토 대기 중");
+      article.appendChild(tag);
+    }
+    return article;
+  }
+
+  function renderVoices() {
+    if (!voicesList) { return; }
+    var entries = pending.map(function (doc) { return { doc: doc, pending: true }; })
+      .concat(published.map(function (doc) { return { doc: doc, pending: false }; }));
+    voicesList.textContent = "";
+    entries.forEach(function (entry, ix) {
+      voicesList.appendChild(callerCard(entry.doc, ix + 1, entry.pending));
+    });
+  }
+
+  function newestFirst(docs) {
+    return docs.slice().sort(function (a, b) {
+      return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+    });
+  }
+
+  function showFallback(on) { if (voicesFallback) { voicesFallback.hidden = !on; } }
+
+  function loadFixture() {
+    return window.fetch(RESPONSES_FIXTURE)
+      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+      .then(function (json) { published = newestFirst((json && json.docs) || []); })
+      .catch(function () { /* file:// or a stripped build — the pending list still renders */ })
+      .then(function () { showFallback(true); renderVoices(); });
+  }
+
+  function loadResponses() {
+    return window.fetch(RESPONSES_API + RESPONSES_QUERY, { headers: { "Accept": "application/json" } })
+      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+      .then(function (json) {
+        var docs = (json && json.docs) || [];
+        if (!docs.length) { return loadFixture(); } /* collection not seeded yet */
+        published = newestFirst(docs);
+        showFallback(false);
+        renderVoices();
+      })
+      .catch(function () { return loadFixture(); });
+  }
+
+  function postResponse(payload) {
+    return window.fetch(RESPONSES_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (!res.ok) { throw new Error(String(res.status)); }
+      return res.json();
+    });
+  }
+
+  /* drain one at a time so a still-dead line re-queues exactly what did not land */
+  function flushQueue() {
+    var queued = readQueue();
+    if (!queued.length) { return Promise.resolve(); }
+    return queued.reduce(function (chain, payload) {
+      return chain.then(function (kept) {
+        return postResponse(payload)
+          .then(function () { return kept; })
+          .catch(function () { return kept.concat([payload]); });
+      });
+    }, Promise.resolve([])).then(writeQueue);
+  }
+
+  /* ---------- CH 02: TYPE form (the on-air confirm never waits on the network) ---------- */
   var form = $("#offerForm");
   var confirmBox = $("#queueConfirm");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    var payload = {
+      name: String($("#f-name").value || "").trim(),
+      discipline: String($("#f-disc").value || "").trim(),
+      response: String($("#f-resp").value || "").trim(),
+      language: currentLang()
+    };
     form.hidden = true;
     confirmBox.hidden = false;
+    pending.unshift(payload);
+    renderVoices();
+    postResponse(payload).catch(function () {
+      writeQueue(readQueue().concat([payload])); /* retried on the next load */
+      showFallback(true);
+    });
   });
   $("#sendAnother").addEventListener("click", function () {
     form.reset();
     confirmBox.hidden = true;
     form.hidden = false;
   });
+
+  pending = readQueue().slice().reverse(); /* unsent offerings stay visible as pending review */
+  renderVoices();
+  loadResponses();
+  flushQueue();
 
   /* ---------- CH 00: tap toggles the credits roll (hover still pauses on desktop) ---------- */
   var credits = $(".credits");
@@ -1279,6 +1402,7 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   /* re-render idle recorder statuses when the language changes; active takes keep their text */
   document.addEventListener("pf:lang", function () {
     recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
+    renderVoices(); /* the anonymous label and the pending badge are localized */
   });
 })();
 </script>

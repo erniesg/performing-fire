@@ -1,0 +1,116 @@
+{
+  "_note": "Seed reel for the Voices channel (CH 02). Mirrors the shape of GET https://berlayar.ai/api/artist-responses?where[status][equals]=published&limit=100&depth=0 so the same render path drives the API and the offline/gallery fallback. These twelve are the archive callers that used to be hard-coded in index.html; they carry no names on purpose.",
+  "docs": [
+    {
+      "id": "seed-01",
+      "name": "",
+      "discipline": "painting · Seoul",
+      "language": "ko",
+      "response": "내가 그리는 그림을 기계가 이해하는 날이 올까 봐 두렵고, 궁금하다.",
+      "status": "published",
+      "createdAt": "2026-07-22T21:00:00.000Z"
+    },
+    {
+      "id": "seed-02",
+      "name": "",
+      "discipline": "sound art",
+      "language": "en",
+      "response": "I want a machine that forgets, the way we forget.",
+      "status": "published",
+      "createdAt": "2026-07-22T20:00:00.000Z"
+    },
+    {
+      "id": "seed-03",
+      "name": "",
+      "discipline": "curation",
+      "language": "ko",
+      "response": "자동화되면 안 되는 것: 애도.",
+      "status": "published",
+      "createdAt": "2026-07-22T19:00:00.000Z"
+    },
+    {
+      "id": "seed-04",
+      "name": "",
+      "discipline": "media art",
+      "language": "en",
+      "response": "Let the model hallucinate. So do we, and we call it art.",
+      "status": "published",
+      "createdAt": "2026-07-22T18:00:00.000Z"
+    },
+    {
+      "id": "seed-05",
+      "name": "",
+      "discipline": "choreography",
+      "language": "en",
+      "response": "I fear the future where my hands are optional.",
+      "status": "published",
+      "createdAt": "2026-07-22T17:00:00.000Z"
+    },
+    {
+      "id": "seed-06",
+      "name": "",
+      "discipline": "writing",
+      "language": "ko",
+      "response": "할머니의 목소리를 저장해 두었다. 아직 한 번도 재생하지 못했다.",
+      "status": "published",
+      "createdAt": "2026-07-22T16:00:00.000Z"
+    },
+    {
+      "id": "seed-07",
+      "name": "",
+      "discipline": "photography",
+      "language": "en",
+      "response": "Every tool I've loved eventually watched me back.",
+      "status": "published",
+      "createdAt": "2026-07-22T15:00:00.000Z"
+    },
+    {
+      "id": "seed-08",
+      "name": "",
+      "discipline": "ceramics",
+      "language": "ko",
+      "response": "기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다.",
+      "status": "published",
+      "createdAt": "2026-07-22T14:00:00.000Z"
+    },
+    {
+      "id": "seed-09",
+      "name": "",
+      "discipline": "poetry",
+      "language": "en",
+      "response": "Teach the machine to hesitate.",
+      "status": "published",
+      "createdAt": "2026-07-22T13:00:00.000Z"
+    },
+    {
+      "id": "seed-10",
+      "name": "",
+      "discipline": "composition",
+      "language": "en",
+      "response": "I don't fear replacement. I fear agreement — a future that only ever says yes to me.",
+      "status": "published",
+      "createdAt": "2026-07-22T12:00:00.000Z"
+    },
+    {
+      "id": "seed-11",
+      "name": "",
+      "discipline": "translation & poetry",
+      "language": "ko",
+      "response": "번역기가 시를 옮기다 실패하는 지점에서, 나는 시작한다.",
+      "status": "published",
+      "createdAt": "2026-07-22T11:00:00.000Z"
+    },
+    {
+      "id": "seed-12",
+      "name": "",
+      "discipline": "film",
+      "language": "en",
+      "response": "Fire was the first screen we stared into together.",
+      "status": "published",
+      "createdAt": "2026-07-22T10:00:00.000Z"
+    }
+  ],
+  "totalDocs": 12,
+  "limit": 100,
+  "page": 1
+}
