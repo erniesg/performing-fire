@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-const broadcast = await readFile(new URL('../public/broadcast.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
 const harness = await readFile(new URL('./harness/narrow-viewport.html', import.meta.url), 'utf8')
 
 const LOCALES = ['en', 'ko', 'zh', 'ja']

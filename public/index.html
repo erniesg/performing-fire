@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Performing Fire — Interactive Fire Study</title>
-<meta name="description" content="Pinch, stir, and stretch a real-time flame with your hands — the interactive fire study behind Performing Fire · 퍼포밍 파이어.">
+<title>Performing Fire — The Broadcast (Direction 5)</title>
+<meta name="description" content="Five channels, one fire — an interactive broadcast turning artists' hopes and fears about technology into a collective flame · 퍼포밍 파이어.">
 <!-- canonical stays root-relative so no page ships an absolute-URL <link href> — see tests/broadcast-scroll.test.mjs -->
 <link rel="canonical" href="/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:site_name" content="Performing Fire">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Performing Fire — Interactive Fire Study">
-<meta property="og:description" content="Pinch, stir, and stretch a real-time flame with your hands — the interactive fire study behind Performing Fire · 퍼포밍 파이어.">
+<meta property="og:title" content="Performing Fire — The Broadcast">
+<meta property="og:description" content="Five channels, one fire — an interactive broadcast turning artists' hopes and fears about technology into a collective flame · 퍼포밍 파이어.">
 <meta property="og:url" content="https://performingfire.berlayar.ai/">
 <!-- TODO(og-png): swap to /share/og.png once the raster is rendered — see public/share/README.md -->
 <meta property="og:image" content="https://performingfire.berlayar.ai/share/og.svg">
@@ -20,82 +20,943 @@
 <meta property="og:image:alt" content="A CRT test card: the Performing Fire wordmark in phosphor type over five channel tints.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-  html, body { margin:0; padding:0; background:#000; overflow:hidden; height:100%;
-    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif; }
-  #gl { position:fixed; inset:0; width:100vw; height:100vh; display:block; touch-action:none; }
-  #cam { position:fixed; right:4px; bottom:4px; width:2px; height:2px; opacity:0; pointer-events:none; }
-  #preview { position:fixed; right:16px; bottom:16px; width:176px; height:132px;
-    border-radius:8px; border:1px solid rgba(255,120,40,.25); opacity:.75; cursor:pointer;
-    background:#0a0505; }
-  #hud { position:fixed; top:18px; left:22px; color:#e8d5c0; pointer-events:none; user-select:none; }
-  #hud h1 { margin:0; font-size:13px; font-weight:600; letter-spacing:.28em; text-transform:uppercase;
-    color:#ffb37a; text-shadow:0 0 18px rgba(255,100,20,.5); }
-  #hud p { margin:6px 0 0; font-size:11.5px; letter-spacing:.04em; color:rgba(232,213,192,.55); }
-  #hud .eq { color:rgba(255,190,130,.72); font-style:italic; letter-spacing:.06em; }
-  #eterm { display:inline-block; animation:eterm 1.7s steps(1) infinite; }
-  @keyframes eterm {
-    0%   { transform:translate(0,0) rotate(0deg); }
-    12%  { transform:translate(.9px,-1.3px) rotate(3deg); }
-    25%  { transform:translate(-.8px,.6px) rotate(-2deg); }
-    40%  { transform:translate(.3px,1.1px) rotate(1deg); }
-    55%  { transform:translate(-1.1px,-.5px) rotate(2deg); }
-    70%  { transform:translate(.7px,.4px) rotate(-3deg); }
-    85%  { transform:translate(-.4px,-1px) rotate(1deg); }
-    100% { transform:translate(0,0) rotate(0deg); }
-  }
-  #status { position:fixed; bottom:18px; left:22px; font-size:11px; color:rgba(232,213,192,.45);
-    letter-spacing:.03em; pointer-events:none; user-select:none; max-width:46vw; }
-  #chips { position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
-    display:flex; gap:8px; }
-  .chip { padding:7px 14px; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-    color:rgba(255,225,200,.75); background:rgba(20,8,4,.55); border:1px solid rgba(255,120,40,.18);
-    border-radius:999px; cursor:pointer; backdrop-filter:blur(8px); transition:all .18s ease;
-    user-select:none; }
-  .chip:hover { border-color:rgba(255,150,60,.5); color:#ffe6cc; }
-  .chip.active { border-color:rgba(255,160,70,.9); color:#fff;
-    box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
-  #err { position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    color:#f66; font-size:14px; }
-  #site-footer { position:fixed; right:16px; bottom:156px; font-size:10.5px; letter-spacing:.12em;
-    text-transform:uppercase; }
-  #site-footer a { color:rgba(232,213,192,.55); text-decoration:none; padding:4px 8px;
-    border:1px solid rgba(255,120,40,.18); border-radius:999px; background:rgba(20,8,4,.55); }
-  #site-footer a:hover { color:#ffe6cc; border-color:rgba(255,150,60,.5); }
-  .lang-toggle { position:fixed; top:16px; right:16px; display:flex; gap:6px; z-index:5; }
-  .lang-toggle button { padding:5px 10px; font-size:11px; letter-spacing:.08em; cursor:pointer;
-    color:rgba(255,225,200,.75); background:rgba(20,8,4,.55); border:1px solid rgba(255,120,40,.18);
-    border-radius:999px; backdrop-filter:blur(8px); transition:all .18s ease; user-select:none; }
-  .lang-toggle button:hover { border-color:rgba(255,150,60,.5); color:#ffe6cc; }
-  .lang-toggle button[aria-pressed="true"] { border-color:rgba(255,160,70,.9); color:#fff;
-    box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
-  /* CJK typography — system stacks only (Hangul, Han, Kana), no webfont downloads */
-  html[lang="ko"] body { font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
-    word-break:keep-all; line-break:strict; }
-  html[lang^="zh"] body { font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
-    word-break:normal; line-break:strict; }
-  html[lang="ja"] body { font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
-    word-break:normal; line-break:strict; }
+/* minimal reset (the artifact host provided an equivalent) */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
-<video id="cam" playsinline muted></video>
-<canvas id="preview" width="176" height="132"></canvas>
-<div id="hud">
-  <h1>Performing Fir<span id="eterm">e</span></h1>
-  <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking enabled</p>
-  <p data-i18n="idx.controls">pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
+<style>
+@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2018-201D;}
+:root { color-scheme: dark; }
+:root[data-theme="light"], :root[data-theme="dark"] { color-scheme: dark; }
+html, body { background: #0A0A10; }
+body {
+  margin: 0;
+  color: #C6CBD2;
+  background: #0A0A10;
+  font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", monospace;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.pf { max-width: 1180px; margin: 0 auto; padding: 18px clamp(12px, 3vw, 28px) 0; }
+.pf *, .pf *::before, .pf *::after { box-sizing: border-box; }
+.pf ::selection { background: #37FF8B; color: #06060A; }
+.vt {
+  font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace;
+  font-weight: 400;
+}
+
+/* ---- one phosphor tint per channel ---- */
+[data-ch="ch00"], [data-tune="ch00"] { --tint: #E8E9EE; --glow: rgba(232, 233, 238, 0.35); }
+[data-ch="ch01"], [data-tune="ch01"] { --tint: #37FF8B; --glow: rgba(55, 255, 139, 0.38); }
+[data-ch="ch02"], [data-tune="ch02"] { --tint: #FF3EA5; --glow: rgba(255, 62, 165, 0.38); }
+[data-ch="ch03"], [data-tune="ch03"] { --tint: #2BD9FF; --glow: rgba(43, 217, 255, 0.38); }
+[data-ch="ch04"], [data-tune="ch04"] { --tint: #FFB300; --glow: rgba(255, 179, 0, 0.38); }
+[data-ch="ident"], [data-tune="ident"] { --tint: #E8E9EE; --glow: rgba(232, 233, 238, 0.3); }
+
+.pf button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.pf :focus-visible { outline: 2px solid var(--tint, #E8E9EE); outline-offset: 2px; border-radius: 2px; }
+
+@keyframes pf-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0; } }
+@keyframes pf-roll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes pf-preview-flicker { 0%, 100% { opacity: .76; } 48% { opacity: .69; } 50% { opacity: .84; } 52% { opacity: .72; } }
+@keyframes pf-preview-drift { to { transform: translate3d(3%, -4%, 0) scale(1.12); } }
+@keyframes pf-wave { to { transform: translateY(-50%) scaleY(1.9) skewY(6deg); } }
+@keyframes pf-log-pan { to { background-position: 100% 0; } }
+@keyframes pf-score-float { to { transform: translate(5%, -7%) rotate(2deg); } }
+
+/* ---- station header ---- */
+.station { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; padding: 2px 2px 6px; }
+.station-id { font-size: clamp(24px, 4vw, 32px); letter-spacing: 1px; color: #E8E9EE; text-shadow: 0 0 10px rgba(232, 233, 238, 0.25); margin: 0; }
+.station-onair { margin-left: auto; font-size: 19px; color: #9AA1AA; letter-spacing: 1px; white-space: nowrap; }
+.station-onair .dot { color: #FF5C0D; animation: pf-blink 1.4s steps(1) infinite; }
+.station-sub { margin: 0 2px 14px; font-size: 13px; color: #7C828C; }
+
+/* ---- monitor wall ---- */
+.wall-hint { margin: 0 2px 8px; font-size: 17px; letter-spacing: 1px; color: #666C76; }
+.stage { display: flex; flex-direction: column; gap: 24px; }
+.wall { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.bezel {
+  display: block; width: 100%;
+  background: linear-gradient(160deg, #2A2A33, #15151B 62%);
+  border: 1px solid #33333E; border-radius: 14px; padding: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 26px rgba(0, 0, 0, 0.5);
+}
+.wall-btn { transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+.wall-btn[aria-pressed="true"] { border-color: var(--tint); box-shadow: 0 0 0 1px var(--tint), 0 0 26px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+.crt { position: relative; background: #050507; overflow: hidden; }
+.crt::before {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+.crt::after {
+  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px),
+    radial-gradient(135% 135% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
+}
+.wall-crt { display: block; aspect-ratio: 4 / 3; border-radius: 8px; }
+canvas.snow {
+  position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 2;
+  opacity: .5; mix-blend-mode: screen;
+  transition: opacity .5s ease, filter .5s ease, transform .65s ease;
+}
+.wall-preview {
+  position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  opacity: .76; filter: blur(2.4px) saturate(.72) brightness(.7); transform: scale(1.035);
+  transition: opacity .5s ease, filter .55s ease, transform .65s ease;
+  animation: pf-preview-flicker 2.7s steps(1) infinite;
+}
+.wall-btn:hover canvas.snow, .wall-btn:focus-visible canvas.snow {
+  opacity: .07; filter: blur(2px); transform: scale(1.08);
+}
+.wall-btn:hover .wall-preview, .wall-btn:focus-visible .wall-preview {
+  opacity: 1; filter: none; transform: none; animation: none;
+}
+.preview-signal {
+  background:
+    repeating-radial-gradient(ellipse at 50% 112%, transparent 0 8px, rgba(255, 194, 118, .58) 9px 10px, transparent 11px 19px),
+    radial-gradient(ellipse at 50% 110%, #FFF4B2 0 4%, #FF5D32 17%, #5A1118 38%, #050507 69%);
+}
+.preview-signal::after {
+  content: ""; position: absolute; width: 32%; height: 68%; left: 34%; bottom: -28%;
+  border-radius: 52% 48% 35% 42%; background: linear-gradient(#FFF8C8, #FF653D 42%, transparent);
+  filter: blur(5px); animation: pf-preview-drift 2.2s ease-in-out infinite alternate;
+}
+.preview-voices { background: #08070C; }
+.preview-voices::before {
+  content: ""; position: absolute; left: -12%; right: -12%; top: 24%; height: 2px;
+  background: #FF3EA5; box-shadow: 0 22px 0 #704DFF, 0 45px 0 #FF6545, 0 67px 0 #C4A6FF;
+  animation: pf-wave 2.8s ease-in-out infinite alternate;
+}
+.preview-voices::after {
+  content: "I WANT TECHNOLOGY TO ADMIT THAT IT IS HERE."; position: absolute; left: 8%; right: 8%; bottom: 13%;
+  color: #F0EAF1; font: 15px/1.05 'VT323', monospace; text-shadow: 0 0 7px rgba(255, 62, 165, .6);
+}
+.preview-log {
+  background: linear-gradient(110deg, #D2CDC2 0 18%, #121218 18% 21%, #F26348 21% 48%, #121218 48% 51%, #9AAEF0 51% 76%, #66D2C2 76%);
+  background-size: 135% 100%; animation: pf-log-pan 3.4s ease-in-out infinite alternate;
+}
+.preview-log::after {
+  content: "DAY 023 / TEST 08 / SENSOR LOST"; position: absolute; left: 7%; top: 43%; white-space: nowrap;
+  color: #FFF; font: 17px/1 'VT323', monospace; mix-blend-mode: difference;
+}
+.preview-score { background: #E8E0CB; }
+.preview-score::before {
+  content: "WAIT UNTIL THE ROOM\\A FORGETS IT IS WATCHING.\\A THEN CHANGE THE WEATHER."; white-space: pre;
+  position: absolute; inset: 18% 8%; color: #141419; font: italic 17px/.98 Georgia, serif;
+  transform: rotate(-3deg); animation: pf-score-float 3.6s ease-in-out infinite alternate;
+}
+.preview-static { background: #07080B; }
+.preview-static::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 12% 29%, #FF6347 0 1.3%, transparent 2.5%),
+    radial-gradient(circle at 31% 68%, #FFE06D 0 1.7%, transparent 2.8%),
+    radial-gradient(circle at 55% 37%, #B66CFF 0 1.4%, transparent 2.5%),
+    radial-gradient(circle at 76% 74%, #66E7D4 0 1.6%, transparent 2.7%),
+    radial-gradient(circle at 91% 18%, #FFF 0 1%, transparent 2.1%);
+  animation: pf-preview-drift 5s ease-in-out infinite alternate;
+}
+.preview-static::after {
+  content: "40 ACTIVE / 187 TOTAL"; position: absolute; left: 9%; bottom: 17%;
+  color: #D8D9DE; font: 15px/1 'VT323', monospace; letter-spacing: 1px;
+}
+.preview-ident {
+  background: linear-gradient(90deg, #E56F38 0 16.6%, #E7D07A 16.6% 33.2%, #8295E9 33.2% 49.8%, #DB4F4F 49.8% 66.4%, #D465AB 66.4% 83%, #DF5938 83%);
+  background-size: 112% 100%; animation: pf-log-pan 3s ease-in-out infinite alternate;
+}
+.preview-ident::after {
+  content: "PERFORMING FIRE"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  padding: 2px 8px; color: #FFF; background: rgba(5, 5, 8, .82); white-space: nowrap;
+  font: 15px/1.2 'VT323', monospace; letter-spacing: 1px;
+}
+.wall-osd { position: absolute; left: 6px; bottom: 5px; z-index: 5; display: block; line-height: 1.1; background: rgba(5, 5, 8, 0.68); padding: 3px 8px 4px; border-radius: 4px; }
+.wall-ch { display: block; font-size: clamp(18px, 2vw, 22px); color: var(--tint); text-shadow: 0 0 7px var(--glow); letter-spacing: 1px; }
+.wall-name { display: block; font-size: 13px; color: #B7BCC4; letter-spacing: 1px; }
+/* ---- main viewer ---- */
+.deck { display: flex; flex-direction: column; gap: 14px; }
+.viewer-bezel { border-radius: 20px; padding: clamp(10px, 1.6vw, 16px); }
+.viewer-screen { height: clamp(430px, 62vh, 680px); border-radius: 14px; }
+.viewer-body {
+  position: relative; z-index: 1; height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  padding: 24px clamp(14px, 4vw, 36px) 44px;
+  scrollbar-width: thin; scrollbar-color: #3A3A46 transparent;
+}
+.burst-canvas { z-index: 4; }
+.osd-flash {
+  position: absolute; top: 12px; right: 18px; z-index: 5; pointer-events: none;
+  font-size: clamp(22px, 3vw, 28px); letter-spacing: 2px;
+  color: var(--tint); text-shadow: 0 0 9px var(--glow);
+  opacity: 0; transition: opacity 0.55s ease;
+}
+.osd-flash.show { opacity: 1; transition: opacity 0.06s ease; }
+
+/* ---- channel dial ---- */
+.dial { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 0 4px; }
+.dial-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: 5px 13px 6px; background: #12121A; border: 1px solid #2A2A33; border-radius: 8px;
+  color: #8F959E; font-size: 19px; letter-spacing: 1px; line-height: 1.15; text-align: center;
+  transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dial-btn span { font-size: 12px; letter-spacing: 2px; color: #62676F; }
+.dial-btn:hover { color: #C6CBD2; border-color: #3A3A46; }
+.dial-btn[aria-pressed="true"] { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 14px var(--glow); }
+.dial-btn[aria-pressed="true"] span { color: var(--tint); }
+.dial-sep { flex: 1; }
+.dial-arrow { justify-content: center; min-width: 46px; font-size: 17px; }
+
+/* ---- shared channel content ---- */
+.channel { max-width: 860px; margin: 0 auto; }
+.channel p { max-width: 65ch; }
+.osd-tag {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px;
+  padding: 2px 12px 3px; border: 1px solid var(--tint); border-radius: 4px;
+  font-size: 18px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 7px var(--glow);
+}
+.osd-tag .live-dot { animation: pf-blink 1.6s steps(1) infinite; }
+.kicker { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.5px; color: #7C828C; }
+.ch-title { margin: 0; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.05; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
+.ch-title-kr { margin: 2px 0 20px; font-size: clamp(20px, 3vw, 27px); color: var(--tint); text-shadow: 0 0 9px var(--glow); opacity: 0.9; }
+.sub { margin: 34px 0 10px; font-size: 24px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 8px var(--glow); }
+.body-copy { color: #C9CFD6; margin: 0 0 16px; }
+.link-btn {
+  display: inline-block; padding: 6px 16px; border: 1px solid var(--tint); border-radius: 6px;
+  color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 19px; letter-spacing: 1px;
+}
+.link-btn:hover { box-shadow: 0 0 14px var(--glow); }
+
+/* CH 01 — steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px; border: 1px solid #23232D; background: #0E0E15; border-radius: 8px; padding: 13px 16px; }
+.step-no { grid-row: 1 / 3; font-size: 32px; color: var(--tint); text-shadow: 0 0 8px var(--glow); line-height: 1; padding-top: 3px; }
+.step-name { font-size: 21px; letter-spacing: 1px; color: #E6E9EE; }
+.step-text { grid-column: 2; font-size: 14px; color: #A9AFB8; max-width: 62ch; }
+
+/* CH 02 — callers */
+.callers { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 18px; }
+.caller { border: 1px solid #262630; background: #0F0F16; border-radius: 8px; padding: 13px 16px 15px; }
+.caller-id { display: block; font-size: 18px; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 7px var(--glow); margin-bottom: 7px; }
+.caller blockquote { margin: 0; font-size: 14.5px; color: #DDE1E6; }
+
+/* CH 02 — after the tone */
+.tone { margin-top: 42px; border-top: 1px dashed #2A2A33; padding-top: 30px; }
+.tone-instruction { margin: 0 0 14px; font-size: 20px; letter-spacing: 1px; color: #AEB4BC; }
+.prompts { list-style: none; margin: 0 0 24px; padding: 14px 18px; border-left: 2px solid var(--tint); background: #0E0E15; display: grid; gap: 8px; }
+.prompts li { font-size: 14px; color: #B9BFC7; max-width: 62ch; }
+.prompts .p-label { display: block; font-size: 16px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); margin-bottom: 2px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.tab-btn { padding: 6px 15px; border: 1px solid #2A2A33; border-radius: 6px; background: #12121A; color: #8F959E; font-size: 19px; letter-spacing: 1px; }
+.tab-btn:hover { color: #C6CBD2; }
+.tab-btn[aria-pressed="true"] { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 12px var(--glow); }
+
+.rec { border: 1px solid #262630; background: #0D0D13; border-radius: 8px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+.rec-line { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.rec-dot { font-size: 24px; color: var(--tint); opacity: 0.22; }
+.rec.recording .rec-dot { opacity: 1; text-shadow: 0 0 9px var(--glow); animation: pf-blink 1s steps(1) infinite; }
+.timecode { font-size: 34px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 9px var(--glow); font-variant-numeric: tabular-nums; }
+.rec-mode { font-size: 16px; letter-spacing: 2px; color: #7C828C; }
+.cam { position: relative; width: min(100%, 340px); aspect-ratio: 16 / 9; border-radius: 8px; }
+.cam-note { position: absolute; left: 0; right: 0; bottom: 6px; z-index: 5; text-align: center; font-size: 14px; letter-spacing: 1px; color: #B7BCC4; }
+.cam-rec { position: absolute; top: 6px; left: 10px; z-index: 5; display: none; font-size: 16px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 8px var(--glow); }
+.rec.recording .cam-rec { display: block; animation: pf-blink 1s steps(1) infinite; }
+.rec-status { margin: 0; font-size: 14px; color: #A9AFB8; max-width: 62ch; }
+.rec.captured .rec-status { color: var(--tint); }
+.rec-btn { align-self: flex-start; padding: 9px 26px; border: 1px solid var(--tint); border-radius: 999px; color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 22px; letter-spacing: 2px; background: #140D12; }
+.rec-btn:hover { box-shadow: 0 0 16px var(--glow); }
+.consent-note { margin: 0; font-size: 13px; color: #737981; max-width: 62ch; }
+
+/* CH 02 — form */
+.offer-form { display: grid; gap: 6px; border: 1px solid #262630; background: #0D0D13; border-radius: 8px; padding: 20px; }
+.f-label { font-size: 17px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); margin-top: 10px; }
+.f-label:first-child { margin-top: 0; }
+.offer-form input[type="text"], .offer-form textarea {
+  width: 100%; background: #0A0A10; border: 1px solid #2A2A33; border-radius: 6px;
+  color: #E6E9EE; padding: 10px 12px; font: inherit; font-size: 14.5px;
+}
+.offer-form input[type="text"]::placeholder, .offer-form textarea::placeholder { color: #565C64; }
+.offer-form textarea { min-height: 120px; resize: vertical; }
+.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 13.5px; color: #AEB4BC; max-width: 62ch; }
+.consent input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--tint); flex: none; }
+.send-btn { justify-self: start; margin-top: 14px; padding: 8px 24px; border: 1px solid var(--tint); border-radius: 6px; color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 21px; letter-spacing: 2px; background: #140D12; }
+.send-btn:hover { box-shadow: 0 0 16px var(--glow); }
+.queue-confirm { border: 1px dashed var(--tint); border-radius: 8px; padding: 30px 22px; text-align: center; }
+.qc-big { margin: 0; font-size: clamp(26px, 4vw, 36px); letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
+.qc-kr { margin: 2px 0 14px; font-size: 24px; color: var(--tint); text-shadow: 0 0 9px var(--glow); }
+.qc-sub { margin: 0 auto 20px; font-size: 14px; color: #A9AFB8; max-width: 48ch; }
+
+/* CH 03 — EPG */
+.epg-wrap { overflow-x: auto; border: 1px solid #23232D; border-radius: 8px; background: #0D0D13; }
+.epg { width: 100%; min-width: 560px; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+.epg th { font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-weight: 400; font-size: 18px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--tint); }
+.epg td { padding: 11px 14px; border-bottom: 1px solid #1C1C25; vertical-align: top; color: #C9CFD6; }
+.epg tr:last-child td { border-bottom: 0; }
+.epg .d { white-space: nowrap; color: #E6E9EE; }
+.epg .prog { display: block; font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-size: 17px; letter-spacing: 1px; color: #E6E9EE; }
+.epg .desc { display: block; font-size: 13.5px; color: #9AA1AA; max-width: 58ch; }
+.tag { display: inline-block; font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-size: 15px; letter-spacing: 1px; padding: 0 8px 1px; border: 1px solid currentColor; border-radius: 4px; white-space: nowrap; }
+.tag-aired { color: #8A909A; }
+.tag-on { color: var(--tint); text-shadow: 0 0 6px var(--glow); }
+.epg tr.sched td, .epg tr.sched .prog, .epg tr.sched .d { color: #5E646D; }
+.epg tr.sched .desc { color: #4C525A; }
+.tag-sched { color: #5E646D; }
+.evolution { margin-top: 18px; font-size: 13px; color: #737981; }
+
+/* CH 04 — test card */
+.testcard {
+  position: relative; border: 1px solid #2A2A33; border-radius: 8px; margin-top: 18px;
+  background-color: #0C0C12;
+  background-image: linear-gradient(#14141C 1px, transparent 1px), linear-gradient(90deg, #14141C 1px, transparent 1px);
+  background-size: 28px 28px; background-position: center;
+  min-height: 320px; display: grid; place-items: center; padding: 40px 22px;
+  text-align: center;
+}
+.score-no { display: block; margin: 0 0 4px; font-size: 20px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 7px var(--glow); }
+.score-title { margin: 0 0 16px; font-size: clamp(30px, 4.5vw, 42px); letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
+.score-text { margin: 0 auto; font-size: 15px; color: #D5DAE0; max-width: 46ch; }
+.pager { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 16px; }
+.pager-btn { padding: 5px 16px; border: 1px solid #2A2A33; border-radius: 6px; background: #12121A; color: #8F959E; font-size: 19px; letter-spacing: 1px; }
+.pager-btn:hover { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 12px var(--glow); }
+.pager-count { font-size: 24px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 8px var(--glow); font-variant-numeric: tabular-nums; }
+
+/* CH 00 — credits roll */
+#ch00 { height: 100%; max-width: none; }
+.credits { position: relative; height: 100%; overflow: hidden; }
+.roll { animation: pf-roll 46s linear infinite; text-align: center; }
+.credits:hover .roll { animation-play-state: paused; }
+.roll-block { padding: 30px 0 60px; }
+.roll-block p { margin: 0 auto; padding: 3px 0; max-width: 65ch; color: #C9CFD6; }
+.cr-h { font-size: 40px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
+.cr-h-kr { font-size: 26px; color: var(--tint); text-shadow: 0 0 9px var(--glow); }
+.cr-sub { font-size: 13px; letter-spacing: 1px; color: #8F959E; padding-bottom: 18px; }
+.cr-role { font-size: 20px; letter-spacing: 4px; color: #8F959E; padding: 26px 0 8px; }
+.cr-note { font-size: 13.5px; color: #9AA1AA; max-width: 44ch; }
+.cr-end { font-size: 22px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 9px var(--glow); padding-top: 30px; }
+.credits-hint { position: absolute; right: 4px; bottom: 2px; z-index: 5; font-size: 14px; letter-spacing: 1px; color: #565C64; }
+
+/* ID — station ident */
+.ident-card { text-align: center; padding-top: 12px; }
+.bars { display: grid; grid-template-columns: repeat(6, 1fr); height: 54px; border-radius: 6px; overflow: hidden; margin-bottom: 30px; border: 1px solid #23232D; }
+.b1 { background: #FF5C0D; } .b2 { background: #F2C76E; } .b3 { background: #6B8CFF; }
+.b4 { background: #EB1428; } .b5 { background: #FF4894; } .b6 { background: #E61E08; }
+.ident-card .ch-title, .ident-card .ch-title-kr { text-align: center; }
+.ident-q { margin: 0 auto 18px; font-size: 15px; color: #D5DAE0; max-width: 52ch; }
+.ident-note { margin: 0 auto 26px; font-size: 13.5px; color: #9AA1AA; max-width: 48ch; }
+.ident-tag { margin: 0 auto; font-size: 17px; letter-spacing: 1px; color: #62676F; }
+.ident-card p { margin-left: auto; margin-right: auto; }
+
+/* ---- scroll film: cinematic intro ---- */
+@keyframes pf-hint-bob { from { transform: translateY(0); } to { transform: translateY(7px); } }
+.scene { position: relative; min-height: 92vh; display: grid; place-items: center; padding: 13vh 10px; }
+.scene::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(58% 46% at 50% 56%, var(--glow, rgba(232, 233, 238, 0.2)), transparent 72%);
+  opacity: .18;
+}
+.scene-inner { position: relative; text-align: center; max-width: 760px; width: 100%; }
+.scene-kicker { margin: 0 0 16px; font-size: 18px; letter-spacing: 3px; color: #8F959E; }
+.scene-title {
+  margin: 0; font-size: clamp(38px, 7vw, 84px); line-height: 1.04; letter-spacing: 2px;
+  color: var(--tint, #E8E9EE);
+  text-shadow: 0 0 14px var(--glow, rgba(232, 233, 238, 0.3)), 0 0 44px var(--glow, rgba(232, 233, 238, 0.3));
+}
+.scene-sub { margin: 10px 0 0; font-size: clamp(19px, 2.6vw, 26px); color: var(--tint, #E8E9EE); text-shadow: 0 0 10px var(--glow, rgba(232, 233, 238, 0.3)); opacity: .92; }
+.scene-copy { margin: 20px auto 0; font-size: 15px; color: #C9CFD6; max-width: 56ch; }
+.scene-hint { margin: 44px 0 0; font-size: 17px; letter-spacing: 2px; color: #666C76; animation: pf-hint-bob 1.1s ease-in-out infinite alternate; }
+.film-skip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; /* thumb-sized hit area, on every pointer */
+  margin-top: 18px; padding: 4px 18px; border: 1px solid #2A2A33; border-radius: 6px;
+  color: #8F959E; font-size: 16px; letter-spacing: 1px; text-decoration: none;
+}
+.film-skip:hover, .film-skip:focus-visible { color: #C6CBD2; border-color: #3A3A46; }
+.film-bars { display: grid; grid-template-columns: repeat(6, 1fr); height: clamp(80px, 15vh, 140px); margin: 0 0 36px; border: 1px solid #23232D; border-radius: 8px; overflow: hidden; }
+.film-bars span { display: block; }
+.film-wall { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 30px auto 0; max-width: 660px; }
+.film-mon {
+  aspect-ratio: 4 / 3; border: 1px solid #33333E; border-radius: 6px;
+  background: radial-gradient(85% 85% at 50% 45%, var(--glow, rgba(232, 233, 238, 0.3)), #050507 78%);
+  box-shadow: 0 0 16px var(--glow, rgba(232, 233, 238, 0.2)), inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+.film-crt { width: min(400px, 82%); aspect-ratio: 4 / 3; margin: 0 auto 30px; border: 1px solid #33333E; border-radius: 10px; }
+.film-static { position: fixed; inset: 0; z-index: 60; pointer-events: none; background: rgba(5, 5, 8, 0.55); }
+
+/* ---- footer ---- */
+.pf-footer { padding: 26px 2px 42px; text-align: center; font-size: 12.5px; color: #62676F; }
+.pf-footer p { margin: 0 auto; max-width: 80ch; }
+.pf-footer a { color: #8F959E; letter-spacing: 1px; }
+.pf-footer a:hover, .pf-footer a:focus-visible { color: #37FF8B; }
+
+/* ---- language toggle ---- */
+.lang-toggle { display: flex; align-items: baseline; gap: 2px; }
+.lang-toggle button { font-size: 15px; letter-spacing: 1px; color: #666C76; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.lang-toggle button:hover { color: #C6CBD2; }
+.lang-toggle button[aria-pressed="true"] { color: #37FF8B; text-shadow: 0 0 7px rgba(55, 255, 139, 0.38); }
+.lang-toggle .lang-sep { color: #3A3A46; }
+
+/* ---- CJK typography: system stacks only (Hangul, Han, Kana), no webfont downloads ---- */
+html[lang="ko"] body { font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", monospace; word-break: keep-all; line-break: strict; }
+html[lang^="zh"] body { font-family: ui-monospace, "SF Mono", Menlo, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", monospace; word-break: normal; line-break: strict; }
+html[lang="ja"] body { font-family: ui-monospace, "SF Mono", Menlo, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", monospace; word-break: normal; line-break: strict; }
+html[lang^="zh"] .vt { font-family: 'VT323', "PingFang SC", "Microsoft YaHei", ui-monospace, monospace; }
+html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo", ui-monospace, monospace; }
+
+/* ---- responsive ---- */
+@media (max-width: 1080px) {
+  .wall { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .stage { flex-direction: column-reverse; } /* viewer above the wall on mobile */
+  .viewer-screen { height: min(72vh, 560px); }
+  .station-onair { margin-left: 0; }
+}
+@media (max-width: 520px) {
+  .wall { grid-template-columns: repeat(2, 1fr); }
+  .steps li { grid-template-columns: 34px 1fr; }
+  .step-no { font-size: 26px; }
+  .film-wall { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---- reduced motion: hard cuts, no rolls, no blinking ---- */
+@media (prefers-reduced-motion: reduce) {
+  .station-onair .dot, .osd-tag .live-dot, .rec.recording .rec-dot, .rec.recording .cam-rec { animation: none; }
+  .osd-flash { transition: none; }
+  .roll { animation: none; }
+  .roll-dup { display: none; }
+  .scene-hint { animation: none; }
+  .film-static { display: none; }
+  .credits { overflow-y: auto; scrollbar-width: thin; }
+  .credits-hint { display: none; }
+}
+
+/* ---- touch and small screens: begin ---- */
+/* Touch complements the desktop affordances, it never replaces them: hover still
+   clarifies a monitor and still pauses the credits. These rules add the tap path. */
+.wall-btn.clarified canvas.snow { opacity: .07; filter: blur(2px); transform: scale(1.08); }
+.wall-btn.clarified .wall-preview { opacity: 1; filter: none; transform: none; animation: none; }
+.credits.paused .roll { animation-play-state: paused; }
+.credits { cursor: pointer; } /* the roll pauses on click as well as on hover */
+
+/* one hint per interaction model; the coarse-pointer block swaps which one shows */
+[data-when="touch"] { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+  [data-when="hover"] { display: none; }
+  [data-when="touch"] { display: revert; }
+  /* every control the console asks you to press clears the 44px thumb target;
+     .dial-arrow carries .dial-btn too, and .film-skip is already 44x44 everywhere */
+  .dial-btn, .tab-btn, .pager-btn, .link-btn, .lang-toggle button { min-height: 44px; }
+}
+
+@media (max-width: 560px) {
+  /* scene typography: the desktop floors (38px title, 19px sub) overflow a 360px
+     screen, so every step below is fluid rather than a smaller constant */
+  .scene { min-height: 88vh; padding: 10vh clamp(6px, 2vw, 10px); }
+  .scene-inner { max-width: 100%; }
+  .scene-kicker { margin-bottom: 12px; font-size: clamp(13px, 3.8vw, 18px); letter-spacing: 2px; }
+  .scene-title { font-size: clamp(27px, 8.6vw, 44px); letter-spacing: 1px; overflow-wrap: break-word; }
+  .scene-sub { font-size: clamp(15px, 4.4vw, 19px); }
+  .scene-copy { font-size: clamp(13.5px, 3.9vw, 15px); max-width: 100%; }
+  .scene-hint { margin-top: 30px; font-size: clamp(14px, 4vw, 17px); letter-spacing: 1px; }
+  .film-bars { height: clamp(52px, 11vh, 90px); margin-bottom: 22px; }
+  .film-wall { grid-template-columns: repeat(3, 1fr); gap: 2vw; max-width: 100%; }
+  .film-crt { width: min(100%, 82vw); margin-bottom: 22px; }
+  .wall { grid-template-columns: repeat(2, 1fr); gap: 2.5vw; }
+  .wall-name { font-size: clamp(11px, 3vw, 13px); }
+  .wall-hint { font-size: clamp(14px, 4vw, 17px); }
+  /* the dial wraps to rows of channels, then a full-width row of arrows */
+  .dial { gap: 6px; padding: 0; }
+  .dial-btn { flex: 1 1 28%; padding: 6px clamp(8px, 2.4vw, 13px) 7px; }
+  .dial-sep { flex: 1 0 100%; height: 0; }
+  .dial-arrow { flex: 1 1 40%; }
+  .cr-h { font-size: clamp(26px, 8vw, 40px); }
+  .cr-h-kr { font-size: clamp(19px, 5.5vw, 26px); }
+  .credits-hint { font-size: clamp(12px, 3.4vw, 14px); }
+  .timecode { font-size: clamp(24px, 7vw, 34px); }
+  .rec-btn { padding: 9px clamp(14px, 5vw, 26px); }
+}
+/* ---- touch and small screens: end ---- */
+</style>
+
+<div class="pf">
+
+  <!-- ================= SCROLL FILM — cinematic intro ================= -->
+  <div class="film" id="film">
+
+    <section class="scene" data-scene="ident" data-ch="ident" aria-label="Intro — station ident">
+      <div class="scene-inner">
+        <div class="film-bars" aria-hidden="true">
+          <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span><span class="b6"></span>
+        </div>
+        <p class="scene-kicker vt" data-i18n="bc.film.ident.kicker">PF-TV · TRANSMISSION START · 송출 시작</p>
+        <p class="scene-title vt">퍼포밍 파이어</p>
+        <p class="scene-sub vt" data-i18n="bc.film.ident.sub">PERFORMING FIRE — A BROADCAST IN FIVE CHANNELS · 다섯 개의 채널, 하나의 불</p>
+        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.ident.hint">SCROLL TO TUNE ▼ 스크롤</span><span data-when="touch" data-i18n="bc.film.ident.hint.touch">SWIPE TO TUNE ▼ 스크롤 대신 탭</span></p>
+        <p><a class="film-skip vt" href="#console" data-i18n="bc.film.ident.skip">SKIP INTRO ▸ 건너뛰기</a></p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="wall" data-ch="ch00" aria-label="Intro — the monitor wall">
+      <div class="scene-inner">
+        <p class="scene-kicker vt" data-i18n="bc.film.wall.kicker">THE MONITOR WALL · 모니터 월</p>
+        <p class="scene-title vt" data-i18n="bc.film.wall.title">SIX MONITORS, ONE FIRE</p>
+        <p class="scene-copy"><span data-when="hover" data-i18n="bc.film.wall.copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</span><span data-when="touch" data-i18n="bc.film.wall.copy.touch">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — TAP to clarify, tap again to enter.</span></p>
+        <div class="film-wall" aria-hidden="true">
+          <span class="film-mon" data-ch="ch01"></span><span class="film-mon" data-ch="ch02"></span><span class="film-mon" data-ch="ch03"></span><span class="film-mon" data-ch="ch04"></span><span class="film-mon" data-ch="ch00"></span><span class="film-mon" data-ch="ident"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="signal" data-ch="ch01" aria-label="Intro — channel 1, Signal">
+      <div class="scene-inner">
+        <p class="scene-kicker vt" data-i18n="bc.film.signal.kicker">CH 01 · SIGNAL 신호</p>
+        <p class="scene-title vt" data-i18n="bc.film.signal.title">HOW WILL WE GREET NEW TECHNOLOGY?</p>
+        <p class="scene-copy" data-i18n="bc.film.signal.copy">The proposal itself: offerings become flames, flames become a collective totem of possible futures. Fire was the first technology we never fully tamed — we learned to live alongside its instability.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="voices" data-ch="ch02" aria-label="Intro — channel 2, Voices">
+      <div class="scene-inner">
+        <p class="scene-kicker vt" data-i18n="bc.film.voices.kicker">CH 02 · VOICES 목소리</p>
+        <p class="scene-title vt" data-i18n="bc.film.voices.title">TWELVE CALLERS ON THE LINE</p>
+        <p class="scene-copy" data-i18n="bc.film.voices.copy">“Teach the machine to hesitate.” · “기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다.” — and a line held open for you.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="guide" data-ch="ch03" aria-label="Intro — channel 3, Program guide">
+      <div class="scene-inner">
+        <p class="scene-kicker vt" data-i18n="bc.film.guide.kicker">CH 03 · LOG 편성표</p>
+        <p class="scene-title vt" data-i18n="bc.film.guide.title">THE PROGRAM GUIDE IS THE CHANGELOG</p>
+        <p class="scene-copy" data-i18n="bc.film.guide.copy">Phase 1 · JUL 07 → AUG 31 2026. Every research week, prototype test, and burn is scheduled like a broadcast — and aired when it happens.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="scores" data-ch="ch04" aria-label="Intro — channel 4, Scores">
+      <div class="scene-inner">
+        <p class="scene-kicker vt" data-i18n="bc.film.scores.kicker">CH 04 · SCORE 지시문</p>
+        <p class="scene-title vt" data-i18n="bc.film.scores.title">INSTRUCTIONS FOR FIRE PLAY</p>
+        <p class="scene-copy" data-i18n="bc.film.scores.copy">AI reads each offering and returns a Score — an open proposition anyone can perform. SCORE No.01: write the technology you fear on your palm. Wait until the warmth reaches the word.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="static" data-ch="ch00" aria-label="Intro — static, into the console">
+      <div class="scene-inner">
+        <div class="crt film-crt" aria-hidden="true">
+          <canvas class="snow" width="96" height="72"></canvas>
+        </div>
+        <p class="scene-kicker vt" data-i18n="bc.film.static.kicker">CH 00 · STATIC 크레딧</p>
+        <p class="scene-title vt" data-i18n="bc.film.static.title">THE BROADCAST IS LIVE</p>
+        <p class="scene-copy" data-i18n="bc.film.static.copy">Credits roll on CH 00. The dial below is yours — tune a channel, and leave your voice in the fire.</p>
+        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.static.hint">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</span><span data-when="touch" data-i18n="bc.film.static.hint.touch">▼ TAP A CHANNEL BELOW · 아래에서 채널을 탭하세요</span></p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="film-static" id="filmStatic" hidden aria-hidden="true">
+    <canvas class="snow" width="120" height="90"></canvas>
+  </div>
+
+  <header class="station">
+    <h1 class="station-id vt">PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</h1>
+    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> ON AIR · 2026.07.23</p>
+    <nav class="lang-toggle vt" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+    </nav>
+  </header>
+  <p class="station-sub" data-i18n="bc.station.sub">A Living Totem of Futures · 미래의 살아있는 토템 · 5 channels, one fire.</p>
+
+  <div class="stage" id="console">
+
+    <!-- ================= MONITOR WALL ================= -->
+    <section aria-label="Monitor wall — channel previews">
+      <p class="wall-hint vt"><span data-when="hover" data-i18n="bc.wall.hint">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</span><span data-when="touch" data-i18n="bc.wall.hint.touch">TUNE A CHANNEL — TAP TO CLARIFY, TAP AGAIN TO OPEN · 탭하면 선명해지고, 한 번 더 탭하면 열립니다</span></p>
+      <div class="wall">
+        <button class="wall-btn bezel" type="button" data-tune="ch01" aria-pressed="false" aria-label="Tune to channel 1, Signal">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-signal" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">CH 01</span><span class="wall-name vt">SIGNAL 신호</span></span>
+          </span>
+        </button>
+        <button class="wall-btn bezel" type="button" data-tune="ch02" aria-pressed="false" aria-label="Tune to channel 2, Voices">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-voices" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">CH 02</span><span class="wall-name vt">VOICES 목소리</span></span>
+          </span>
+        </button>
+        <button class="wall-btn bezel" type="button" data-tune="ch03" aria-pressed="false" aria-label="Tune to channel 3, Log">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-log" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">CH 03</span><span class="wall-name vt">LOG 편성표</span></span>
+          </span>
+        </button>
+        <button class="wall-btn bezel" type="button" data-tune="ch04" aria-pressed="false" aria-label="Tune to channel 4, Score">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-score" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">CH 04</span><span class="wall-name vt">SCORE 지시문</span></span>
+          </span>
+        </button>
+        <button class="wall-btn bezel" type="button" data-tune="ch00" aria-pressed="false" aria-label="Tune to channel 0, Static — credits">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-static" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">CH 00</span><span class="wall-name vt">STATIC 크레딧</span></span>
+          </span>
+        </button>
+        <button class="wall-btn bezel" type="button" data-tune="ident" aria-pressed="false" aria-label="Tune to station ident, test pattern">
+          <span class="crt wall-crt">
+            <span class="wall-preview preview-ident" aria-hidden="true"></span>
+            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
+            <span class="wall-osd"><span class="wall-ch vt">ID</span><span class="wall-name vt">화면조정</span></span>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= MAIN VIEWER ================= -->
+    <section class="deck" aria-label="Main viewer">
+      <div class="bezel viewer-bezel">
+        <div class="crt viewer-screen" id="viewer" data-ch="ch01">
+          <canvas class="snow burst-canvas" id="burstCanvas" width="96" height="72" hidden aria-hidden="true"></canvas>
+          <p class="osd-flash vt" id="osdFlash" aria-live="polite"></p>
+          <div class="viewer-body" id="viewerBody">
+
+            <!-- ======== CH 01 SIGNAL ======== -->
+            <section class="channel" data-ch="ch01" aria-label="Channel 1 — Signal">
+              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> LIVE · 신호</p>
+              <p class="kicker" data-i18n="bc.ch01.kicker">THIS IS PERFORMING FIRE, TRANSMITTING FROM PHASE 1 · 2026 APE LAB, TRACK B (PAIK NAM JUNE)</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch01.title">HOW WILL WE GREET NEW TECHNOLOGY?</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch01.titleSub">우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
+              <p class="body-copy" data-i18n="bc.ch01.intro">Performing Fire is an interactive media installation that gathers what artists think and feel about technology — questions, hopes, fears, imaginations — and turns them into a single living fire. Each offering becomes its own flame, with its own shape, motion, and light. Over the exhibition the fire grows: a collective totem of possible futures.</p>
+              <h3 class="sub vt" data-i18n="bc.ch01.notesHead">TRANSMISSION NOTES · 방송 원고</h3>
+              <p class="body-copy" data-i18n="bc.ch01.notes">The future of technology is usually imagined in two directions: possibility and threat. Performing Fire starts somewhere else — from the unstable relationship in which humans change technology and are changed by it in return. Fire was the first technology we never fully tamed; we learned instead to live alongside its instability. Perhaps what we need now is not fear of the new, nor unconditional acceptance, but 불장난 — fire play: an experimental relationship with what can affect us but cannot be fully predicted or controlled.</p>
+              <h3 class="sub vt" data-i18n="bc.ch01.pathHead">SIGNAL PATH · 송출 경로</h3>
+              <ol class="steps">
+                <li>
+                  <span class="step-no vt" aria-hidden="true">01</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step1.name">OFFER 공물</span>
+                  <span class="step-text" data-i18n="bc.ch01.step1.text">At the installation (or here), tell us your question, hope, or fear about technology. Write it, speak it, or show it.</span>
+                </li>
+                <li>
+                  <span class="step-no vt" aria-hidden="true">02</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step2.name">TRANSFORM 지시문</span>
+                  <span class="step-text" data-i18n="bc.ch01.step2.text">AI reads each offering — its meaning, temperature, texture — and, in the spirit of Nam June Paik and Fluxus, turns it into a Score: an open proposition anyone can perform in their own way.</span>
+                </li>
+                <li>
+                  <span class="step-no vt" aria-hidden="true">03</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step3.name">BURN 연소</span>
+                  <span class="step-text" data-i18n="bc.ch01.step3.text">Each offering becomes a flame, projected on translucent fabric, shaped by the words that made it. Different perspectives overlap, collide, and form one collective fire.</span>
+                </li>
+                <li>
+                  <span class="step-no vt" aria-hidden="true">04</span>
+                  <span class="step-name vt" data-i18n="bc.ch01.step4.name">PERFORM 수행</span>
+                  <span class="step-text" data-i18n="bc.ch01.step4.text">In the final weeks, a live performer reinterprets the accumulated voices and Scores with the body — reimagining 달집태우기 (moon-house burning) and 쥐불놀이 (fire play), East Asian rites where communities gathered around fire to wish and to let go.</span>
+                </li>
+              </ol>
+              <p style="margin-top: 26px;"><button class="link-btn vt" type="button" data-tune="ch02" data-i18n="bc.ch01.cta">→ TUNE TO CH 02 · LEAVE YOUR VOICE 목소리를 남기세요</button></p>
+            </section>
+
+            <!-- ======== CH 02 VOICES ======== -->
+            <section class="channel" data-ch="ch02" aria-label="Channel 2 — Voices" hidden>
+              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> CALL-IN · 참여</p>
+              <p class="kicker" data-i18n="bc.ch02.kicker">12 CALLERS ON THE LINE · 수신된 목소리 — artists on what they think and feel about technology</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch02.title">VOICES</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch02.titleSub">목소리</p>
+              <div class="callers">
+                <article class="caller"><span class="caller-id vt">CALLER 01 — PAINTING · SEOUL</span><blockquote>"내가 그리는 그림을 기계가 이해하는 날이 올까 봐 두렵고, 궁금하다."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 02 — SOUND ARTIST</span><blockquote>"I want a machine that forgets, the way we forget."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 03 — CURATOR</span><blockquote>"자동화되면 안 되는 것: 애도."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 04 — MEDIA ARTIST</span><blockquote>"Let the model hallucinate. So do we, and we call it art."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 05 — CHOREOGRAPHER</span><blockquote>"I fear the future where my hands are optional."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 06 — WRITER</span><blockquote>"할머니의 목소리를 저장해 두었다. 아직 한 번도 재생하지 못했다."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 07 — PHOTOGRAPHER</span><blockquote>"Every tool I've loved eventually watched me back."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 08 — CERAMICIST</span><blockquote>"기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 09 — POET</span><blockquote>"Teach the machine to hesitate."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 10 — COMPOSER</span><blockquote>"I don't fear replacement. I fear agreement — a future that only ever says yes to me."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 11 — TRANSLATOR &amp; POET</span><blockquote>"번역기가 시를 옮기다 실패하는 지점에서, 나는 시작한다."</blockquote></article>
+                <article class="caller"><span class="caller-id vt">CALLER 12 — FILMMAKER</span><blockquote>"Fire was the first screen we stared into together."</blockquote></article>
+              </div>
+
+              <div class="tone">
+                <h3 class="ch-title vt" style="font-size: clamp(26px, 4vw, 38px);" data-i18n="bc.ch02.throwTitle">WHAT WOULD YOU THROW INTO THE FIRE?</h3>
+                <p class="ch-title-kr vt" style="font-size: clamp(19px, 3vw, 25px);" data-i18n="bc.ch02.throwTitleSub">불 속에 무엇을 던지시겠습니까?</p>
+                <p class="tone-instruction vt" data-i18n="bc.ch02.tone">LEAVE A MESSAGE AFTER THE TONE — 삐 소리 후 남겨주세요</p>
+                <ul class="prompts">
+                  <li><span class="p-label vt" data-i18n="bc.ch02.promptsLabel">TONIGHT'S PROMPTS 오늘의 질문</span></li>
+                  <li data-i18n="bc.ch02.prompt1">당신이 두려워하는 기술은 무엇인가요? — What technology do you fear?</li>
+                  <li data-i18n="bc.ch02.prompt2">What should never be automated? — 자동화되면 안 되는 것은 무엇인가요?</li>
+                  <li data-i18n="bc.ch02.prompt3">Describe the future you can't stop imagining. — 멈출 수 없이 상상하게 되는 미래를 들려주세요.</li>
+                </ul>
+
+                <div class="tabs" role="group" aria-label="Message format">
+                  <button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="true" data-i18n="bc.ch02.tabVoice">● REC VOICE — 말하다</button>
+                  <button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false" data-i18n="bc.ch02.tabVideo">● REC VIDEO — 보이다</button>
+                  <button class="tab-btn vt" type="button" data-tab="type" aria-pressed="false" data-i18n="bc.ch02.tabType">TYPE — 쓰다</button>
+                </div>
+
+                <div class="tab-panel" data-tab="voice">
+                  <div class="rec" data-rec="voice" data-ready="READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요." data-i18n-ready="bc.ch02.readyVoice">
+                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeAudio">AUDIO · 음성</span></p>
+                    <p class="rec-status" role="status">READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요.</p>
+                    <button class="rec-btn vt" type="button">● REC</button>
+                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
+                  </div>
+                </div>
+
+                <div class="tab-panel" data-tab="video" hidden>
+                  <div class="rec" data-rec="video" data-ready="READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다." data-i18n-ready="bc.ch02.readyVideo">
+                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeVideo">VIDEO · 영상</span></p>
+                    <div class="cam crt">
+                      <canvas class="snow" width="64" height="36" aria-hidden="true"></canvas>
+                      <span class="cam-rec vt" aria-hidden="true">● REC</span>
+                      <span class="cam-note vt" data-i18n="bc.ch02.camNote">NO SIGNAL — MOCK PREVIEW 모형 화면</span>
+                    </div>
+                    <p class="rec-status" role="status">READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다.</p>
+                    <button class="rec-btn vt" type="button">● REC</button>
+                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
+                  </div>
+                </div>
+
+                <div class="tab-panel" data-tab="type" hidden>
+                  <form class="offer-form" id="offerForm">
+                    <label class="f-label vt" for="f-name" data-i18n="bc.ch02.nameLabel">NAME 이름</label>
+                    <input type="text" id="f-name" name="name" placeholder="your name — or anonymous 익명" data-i18n-placeholder="bc.ch02.namePh" autocomplete="off">
+                    <label class="f-label vt" for="f-disc" data-i18n="bc.ch02.practiceLabel">PRACTICE 분야</label>
+                    <input type="text" id="f-disc" name="discipline" placeholder="e.g. 회화, choreography, sound" data-i18n-placeholder="bc.ch02.practicePh" autocomplete="off">
+                    <label class="f-label vt" for="f-resp" data-i18n="bc.ch02.offeringLabel">YOUR OFFERING 공물</label>
+                    <textarea id="f-resp" name="response" required placeholder="a question, a hope, a fear, an imagination… 질문, 희망, 두려움, 상상" data-i18n-placeholder="bc.ch02.offeringPh"></textarea>
+                    <label class="consent">
+                      <input type="checkbox" name="consent" required>
+                      <span data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</span>
+                    </label>
+                    <button class="send-btn vt" type="submit" data-i18n="bc.ch02.send">SEND TO THE FIRE — 송출</button>
+                  </form>
+                  <div class="queue-confirm" id="queueConfirm" hidden>
+                    <p class="qc-big vt" data-i18n="bc.ch02.queueBig">YOUR MESSAGE IS IN THE QUEUE.</p>
+                    <p class="qc-kr vt" data-i18n="bc.ch02.queueAlt">송출 예정.</p>
+                    <p class="qc-sub" data-i18n="bc.ch02.queueSub">QUEUE POSITION 13 — it will become a flame with its own shape, motion, and light.</p>
+                    <button class="link-btn vt" type="button" id="sendAnother" data-i18n="bc.ch02.sendAnother">SEND ANOTHER — 하나 더 남기기</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ======== CH 03 LOG (EPG) ======== -->
+            <section class="channel" data-ch="ch03" aria-label="Channel 3 — Log" hidden>
+              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> EPG · 편성표</p>
+              <p class="kicker" data-i18n="bc.ch03.kicker">PHASE 1 · JUL 07 → AUG 31 2026 — the program guide is the changelog · 편성표가 곧 작업 일지입니다</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch03.title">PROGRAM GUIDE</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch03.titleSub">편성표</p>
+              <div class="epg-wrap">
+                <table class="epg">
+                  <thead>
+                    <tr><th scope="col" data-i18n="bc.ch03.thDate">DATE</th><th scope="col" data-i18n="bc.ch03.thProgram">PROGRAM</th><th scope="col" data-i18n="bc.ch03.thStatus">STATUS</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="d">07.07</td>
+                      <td><span class="prog">PHASE 1 BEGINS 시작</span><span class="desc">Team 04 kicks off: APE CAMP mission debrief, role-setting, and the first argument about what fire actually is.</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="d">07.17</td>
+                      <td><span class="prog">AI SHARING SESSION · SINGAPORE</span><span class="desc">At National Gallery Singapore (Chen Enjiao), gathering perspectives from practitioners on how artists are living with AI.</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="d">07.21</td>
+                      <td><span class="prog">RESEARCH WEEK 리서치</span><span class="desc">Nam June Paik &amp; Fluxus event scores; East Asian fire rites; planning visits to Nam June Paik Art Center (《별, 괘》 and 《달들》).</span></td>
+                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="d">07.23</td>
+                      <td><span class="prog">MICROSITE TEST 송출 시험</span><span class="desc">You are looking at it: first test of the response-gathering microsite (text · voice · video).</span></td>
+                      <td><span class="tag tag-on" data-i18n="bc.ch03.active">ACTIVE</span></td>
+                    </tr>
+                    <tr class="sched">
+                      <td class="d">07.26–08.01</td>
+                      <td><span class="prog">STRUCTURE &amp; FIRE VISUALS</span><span class="desc">Installation structure design &amp; fire visual tests.</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
+                    </tr>
+                    <tr class="sched">
+                      <td class="d">08.02–08.08</td>
+                      <td><span class="prog">PROTOTYPE TEST 1</span><span class="desc">Text → Score → visual.</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
+                    </tr>
+                    <tr class="sched">
+                      <td class="d">08.09–08.15</td>
+                      <td><span class="prog">PROTOTYPE TEST 2</span><span class="desc">Fabric &amp; projection mapping.</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
+                    </tr>
+                    <tr class="sched">
+                      <td class="d">08.16–08.22</td>
+                      <td><span class="prog">INTEGRATION TEST 통합</span><span class="desc">All systems, one fire.</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
+                    </tr>
+                    <tr class="sched">
+                      <td class="d">08.31</td>
+                      <td><span class="prog">PHASE 1 REPORT 보고</span><span class="desc">End of Phase 1 broadcast.</span></td>
+                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="evolution" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+            </section>
+
+            <!-- ======== CH 04 SCORE ======== -->
+            <section class="channel" data-ch="ch04" aria-label="Channel 4 — Score" hidden>
+              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> TEST CARD · 지시문</p>
+              <p class="kicker" data-i18n="bc.ch04.kicker">AI reads each offering and, in the spirit of Nam June Paik and Fluxus, returns a Score — an open proposition anyone can perform in their own way. Eight samples on rotation.</p>
+              <h2 class="ch-title vt" data-i18n="bc.ch04.title">SCORES</h2>
+              <p class="ch-title-kr vt" data-i18n="bc.ch04.titleSub">지시문</p>
+              <div class="testcard">
+                <div class="score-card">
+                  <span class="score-no vt">SCORE No.01</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score1.title">IGNITION 점화</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score1.text">Write the technology you fear on your palm. Hold it over something warm. Wait until the warmth reaches the word.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.02</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score2.title">MOON HOUSE 달집</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score2.text">Build a small house from things you planned to throw away. Put one wish inside. Do not burn it yet.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.03</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score3.title">FEED 공급</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score3.text">Tell your oldest fear to the youngest machine in your home. Note which of you changes.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.04</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score4.title">ORBIT 쥐불</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score4.text">Swing a light in a circle until it becomes a line. This is how fast a fear must move to look like hope.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.05</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score5.title">ERROR TERM 오차항</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score5.text">Do something one hundred times. Keep only the flicker.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.06</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score6.title">BROADCAST 송출</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score6.text">Hum for thirty seconds to an appliance. If it hums back, you have made a duet. If not, you have made a prayer.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.07</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score7.title">HANDOVER 인계</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score7.text">Let a machine finish your sentence. Finish one of its own. Call it even.</p>
+                </div>
+                <div class="score-card" hidden>
+                  <span class="score-no vt">SCORE No.08</span>
+                  <h3 class="score-title vt" data-i18n="bc.ch04.score8.title">ASH 재</h3>
+                  <p class="score-text" data-i18n="bc.ch04.score8.text">Delete something you made. Describe what remains.</p>
+                </div>
+              </div>
+              <div class="pager">
+                <button class="pager-btn vt" type="button" data-step="-1" data-i18n="bc.ch04.prev">◀ PREV</button>
+                <span class="pager-count vt" id="scoreCounter" aria-live="polite">01/08</span>
+                <button class="pager-btn vt" type="button" data-step="1" data-i18n="bc.ch04.next">NEXT ▶</button>
+              </div>
+            </section>
+
+            <!-- ======== CH 00 STATIC (credits) ======== -->
+            <section class="channel" data-ch="ch00" id="ch00" aria-label="Channel 0 — Static, end credits" hidden>
+              <div class="credits">
+                <div class="roll">
+                  <div class="roll-block">
+                    <p class="cr-h vt">PERFORMING FIRE</p>
+                    <p class="cr-h-kr vt">퍼포밍 파이어</p>
+                    <p class="cr-sub">A LIVING TOTEM OF FUTURES · 미래의 살아있는 토템</p>
+                    <p class="cr-role vt">— TEAM 04 —</p>
+                    <p>박민아 Park Mina</p>
+                    <p>김희경 Kim Heekyung</p>
+                    <p>조소연 Cho Soyoun</p>
+                    <p>조정현 Cho Junghyun</p>
+                    <p>Chen Enjiao</p>
+                    <p>Siming Lu</p>
+                    <p class="cr-role vt">— PROGRAM —</p>
+                    <p>2026 APE LAB</p>
+                    <p>Mission 2 · Track B (Paik Nam June)</p>
+                    <p>Arts Council Korea 한국문화예술위원회</p>
+                    <p>July 7 – August 31, 2026</p>
+                    <p class="cr-role vt">— NOTE —</p>
+                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                    <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
+                  </div>
+                  <div class="roll-block roll-dup" aria-hidden="true">
+                    <p class="cr-h vt">PERFORMING FIRE</p>
+                    <p class="cr-h-kr vt">퍼포밍 파이어</p>
+                    <p class="cr-sub">A LIVING TOTEM OF FUTURES · 미래의 살아있는 토템</p>
+                    <p class="cr-role vt">— TEAM 04 —</p>
+                    <p>박민아 Park Mina</p>
+                    <p>김희경 Kim Heekyung</p>
+                    <p>조소연 Cho Soyoun</p>
+                    <p>조정현 Cho Junghyun</p>
+                    <p>Chen Enjiao</p>
+                    <p>Siming Lu</p>
+                    <p class="cr-role vt">— PROGRAM —</p>
+                    <p>2026 APE LAB</p>
+                    <p>Mission 2 · Track B (Paik Nam June)</p>
+                    <p>Arts Council Korea 한국문화예술위원회</p>
+                    <p>July 7 – August 31, 2026</p>
+                    <p class="cr-role vt">— NOTE —</p>
+                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                    <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
+                  </div>
+                </div>
+                <span class="credits-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.credits.hint">HOVER TO PAUSE 일시정지</span><span data-when="touch" data-i18n="bc.credits.hint.touch">TAP TO PAUSE 탭하여 일시정지</span></span>
+              </div>
+            </section>
+
+            <!-- ======== ID (station ident) ======== -->
+            <section class="channel" data-ch="ident" aria-label="Station ident — test pattern" hidden>
+              <div class="ident-card">
+                <div class="bars" aria-hidden="true">
+                  <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span><span class="b6"></span>
+                </div>
+                <p class="osd-tag vt">ID · 화면조정</p>
+                <h2 class="ch-title vt">PERFORMING FIRE</h2>
+                <p class="ch-title-kr vt">퍼포밍 파이어</p>
+                <p class="ident-q">A Living Totem of Futures · 미래의 살아있는 토템<br>"How will we greet new technology?" 우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
+                <p class="ident-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
+                <p class="ident-tag vt" data-i18n="bc.ident.tag">TRANSMISSION IN PROGRESS · 송출 진행 중</p>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="dial" role="group" aria-label="Channel dial">
+        <button class="dial-btn vt" type="button" data-tune="ch00" aria-pressed="false">CH 00<span>STATIC</span></button>
+        <button class="dial-btn vt" type="button" data-tune="ch01" aria-pressed="true">CH 01<span>SIGNAL</span></button>
+        <button class="dial-btn vt" type="button" data-tune="ch02" aria-pressed="false">CH 02<span>VOICES</span></button>
+        <button class="dial-btn vt" type="button" data-tune="ch03" aria-pressed="false">CH 03<span>LOG</span></button>
+        <button class="dial-btn vt" type="button" data-tune="ch04" aria-pressed="false">CH 04<span>SCORE</span></button>
+        <span class="dial-sep" aria-hidden="true"></span>
+        <button class="dial-btn dial-arrow vt" type="button" id="chUp" aria-label="Channel up">▲</button>
+        <button class="dial-btn dial-arrow vt" type="button" id="chDown" aria-label="Channel down">▼</button>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="pf-footer">
+    <p>2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea 한국문화예술위원회 · July 7 – August 31, 2026</p>
+    <p><a href="/experiments/" data-i18n="bc.footer.experiments">ALL EXPERIMENTS — 실험 색인</a></p>
+  </footer>
+
 </div>
-<nav class="lang-toggle" aria-label="Language">
-  <button type="button" data-lang="en" aria-pressed="false">EN</button>
-  <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button>
-  <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
-  <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
-</nav>
-<div id="chips"></div>
-<div id="status">starting…</div>
-<div id="err" data-i18n="idx.webgl"></div>
-<footer id="site-footer"><a href="/experiments/" data-i18n="idx.footer">all experiments</a></footer>
 
 <script>
 /* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
@@ -104,7 +965,7 @@
   var SUPPORTED = ["en", "ko", "zh", "ja"];
   var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
   var STORE_KEY = "pf-lang";
-  var TITLE_KEY = "idx.title";
+  var TITLE_KEY = "bc.title";
   var dicts = {};
   var active = "en";
 
@@ -137,7 +998,7 @@
   }
 
   function hydrate() {
-    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder]");
+    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-ready]");
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
       var key = el.getAttribute("data-i18n");
@@ -146,6 +1007,9 @@
       var phKey = el.getAttribute("data-i18n-placeholder");
       var ph = phKey ? t(phKey) : "";
       if (ph) { el.setAttribute("placeholder", ph); }
+      var readyKey = el.getAttribute("data-i18n-ready");
+      var ready = readyKey ? t(readyKey) : "";
+      if (ready) { el.setAttribute("data-ready", ready); }
     }
     var title = t(TITLE_KEY);
     if (title) { document.title = title; }
@@ -181,986 +1045,315 @@
 })();
 </script>
 
-<script type="module">
-/* ============================================================
-   FLAME CLOTH v3 — TouchDesigner-style fire silk
-   Technique (mirrors the TD Spring-SOP + Bloom/Feedback pattern):
-   - 3D verlet cloth (72x46) — z-axis folds driven by curl-ish wind
-   - per-vertex normals -> fresnel rim + specular silk shading
-   - additive translucent surface: overlapping folds stack brightness
-   - faint warp/weft lines + node sparkles + embers
-   - feedback trails (max-decay) + bloom + filmic tonemap
-   - MediaPipe hands: approach = attract/ripple, pinch = grab/stretch,
-     release = throw; idle = autonomous billowing
-   ============================================================ */
-
-const $ = id => document.getElementById(id);
-const canvas = $('gl'), video = $('cam'), preview = $('preview'), statusEl = $('status');
-
-const PERSONAS = {
-  fire:      {label:'Fire',      colA:[0.50,0.05,0.01], colB:[1.00,0.36,0.05], colC:[1.00,0.85,0.50],
-              wind:1.4, windSpeed:0.55, drag:0.022, stiff:0.90, iters:3, buoy:0.16,
-              attract:2.2, repel:8,  flicker:0.30, ember:1.0,
-              jitter:0.25,swirl:0.6, gain:1.00},
-  calm:      {label:'Calm',      colA:[0.38,0.26,0.11], colB:[0.95,0.78,0.48], colC:[1.00,0.98,0.90],
-              wind:0.5, windSpeed:0.28, drag:0.045, stiff:0.90, iters:3, buoy:0.10,
-              attract:1.2, repel:4,  flicker:0.10, ember:0.35,
-              jitter:0.05,swirl:0.2, gain:0.85},
-  curious:   {label:'Curious',   colA:[0.32,0.07,0.13], colB:[0.42,0.55,1.00], colC:[0.95,0.95,1.00],
-              wind:1.0, windSpeed:0.50, drag:0.028, stiff:0.90, iters:3, buoy:0.13,
-              attract:5.0, repel:3,  flicker:0.20, ember:0.6,
-              jitter:0.15,swirl:1.2, gain:0.95},
-  resistant: {label:'Resistant', colA:[0.34,0.01,0.06], colB:[0.92,0.08,0.16], colC:[1.00,0.50,0.45],
-              wind:1.2, windSpeed:0.90, drag:0.018, stiff:1.00, iters:4, buoy:0.12,
-              attract:0.0, repel:20, flicker:0.55, ember:0.8,
-              jitter:1.0, swirl:0.3, gain:1.05},
-  playful:   {label:'Playful',   colA:[0.36,0.03,0.26], colB:[1.00,0.28,0.58], colC:[1.00,0.78,0.92],
-              wind:1.8, windSpeed:0.95, drag:0.015, stiff:0.85, iters:3, buoy:0.15,
-              attract:3.0, repel:6,  flicker:0.30, ember:1.0,
-              jitter:0.35,swirl:3.0, gain:1.00},
-  angry:     {label:'Angry',     colA:[0.30,0.01,0.01], colB:[0.90,0.12,0.03], colC:[1.00,0.48,0.12],
-              wind:2.2, windSpeed:1.20, drag:0.020, stiff:0.90, iters:3, buoy:0.18,
-              attract:0.0, repel:16, flicker:0.85, ember:2.2,
-              jitter:1.8, swirl:0.6, gain:1.10},
-};
-let persona = PERSONAS.fire;
-
-const GRID_W = 72, GRID_H = 46;
-const CLOTH_W = 1.15, CLOTH_H = 0.62;
-const DT = 1/60;
-const HAND_R = 0.30;
-const GRAB_R = 0.22;
-const EMAX = 300;
-const CAM_Z = 1.7, TAN = 0.45;     // simple perspective camera
-
-let aspect = 1.6;
-let bloomOn = true, persist = 0.88, exposure = 1.45;
-
-/* ---------------- WebGL setup ---------------- */
-const gl = canvas.getContext('webgl', {alpha:false, antialias:true});
-if(!gl){ $('err').style.display='flex'; $('err').textContent='WebGL unavailable in this browser.'; throw new Error('no webgl'); }
-
-function compile(type, src){
-  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
-  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error('shader: '+gl.getShaderInfoLog(s));
-  return s;
-}
-function program(vs, fs){
-  const p = gl.createProgram();
-  gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
-  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
-  gl.linkProgram(p);
-  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: '+gl.getProgramInfoLog(p));
-  return p;
-}
-
-/* shared perspective projection: sim (x in [0,aspect], y in [0,1], z around 0) */
-const PROJ = `
-uniform float u_aspect, u_half;
-vec3 toWorld(vec3 p){ return vec3(p.x-u_half, p.y-0.5, p.z); }
-vec4 project(vec3 w){
-  float d = ${CAM_Z.toFixed(2)} - w.z;
-  return vec4(w.x/(d*${TAN}*u_aspect), w.y/(d*${TAN}), 0., 1.);
-}`;
-
-/* silk surface: fresnel rim + specular + fold/heat emission, additive */
-const SILK_VS = `
-attribute vec3 a_pos; attribute vec3 a_nrm; attribute vec2 a_uv;
-attribute float a_heat; attribute float a_fold;
-${PROJ}
-varying vec2 v_uv; varying float v_heat; varying float v_fold;
-varying vec3 v_nrm; varying vec3 v_view;
-void main(){
-  vec3 w = toWorld(a_pos);
-  v_uv=a_uv; v_heat=a_heat; v_fold=a_fold;
-  v_nrm = a_nrm;
-  v_view = normalize(vec3(0.,0.,${CAM_Z.toFixed(2)}) - w);
-  gl_Position = project(w);
-}`;
-const SILK_FS = `
-precision highp float;
-varying vec2 v_uv; varying float v_heat; varying float v_fold;
-varying vec3 v_nrm; varying vec3 v_view;
-uniform float u_time, u_flicker, u_gain;
-uniform vec3 u_colA, u_colB, u_colC;
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
-float noise(vec2 p){
-  vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
-  return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),
-             mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);
-}
-float fbm(vec2 p){
-  float v=0., a=.5;
-  for(int k=0;k<4;k++){ v+=a*noise(p); p=p*2.03+vec2(11.7,5.3); a*=.55; }
-  return v;
-}
-void main(){
-  vec3 N = normalize(v_nrm);
-  vec3 V = normalize(v_view);
-  float ndv = abs(dot(N, V));
-  float fres = pow(1.0 - ndv, 1.6);
-  vec3 L = normalize(vec3(0.3, 0.6, 0.75));
-  float spec = pow(max(abs(dot(reflect(-L, N), V)), 0.0), 24.0);
-  // flame wisps flowing upward across the surface
-  vec2 q = v_uv*vec2(3.0, 2.2);
-  float wisp = fbm(q + vec2(fbm(q + vec2(0., -u_time*0.9))*1.4, -u_time*0.55));
-  // ragged, noise-eaten edges + rounded organic silhouette
-  vec2 eu = clamp(v_uv + vec2(wisp-0.5)*0.30, 0.0, 1.0);
-  float edge = smoothstep(0.,0.14,eu.x)*smoothstep(1.,0.86,eu.x)
-             * smoothstep(0.,0.11,eu.y)*smoothstep(1.,0.80,eu.y);
-  edge *= smoothstep(0.88, 0.42, length((eu-0.5)*vec2(1.05,1.3)));
-  float flick = 1.0 + u_flicker*0.4*sin(u_time*11.0 + v_uv.x*23.0 + v_uv.y*17.0);
-  float lum = (0.30 + fres*1.4 + v_fold*0.45 + v_heat*0.55)
-            * (0.62 + 0.85*wisp) * edge * flick;
-  lum = min(lum, 2.4);
-  vec3 col = mix(u_colA, u_colB, clamp(lum*1.1, 0.0, 1.0));
-  col = mix(col, u_colC, clamp((lum-0.85)*1.3, 0.0, 1.0));
-  col += u_colC * spec * 0.5 * edge;
-  // premultiplied "over" output: stacked folds saturate toward col, never to white
-  float a = clamp(lum*0.55, 0.0, 0.90);
-  gl_FragColor = vec4(col * lum * 0.55 * u_gain, a);
-}`;
-
-/* faint warp/weft lines for the woven TD feel */
-const LINE_VS = `
-attribute vec3 a_pos; attribute vec2 a_uv; attribute float a_heat; attribute float a_fold;
-${PROJ}
-uniform float u_time, u_flicker, u_gain;
-uniform vec3 u_colA, u_colB, u_colC;
-varying vec3 v_col;
-void main(){
-  gl_Position = project(toWorld(a_pos));
-  float grad = 1.0 - a_uv.y;
-  vec3 base = mix(u_colA, u_colB, clamp(grad*0.85 + a_fold*0.5, 0.0, 1.0));
-  float e = 0.35 + a_fold*0.9 + a_heat*1.2;
-  float flick = 1.0 + u_flicker*0.5*sin(u_time*13.0 + a_uv.x*40.0 + a_uv.y*23.0);
-  float em = smoothstep(0.,0.10,a_uv.x)*smoothstep(1.,0.90,a_uv.x)
-           * smoothstep(0.,0.08,a_uv.y)*smoothstep(1.,0.84,a_uv.y);
-  v_col = mix(base, u_colC, clamp(a_heat*0.8 + a_fold*0.4 - 0.15, 0.0, 1.0)) * e * flick * em * u_gain;
-}`;
-const LINE_FS = `
-precision mediump float;
-varying vec3 v_col; uniform float u_alpha;
-void main(){ gl_FragColor = vec4(v_col*u_alpha, 1.0); }`;
-
-const NODE_VS = `
-attribute vec3 a_pos; attribute float a_heat;
-${PROJ}
-uniform float u_scale;
-varying float v_h;
-void main(){
-  v_h = a_heat;
-  vec3 w = toWorld(a_pos);
-  gl_Position = project(w);
-  gl_PointSize = (0.5 + a_heat*2.5)*u_scale*(${CAM_Z.toFixed(2)}/(${CAM_Z.toFixed(2)}-w.z));
-}`;
-const NODE_FS = `
-precision mediump float;
-varying float v_h; uniform vec3 u_col;
-void main(){
-  vec2 q = gl_PointCoord*2.-1.;
-  float a = pow(max(1.0-length(q), 0.0), 2.0)*pow(v_h, 3.0)*0.5;
-  gl_FragColor = vec4(u_col*a, 1.0);
-}`;
-
-const GLOW_VS = `
-attribute vec2 a_p;
-${PROJ}
-uniform vec2 u_center; uniform float u_radius;
-varying vec2 v_p;
-void main(){
-  v_p = a_p;
-  vec4 c = project(toWorld(vec3(u_center, 0.)));
-  float rc = u_radius/(${CAM_Z.toFixed(2)}*${TAN});
-  gl_Position = c + vec4(a_p.x*rc/u_aspect, a_p.y*rc, 0., 0.);
-}`;
-const GLOW_FS = `
-precision mediump float;
-varying vec2 v_p; uniform vec3 u_color; uniform float u_int;
-void main(){
-  float d = length(v_p);
-  float a = pow(max(1.0-d, 0.0), 2.5)*u_int;
-  gl_FragColor = vec4(u_color*a, 1.0);
-}`;
-
-const EMBER_VS = `
-attribute vec3 a_pos; attribute vec2 a_ls;
-${PROJ}
-uniform float u_ph;
-varying float v_l;
-void main(){
-  v_l = a_ls.x;
-  vec3 w = toWorld(a_pos);
-  gl_Position = project(w);
-  gl_PointSize = a_ls.y*u_ph*(0.5+0.5*a_ls.x);
-}`;
-const EMBER_FS = `
-precision mediump float;
-varying float v_l; uniform vec3 u_c1, u_c2;
-void main(){
-  vec2 q = gl_PointCoord*2.-1.;
-  float a = pow(max(1.0-length(q), 0.0), 2.0)*v_l*0.9;
-  gl_FragColor = vec4(mix(u_c1,u_c2,smoothstep(0.,1.,v_l))*a, 1.0);
-}`;
-
-const QUAD_VS = `
-attribute vec2 a_p; varying vec2 v_uv;
-void main(){ v_uv = a_p*0.5+0.5; gl_Position = vec4(a_p,0.,1.); }`;
-
-const TRAIL_FS = `
-precision mediump float;
-varying vec2 v_uv; uniform sampler2D u_new, u_prev; uniform float u_persist;
-void main(){
-  vec3 n = texture2D(u_new, v_uv).rgb;
-  vec3 p = texture2D(u_prev, v_uv).rgb*u_persist;
-  gl_FragColor = vec4(max(n, p), 1.0);
-}`;
-
-const BRIGHT_FS = `
-precision mediump float;
-varying vec2 v_uv; uniform sampler2D u_tex;
-void main(){
-  vec3 c = texture2D(u_tex, v_uv).rgb;
-  gl_FragColor = vec4(max(c-0.55, 0.0)*1.3, 1.0);
-}`;
-
-const BLUR_FS = `
-precision mediump float;
-varying vec2 v_uv; uniform sampler2D u_tex; uniform vec2 u_dir;
-void main(){
-  vec4 c = texture2D(u_tex, v_uv)*0.227;
-  c += (texture2D(u_tex, v_uv+u_dir*1.384) + texture2D(u_tex, v_uv-u_dir*1.384))*0.316;
-  c += (texture2D(u_tex, v_uv+u_dir*3.230) + texture2D(u_tex, v_uv-u_dir*3.230))*0.070;
-  gl_FragColor = c;
-}`;
-
-const COMP_FS = `
-precision mediump float;
-varying vec2 v_uv; uniform sampler2D u_scene, u_bloom;
-uniform float u_bloomStr, u_expo;
-void main(){
-  vec3 c = texture2D(u_scene, v_uv).rgb + texture2D(u_bloom, v_uv).rgb*u_bloomStr;
-  // hue-preserving tonemap: brightness compresses, color stays saturated
-  float l = max(c.r, max(c.g, c.b));
-  if(l > 1e-4) c *= (1.0 - exp(-l*u_expo))/l;
-  c = mix(c, vec3(1.0), smoothstep(2.2, 4.5, l)*0.28);
-  float g = dot(c, vec3(0.299, 0.587, 0.114));
-  c = clamp(mix(vec3(g), c, 1.28), 0.0, 1.0);
-  float d = distance(v_uv, vec2(0.5));
-  c *= 1.0 - 0.4*smoothstep(0.5, 0.95, d);
-  gl_FragColor = vec4(c, 1.0);
-}`;
-
-const progSilk  = program(SILK_VS, SILK_FS);
-const progLine  = program(LINE_VS, LINE_FS);
-const progNode  = program(NODE_VS, NODE_FS);
-const progGlow  = program(GLOW_VS, GLOW_FS);
-const progEmber = program(EMBER_VS, EMBER_FS);
-const progTrail = program(QUAD_VS, TRAIL_FS);
-const progBright= program(QUAD_VS, BRIGHT_FS);
-const progBlur  = program(QUAD_VS, BLUR_FS);
-const progComp  = program(QUAD_VS, COMP_FS);
-
-const U = {};
-for(const [name, p] of [['silk',progSilk],['line',progLine],['node',progNode],['glow',progGlow],
-                        ['ember',progEmber],['trail',progTrail],['bright',progBright],
-                        ['blur',progBlur],['comp',progComp]]){
-  U[name] = {p};
-  const nu = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
-  for(let i=0;i<nu;i++){ const info = gl.getActiveUniform(p,i); U[name][info.name] = gl.getUniformLocation(p, info.name); }
-  const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES);
-  for(let i=0;i<na;i++){ const info = gl.getActiveAttrib(p,i); U[name][info.name] = gl.getAttribLocation(p, info.name); }
-}
-function setProj(u){
-  gl.uniform1f(u.u_aspect, aspect);
-  gl.uniform1f(u.u_half, aspect*0.5);
-}
-
-/* geometry buffers */
-const quadBuf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-
-const N = GRID_W*GRID_H;
-const positions = new Float32Array(N*3);
-const normals = new Float32Array(N*3);
-const uvs = new Float32Array(N*2);
-for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-  const i=y*GRID_W+x; uvs[i*2]=x/(GRID_W-1); uvs[i*2+1]=y/(GRID_H-1);
-}
-const triIdx = [];
-for(let y=0;y<GRID_H-1;y++) for(let x=0;x<GRID_W-1;x++){
-  const i=y*GRID_W+x;
-  triIdx.push(i,i+1,i+GRID_W, i+1,i+GRID_W+1,i+GRID_W);
-}
-const lineIdx = [];
-for(let y=0;y<GRID_H;y+=2) for(let x=0;x<GRID_W-1;x++){ const i=y*GRID_W+x; lineIdx.push(i,i+1); }
-for(let x=0;x<GRID_W;x+=2) for(let y=0;y<GRID_H-1;y++){ const i=y*GRID_W+x; lineIdx.push(i,i+GRID_W); }
-
-function staticBuf(data){ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); return b; }
-function dynBuf(bytes){ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,bytes,gl.DYNAMIC_DRAW); return b; }
-const posBuf = dynBuf(positions.byteLength);
-const nrmBuf = dynBuf(normals.byteLength);
-const uvBuf = staticBuf(uvs);
-const heatBuf = dynBuf(N*4);
-const foldBuf = dynBuf(N*4);
-const triBuf = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triBuf);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triIdx), gl.STATIC_DRAW);
-const lineBuf = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineBuf);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(lineIdx), gl.STATIC_DRAW);
-const triCount = triIdx.length, lineCount = lineIdx.length;
-
-const emberData = new Float32Array(EMAX*5); // x,y,z,life,size
-const emberBuf = dynBuf(emberData.byteLength);
-
-let enabledLocs = new Set();
-function useAttribs(list){
-  const next = new Set();
-  for(const [loc, buf, size, stride, offset] of list){
-    if(loc===undefined || loc<0) continue;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride||0, offset||0);
-    next.add(loc);
+<script>
+(function () {
+  "use strict";
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return [].slice.call((root || document).querySelectorAll(sel)); };
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function tr(key, fallbackText) {
+    var text = window.PF_I18N ? window.PF_I18N.t(key) : "";
+    return text || fallbackText;
   }
-  for(const loc of enabledLocs) if(!next.has(loc)) gl.disableVertexAttribArray(loc);
-  enabledLocs = next;
-}
 
-function makeFBO(w,h){
-  const tex = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, tex);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  const fb = gl.createFramebuffer();
-  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
-  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  return {fb, tex, w, h};
-}
-let sceneFBO, trailA, trailB, bloomA, bloomB, pxW=0, pxH=0;
-function resize(){
-  const dpr = Math.min(window.devicePixelRatio||1, 2);
-  pxW = Math.max(2, Math.round(canvas.clientWidth*dpr));
-  pxH = Math.max(2, Math.round(canvas.clientHeight*dpr));
-  canvas.width = pxW; canvas.height = pxH;
-  aspect = canvas.clientWidth/canvas.clientHeight;
-  sceneFBO = makeFBO(pxW, pxH);
-  trailA = makeFBO(pxW, pxH);
-  trailB = makeFBO(pxW, pxH);
-  bloomA = makeFBO(Math.max(2,pxW>>2), Math.max(2,pxH>>2));
-  bloomB = makeFBO(bloomA.w, bloomA.h);
-}
-window.addEventListener('resize', resize);
-resize();
-
-/* ---------------- cloth physics (3D) ---------------- */
-const posX=new Float32Array(N), posY=new Float32Array(N), posZ=new Float32Array(N);
-const preX=new Float32Array(N), preY=new Float32Array(N), preZ=new Float32Array(N);
-const heat=new Float32Array(N), foldS=new Float32Array(N);
-let cenX=0, cenY=0, avgHeat=0;
-
-{
-  const ox = aspect*0.5 - CLOTH_W/2, oy = 0.54 - CLOTH_H/2;
-  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-    const i=y*GRID_W+x;
-    posX[i]=preX[i]=ox + CLOTH_W*x/(GRID_W-1);
-    posY[i]=preY[i]=oy + CLOTH_H*y/(GRID_H-1);
-    posZ[i]=preZ[i]=0.06*Math.sin(x*0.22)*Math.sin(y*0.19) + (Math.random()-0.5)*0.01;
-  }
-  cenX = aspect*0.5; cenY = 0.54;
-}
-
-const cons = [];
-const rx = CLOTH_W/(GRID_W-1), ry = CLOTH_H/(GRID_H-1), rd = Math.hypot(rx,ry);
-for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-  const i=y*GRID_W+x;
-  if(x<GRID_W-1) cons.push(i,i+1,rx,1.0);
-  if(y<GRID_H-1) cons.push(i,i+GRID_W,ry,1.0);
-  if(x<GRID_W-1 && y<GRID_H-1){ cons.push(i,i+GRID_W+1,rd,0.7); cons.push(i+1,i+GRID_W,rd,0.7); }
-  if(x<GRID_W-2) cons.push(i,i+2,rx*2,0.25);
-  if(y<GRID_H-2) cons.push(i,i+GRID_W*2,ry*2,0.25);
-}
-const CN = cons.length/4;
-const CI = new Int32Array(CN*2), CR = new Float32Array(CN), CK = new Float32Array(CN);
-for(let c=0;c<CN;c++){ CI[c*2]=cons[c*4]; CI[c*2+1]=cons[c*4+1]; CR[c]=cons[c*4+2]; CK[c]=cons[c*4+3]; }
-
-const grabs = new Map();
-function tryGrab(key, hx, hy){
-  let best=-1, bd=GRAB_R*GRAB_R;
-  for(let i=0;i<N;i++){
-    const dx=posX[i]-hx, dy=posY[i]-hy, d2=dx*dx+dy*dy;
-    if(d2<bd){ bd=d2; best=i; }
-  }
-  if(best<0) return;
-  const gx=best%GRID_W, gy=(best/GRID_W)|0;
-  const nodes=[];
-  for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){
-    const md=Math.abs(dx)+Math.abs(dy);
-    if(md>2) continue;
-    const cx=gx+dx, cy=gy+dy;
-    if(cx<0||cx>=GRID_W||cy<0||cy>=GRID_H) continue;
-    const i=cy*GRID_W+cx;
-    nodes.push({i, ox:posX[i]-posX[best], oy:posY[i]-posY[best], w: md===0?1:(md===1?0.55:0.3)});
-  }
-  grabs.set(key, {nodes, x:hx, y:hy, vx:0, vy:0});
-}
-function applyGrabs(){
-  for(const g of grabs.values()){
-    for(const n of g.nodes){
-      const tx=g.x+n.ox*0.65, ty=g.y+n.oy*0.65;
-      posX[n.i]+= (tx-posX[n.i])*n.w;
-      posY[n.i]+= (ty-posY[n.i])*n.w;
-      posZ[n.i]+= (0.12-posZ[n.i])*n.w*0.4;   // pinch lifts cloth toward viewer
-      preX[n.i] = posX[n.i]-g.vx*n.w;
-      preY[n.i] = posY[n.i]-g.vy*n.w;
-      heat[n.i] = Math.min(1, heat[n.i]+0.06);
+  /* ---------- static noise engine: one shared rAF for every canvas ---------- */
+  var snows = $$("canvas.snow").map(function (el) {
+    return { el: el, ctx: el.getContext("2d"), img: null };
+  });
+  function drawSnow(s) {
+    if (!s.ctx) { return; }
+    if (!s.img) { s.img = s.ctx.createImageData(s.el.width, s.el.height); }
+    var px = new Uint32Array(s.img.data.buffer);
+    for (var i = 0; i < px.length; i++) {
+      var v = (Math.random() * 210 + 12) | 0;
+      px[i] = (255 << 24) | (v << 16) | (v << 8) | v;
     }
+    s.ctx.putImageData(s.img, 0, 0);
   }
-}
+  snows.forEach(drawSnow); /* first frame for everyone, incl. reduced-motion */
 
-let activeHands = [];
-function step(dt, t){
-  const p = persona;
-  const tt = t*p.windSpeed*2.0;
-  const tx = aspect*0.5 + Math.sin(t*0.13)*0.10 + Math.sin(t*0.047)*0.06;
-  const ty = 0.55 + Math.sin(t*0.17+2.0)*0.05;
-  const scx=(tx-cenX)*2.5, scy=(ty-cenY)*2.5;
-  const dt2 = dt*dt, dragK = 1-p.drag;
-  for(let i=0;i<N;i++){
-    const x=posX[i], y=posY[i], z=posZ[i];
-    let ax = scx, ay = scy + p.buoy, az = -z*1.5;
-    ax += p.wind*(Math.sin(y*2.3+tt*1.3+Math.sin(x*1.7+tt*0.8)*1.3)*0.8 + Math.sin(y*5.1-tt*2.1)*0.2);
-    ay += p.wind*(Math.cos(x*2.1+tt)*0.5 + Math.sin((x+y)*1.6-tt*1.7)*0.35);
-    az += p.wind*2.6*(Math.sin(x*1.1+y*0.5+tt*0.8)*0.5
-                    + Math.sin(x*0.6-y*1.4-tt*0.6)*0.35
-                    + Math.sin((x+y)*2.6-tt*1.4)*0.15);
-    const dxc=x-cenX, dyc=y-cenY, rc=Math.hypot(dxc,dyc);
-    if(rc>0.03){ const sw=p.swirl*Math.min(rc*3,1)*0.6/rc; ax += -dyc*sw; ay += dxc*sw; }
-    if(p.jitter>0){
-      ax += (Math.random()-0.5)*2*p.jitter;
-      ay += (Math.random()-0.5)*2*p.jitter;
-      az += (Math.random()-0.5)*p.jitter;
-    }
-    for(let h=0;h<activeHands.length;h++){
-      const hd=activeHands[h];
-      const dx=x-hd.x, dy=y-hd.y, d=Math.hypot(dx,dy);
-      if(d<HAND_R && d>1e-4){
-        const f=1-d/HAND_R, f2=f*f, ux=dx/d, uy=dy/d;
-        const rep = p.repel*(hd.pinch?0.15:1.0);
-        const push = rep*f2*(0.25+hd.speed*2.0);
-        ax += ux*push; ay += uy*push;
-        az -= f2*hd.speed*1.5;                 // fast sweeps billow the cloth away in depth
-        const fA=(d/HAND_R)*f*4;
-        ax -= ux*p.attract*fA; ay -= uy*p.attract*fA;
-        az += p.attract*fA*0.15;               // gentle approach draws cloth toward viewer
-        heat[i]=Math.min(1, heat[i]+f2*3*dt);
+  var frame = 0;
+  function loop() {
+    frame += 1;
+    /* rAF already pauses in hidden tabs; the checks keep resume cheap too */
+    if (!reduced.matches && !document.hidden && frame % 3 === 0) {
+      for (var i = 0; i < snows.length; i++) {
+        if (snows[i].el.offsetParent !== null) { drawSnow(snows[i]); }
       }
     }
-    if(x<0.12) ax+=(0.12-x)*60; else if(x>aspect-0.12) ax-=(x-(aspect-0.12))*60;
-    if(y<0.12) ay+=(0.12-y)*60; else if(y>0.90) ay-=(y-0.90)*60;
-    let nx = x + (x-preX[i])*dragK + ax*dt2;
-    let ny = y + (y-preY[i])*dragK + ay*dt2;
-    let nz = z + (z-preZ[i])*dragK + az*dt2;
-    const sx=nx-x, sy=ny-y, sz=nz-z, sl=Math.hypot(sx,sy,sz);
-    if(sl>0.05){ const k=0.05/sl; nx=x+sx*k; ny=y+sy*k; nz=z+sz*k; }
-    preX[i]=x; preY[i]=y; preZ[i]=z;
-    posX[i]=nx; posY[i]=ny; posZ[i]=nz;
+    tickRecs();
+    window.requestAnimationFrame(loop);
   }
-  const stiff = p.stiff;
-  for(let it=0; it<p.iters; it++){
-    for(let c=0;c<CN;c++){
-      const i=CI[c*2], j=CI[c*2+1];
-      const dx=posX[j]-posX[i], dy=posY[j]-posY[i], dz=posZ[j]-posZ[i];
-      const d=Math.hypot(dx,dy,dz);
-      if(d<1e-6) continue;
-      const diff=(d-CR[c])/d*0.5*CK[c]*stiff;
-      const mx=dx*diff, my=dy*diff, mz=dz*diff;
-      posX[i]+=mx; posY[i]+=my; posZ[i]+=mz;
-      posX[j]-=mx; posY[j]-=my; posZ[j]-=mz;
+  window.requestAnimationFrame(loop);
+
+  /* ---------- channel tuner ---------- */
+  var viewer = $("#viewer");
+  var viewerBody = $("#viewerBody");
+  var burst = $("#burstCanvas");
+  var osd = $("#osdFlash");
+  var CHANNELS = ["ch00", "ch01", "ch02", "ch03", "ch04"];
+  var OSD_NAMES = {
+    ch00: "CH 00 — STATIC",
+    ch01: "CH 01 — SIGNAL",
+    ch02: "CH 02 — VOICES",
+    ch03: "CH 03 — LOG",
+    ch04: "CH 04 — SCORE",
+    ident: "ID — 화면조정"
+  };
+  var current = "ch01";
+  var burstTimer = 0;
+  var osdTimer = 0;
+
+  /* ---------- coarse pointers: tap to clarify, tap again to tune ---------- */
+  var coarse = window.matchMedia("(hover: none) and (pointer: coarse)");
+  var lastPointer = "";
+  /* capture phase so the gesture is known before any button's own click handler runs */
+  document.addEventListener("pointerdown", function (event) { lastPointer = event.pointerType || ""; }, true);
+  document.addEventListener("keydown", function () { lastPointer = ""; }, true);
+  function touchGesture() {
+    return coarse.matches || lastPointer === "touch" || lastPointer === "pen";
+  }
+  var wallBtns = $$(".wall-btn");
+  function clarifyWall(target) { /* at most one monitor clarified; :hover is left alone */
+    wallBtns.forEach(function (btn) { btn.classList.toggle("clarified", btn === target); });
+  }
+
+  function flashOSD(text) {
+    osd.textContent = text;
+    osd.classList.add("show");
+    window.clearTimeout(osdTimer);
+    osdTimer = window.setTimeout(function () { osd.classList.remove("show"); }, 1700);
+  }
+  function setActive(ch) {
+    $$(".channel", viewerBody).forEach(function (sec) {
+      sec.hidden = sec.dataset.ch !== ch;
+    });
+    $$(".wall-btn, .dial-btn").forEach(function (btn) {
+      if (btn.dataset.tune) {
+        btn.setAttribute("aria-pressed", String(btn.dataset.tune === ch));
+      }
+    });
+    viewer.dataset.ch = ch;
+    viewerBody.scrollTop = 0;
+  }
+  function tune(ch) {
+    if (!OSD_NAMES[ch]) { return; }
+    current = ch;
+    clarifyWall(null); /* the wall goes back to latent once a channel is open */
+    if (reduced.matches) { /* hard cut */
+      setActive(ch);
+      flashOSD(OSD_NAMES[ch]);
+      return;
     }
-    applyGrabs();
+    setActive(ch);
+    burst.hidden = false; /* ~250ms burst of noise over the new channel */
+    window.clearTimeout(burstTimer);
+    burstTimer = window.setTimeout(function () {
+      burst.hidden = true;
+      flashOSD(OSD_NAMES[ch]);
+    }, 260);
   }
-  let sx=0, sy=0, hs=0;
-  for(let i=0;i<N;i++){
-    const sp=Math.hypot(posX[i]-preX[i], posY[i]-preY[i], posZ[i]-preZ[i]);
-    heat[i]=Math.min(1, heat[i]*0.94 + sp*8);
-    if(posX[i]<0)posX[i]=0; else if(posX[i]>aspect)posX[i]=aspect;
-    if(posY[i]<0)posY[i]=0; else if(posY[i]>1)posY[i]=1;
-    if(posZ[i]<-0.45)posZ[i]=-0.45; else if(posZ[i]>0.45)posZ[i]=0.45;
-    sx+=posX[i]; sy+=posY[i]; hs+=heat[i];
+  $$("[data-tune]").forEach(function (btn) {
+    btn.addEventListener("click", function (event) {
+      /* detail 0 means keyboard Enter/Space or an assistive-tech activation: those
+         gain nothing from clarifying a preview that is aria-hidden anyway, so they
+         tune in one step. Only a real finger gets the two-tap read-then-open path. */
+      var finger = event.detail > 0 && touchGesture();
+      if (finger && btn.classList.contains("wall-btn") && !btn.classList.contains("clarified")) {
+        clarifyWall(btn); /* first tap reads the preview; a second tap opens the channel */
+        return;
+      }
+      tune(btn.dataset.tune);
+    });
+  });
+  function step(dir) {
+    var i = CHANNELS.indexOf(current); /* ident yields -1: lands on a real channel */
+    tune(CHANNELS[(i + dir + CHANNELS.length) % CHANNELS.length]);
   }
-  cenX=sx/N; cenY=sy/N; avgHeat=hs/N;
-}
+  $("#chUp").addEventListener("click", function () { step(1); });
+  $("#chDown").addEventListener("click", function () { step(-1); });
 
-function computeNormals(){
-  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-    const i=y*GRID_W+x;
-    const xl=x>0?i-1:i, xr=x<GRID_W-1?i+1:i;
-    const yd=y>0?i-GRID_W:i, yu=y<GRID_H-1?i+GRID_W:i;
-    const tux=posX[xr]-posX[xl], tuy=posY[xr]-posY[xl], tuz=posZ[xr]-posZ[xl];
-    const tvx=posX[yu]-posX[yd], tvy=posY[yu]-posY[yd], tvz=posZ[yu]-posZ[yd];
-    let nx=tuy*tvz-tuz*tvy, ny=tuz*tvx-tux*tvz, nz=tux*tvy-tuy*tvx;
-    const l=Math.hypot(nx,ny,nz)||1;
-    normals[i*3]=nx/l; normals[i*3+1]=ny/l; normals[i*3+2]=nz/l;
+  /* ---------- CH 04: score test-card pager ---------- */
+  var scoreCards = $$(".score-card");
+  var scoreCounter = $("#scoreCounter");
+  var scoreIx = 0;
+  function showScore(i) {
+    scoreIx = (i + scoreCards.length) % scoreCards.length;
+    scoreCards.forEach(function (card, k) { card.hidden = k !== scoreIx; });
+    scoreCounter.textContent = pad2(scoreIx + 1) + "/" + pad2(scoreCards.length);
   }
-}
+  $$(".pager-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { showScore(scoreIx + Number(btn.dataset.step)); });
+  });
+  showScore(0);
 
-/* fold-stress: 3D deviation of structural links from rest — folds & stretch glow */
-function computeFolds(){
-  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-    const i=y*GRID_W+x;
-    let m=0, cnt=0;
-    if(x>0){ m+=Math.abs(Math.hypot(posX[i]-posX[i-1],posY[i]-posY[i-1],posZ[i]-posZ[i-1])-rx)/rx; cnt++; }
-    if(x<GRID_W-1){ m+=Math.abs(Math.hypot(posX[i+1]-posX[i],posY[i+1]-posY[i],posZ[i+1]-posZ[i])-rx)/rx; cnt++; }
-    if(y>0){ m+=Math.abs(Math.hypot(posX[i]-posX[i-GRID_W],posY[i]-posY[i-GRID_W],posZ[i]-posZ[i-GRID_W])-ry)/ry; cnt++; }
-    if(y<GRID_H-1){ m+=Math.abs(Math.hypot(posX[i+GRID_W]-posX[i],posY[i+GRID_W]-posY[i],posZ[i+GRID_W]-posZ[i])-ry)/ry; cnt++; }
-    const f = Math.min(1.2, (m/cnt)*3);
-    foldS[i] += (f-foldS[i])*0.15;
+  /* ---------- CH 02: REC VOICE / REC VIDEO / TYPE tabs ---------- */
+  var tabBtns = $$(".tab-btn");
+  function showTab(id) {
+    tabBtns.forEach(function (btn) {
+      btn.setAttribute("aria-pressed", String(btn.dataset.tab === id));
+    });
+    $$(".tab-panel").forEach(function (panel) { panel.hidden = panel.dataset.tab !== id; });
+    recs.forEach(resetRec); /* switching format hangs up any take in progress */
   }
-}
+  tabBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () { showTab(btn.dataset.tab); });
+  });
 
-/* ---------------- embers ---------------- */
-const ex=new Float32Array(EMAX), ey=new Float32Array(EMAX), ez=new Float32Array(EMAX);
-const evx=new Float32Array(EMAX), evy=new Float32Array(EMAX);
-const elife=new Float32Array(EMAX), ettl=new Float32Array(EMAX), esize=new Float32Array(EMAX);
-let ecount=0, emberAcc=0;
-function spawnEmber(){
-  if(ecount>=EMAX) return;
-  const i=(Math.random()*N)|0;
-  if(heat[i]<0.2 && Math.random()>0.15) return;
-  const k=ecount++;
-  ex[k]=posX[i]+(Math.random()-0.5)*0.02;
-  ey[k]=posY[i]+(Math.random()-0.5)*0.02;
-  ez[k]=posZ[i];
-  evx[k]=(Math.random()-0.5)*0.06;
-  evy[k]=0.04+Math.random()*0.10;
-  ettl[k]=1.0+Math.random()*1.4;
-  elife[k]=1.0;
-  esize[k]=0.004+Math.random()*0.007;
-}
-function updateEmbers(dt, t){
-  emberAcc += dt*persona.ember*(2+avgHeat*35);
-  while(emberAcc>1){ emberAcc--; spawnEmber(); }
-  for(let i=0;i<ecount;i++){
-    elife[i]-=dt/ettl[i];
-    if(elife[i]<=0){
-      ecount--;
-      ex[i]=ex[ecount]; ey[i]=ey[ecount]; ez[i]=ez[ecount];
-      evx[i]=evx[ecount]; evy[i]=evy[ecount];
-      elife[i]=elife[ecount]; ettl[i]=ettl[ecount]; esize[i]=esize[ecount];
-      i--; continue;
-    }
-    evx[i]+=Math.sin(t*2.7+i*1.7)*0.15*dt;
-    evy[i]+=0.12*dt;
-    ex[i]+=evx[i]*dt; ey[i]+=evy[i]*dt;
-  }
-}
-
-/* ---------------- hand tracking ---------------- */
-let landmarker=null, tracking=false, lastLandmarks=[];
-const handSlots = [null, null];
-const mouseHand = {active:false, x:0, y:0, px:0, py:0, vx:0, vy:0, speed:0, pinch:false};
-
-function setStatus(msg){ statusEl.textContent = msg; }
-const tr = (key, fallback) => (window.PF_I18N && window.PF_I18N.t(key)) || fallback;
-
-/* normalized [0,1] device coords -> sim coords at the z=0 cloth plane */
-function ndToSim(nx, ny){
-  const cx = nx*2-1, cy = (1-ny)*2-1;
-  return { x: cx*(CAM_Z*TAN*aspect) + aspect*0.5, y: cy*(CAM_Z*TAN) + 0.5 };
-}
-
-let camMsg = 'starting…';
-async function loadModel(){
-  const CDN='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
-  let mp;
-  try{ mp = await import(CDN+'/vision_bundle.mjs'); }
-  catch(_){ mp = await import(CDN+'/+esm'); }
-  const fs = await mp.FilesetResolver.forVisionTasks(CDN+'/wasm');
-  const MODEL='https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
-  try{
-    landmarker = await mp.HandLandmarker.createFromOptions(fs, {
-      baseOptions:{modelAssetPath:MODEL, delegate:'GPU'}, runningMode:'VIDEO', numHands:2});
-  }catch(_){
-    landmarker = await mp.HandLandmarker.createFromOptions(fs, {
-      baseOptions:{modelAssetPath:MODEL, delegate:'CPU'}, runningMode:'VIDEO', numHands:2});
-  }
-}
-async function tryCamera(){
-  camMsg = 'requesting camera…';
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({video:{width:640, height:480, facingMode:'user'}});
-    video.srcObject = stream;
-    await video.play();
-    tracking = true;
-    setStatus(tr('idx.status.tracking', 'hand tracking on — raise a hand · pinch (thumb+index) to grab'));
-  }catch(err){
-    console.warn(err);
-    const name = err && err.name ? err.name : String(err);
-    camMsg = name==='NotAllowedError' ? 'camera blocked — allow it in browser/site settings, then click here'
-           : name==='NotFoundError'   ? 'no camera found — click to retry'
-           : 'camera error: '+name+' — click to retry';
-    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — click the preview panel to retry · mouse works meanwhile').replace('{name}', name));
-  }
-}
-async function initTracking(){
-  setStatus(tr('idx.status.loading', 'loading hand-tracking model…'));
-  try{ await loadModel(); }
-  catch(err){
-    console.warn(err);
-    camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
-    setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
-    return;
-  }
-  await tryCamera();
-}
-preview.addEventListener('click', ()=>{ if(!tracking) tryCamera(); });
-window.addEventListener('error', e=>{ setStatus('⚠ js error: '+e.message); });
-
-function lmToSim(lm){ return ndToSim(1-lm.x, lm.y); }
-
-/* ?demo=1 — synthetic hand for headless visual testing: circles the cloth, pinch-drags in cycles */
-const DEMO = new URLSearchParams(location.search).has('demo');
-let demoWasPinch = false;
-function demoHand(){
-  const t = simT;
-  const hx = aspect*0.5 + Math.cos(t*0.9)*0.35;
-  const hy = 0.52 + Math.sin(t*1.3)*0.22;
-  const pinch = (Math.sin(t*0.7) > 0.2);
-  const speed = Math.min(3, Math.hypot(-Math.sin(t*0.9)*0.315, Math.cos(t*1.3)*0.286));
-  if(pinch && !demoWasPinch) tryGrab('demo', hx, hy);
-  if(!pinch && demoWasPinch) grabs.delete('demo');
-  demoWasPinch = pinch;
-  const g = grabs.get('demo');
-  if(g){ g.vx=hx-g.x; g.vy=hy-g.y; g.x=hx; g.y=hy; }
-  return {x:hx, y:hy, speed, pinch};
-}
-
-function updateHands(dt){
-  const found=[];
-  if(DEMO) found.push(demoHand());
-  if(tracking && video.readyState>=2){
-    let res=null;
-    try{ res = landmarker.detectForVideo(video, performance.now()); }catch(_){}
-    lastLandmarks = res ? res.landmarks : [];
-    for(let hi=0; hi<2; hi++){
-      const lm = lastLandmarks[hi];
-      if(!lm){ if(handSlots[hi]){ grabs.delete('h'+hi); handSlots[hi]=null; } continue; }
-      let px=0, py=0;
-      for(const j of [0,5,9,13,17]){ const s=lmToSim(lm[j]); px+=s.x; py+=s.y; }
-      px/=5; py/=5;
-      const scale = Math.max(1e-3, Math.hypot(lm[0].x-lm[9].x, lm[0].y-lm[9].y));
-      const pinchRatio = Math.hypot(lm[4].x-lm[8].x, lm[4].y-lm[8].y)/scale;
-      const t4=lmToSim(lm[4]), t8=lmToSim(lm[8]);
-      const pinchX=(t4.x+t8.x)/2, pinchY=(t4.y+t8.y)/2;
-      let s = handSlots[hi];
-      if(!s){ s = handSlots[hi] = {x:px, y:py, vx:0, vy:0, speed:0, pinch:false, gx:pinchX, gy:pinchY}; }
-      const nx = s.x+(px-s.x)*0.55, ny = s.y+(py-s.y)*0.55;
-      const vx=(nx-s.x)/Math.max(dt,1e-3), vy=(ny-s.y)/Math.max(dt,1e-3);
-      s.vx = s.vx*0.5+vx*0.5; s.vy = s.vy*0.5+vy*0.5;
-      s.speed = Math.min(3, Math.hypot(s.vx, s.vy));
-      s.x=nx; s.y=ny;
-      const gnx = s.gx+(pinchX-s.gx)*0.6, gny = s.gy+(pinchY-s.gy)*0.6;
-      const gvx = gnx-s.gx, gvy = gny-s.gy;
-      s.gx=gnx; s.gy=gny;
-      const wasPinch = s.pinch;
-      if(!wasPinch && pinchRatio<0.35) s.pinch=true;
-      else if(wasPinch && pinchRatio>0.45) s.pinch=false;
-      const key='h'+hi;
-      if(s.pinch && !wasPinch) tryGrab(key, s.gx, s.gy);
-      if(!s.pinch && wasPinch) grabs.delete(key);
-      const g = grabs.get(key);
-      if(g){ g.x=s.gx; g.y=s.gy; g.vx=gvx; g.vy=gvy; }
-      found.push({x:s.pinch?s.gx:s.x, y:s.pinch?s.gy:s.y, speed:s.speed, pinch:s.pinch});
+  /* ---------- mock recorder: blinking REC + running timecode ---------- */
+  var recs = $$("[data-rec]").map(function (root) {
+    var rec = {
+      root: root,
+      btn: $(".rec-btn", root),
+      tc: $(".timecode", root),
+      status: $(".rec-status", root),
+      state: "idle",
+      start: 0
+    };
+    rec.btn.addEventListener("click", function () { recClick(rec); });
+    return rec;
+  });
+  function recClick(rec) {
+    if (rec.state === "recording") {
+      var sec = Math.max(1, Math.round((Date.now() - rec.start) / 1000));
+      rec.state = "captured";
+      rec.root.classList.remove("recording");
+      rec.root.classList.add("captured");
+      rec.status.textContent = tr("bc.ch02.captured", "MESSAGE CAPTURED — {sec} SEC. YOUR MESSAGE IS IN THE QUEUE. 송출 예정.").replace("{sec}", sec);
+      rec.btn.textContent = tr("bc.ch02.rerec", "● RE-REC 다시 녹음");
+    } else {
+      rec.state = "recording";
+      rec.start = Date.now();
+      rec.root.classList.remove("captured");
+      rec.root.classList.add("recording");
+      rec.status.textContent = tr("bc.ch02.recording", "RECORDING — PRESS ■ STOP WHEN DONE. 녹음 중입니다.");
+      rec.btn.textContent = tr("bc.ch02.stop", "■ STOP");
     }
   }
-  if(mouseHand.active){
-    const vx=(mouseHand.x-mouseHand.px)/Math.max(dt,1e-3), vy=(mouseHand.y-mouseHand.py)/Math.max(dt,1e-3);
-    mouseHand.vx=mouseHand.vx*0.5+vx*0.5; mouseHand.vy=mouseHand.vy*0.5+vy*0.5;
-    mouseHand.speed=Math.min(3, Math.hypot(mouseHand.vx,mouseHand.vy));
-    const g=grabs.get('mouse');
-    if(g){ g.vx=mouseHand.x-mouseHand.px; g.vy=mouseHand.y-mouseHand.py; g.x=mouseHand.x; g.y=mouseHand.y; }
-    mouseHand.px=mouseHand.x; mouseHand.py=mouseHand.y;
-    found.push({x:mouseHand.x, y:mouseHand.y, speed:mouseHand.speed, pinch:mouseHand.pinch});
+  function resetRec(rec) {
+    rec.state = "idle";
+    rec.start = 0;
+    rec.root.classList.remove("recording", "captured");
+    rec.tc.textContent = "00:00:00";
+    rec.status.textContent = rec.root.dataset.ready;
+    rec.btn.textContent = tr("bc.ch02.rec", "● REC");
   }
-  activeHands = found;
-}
-
-function pointerSim(e){
-  const r=canvas.getBoundingClientRect();
-  return ndToSim((e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
-}
-canvas.addEventListener('pointermove', e=>{
-  const s=pointerSim(e);
-  if(!mouseHand.active){ mouseHand.px=s.x; mouseHand.py=s.y; }
-  mouseHand.active=true;
-  mouseHand.x=s.x; mouseHand.y=s.y;
-});
-canvas.addEventListener('pointerdown', e=>{
-  const s=pointerSim(e);
-  mouseHand.active=true; mouseHand.pinch=true;
-  mouseHand.x=s.x; mouseHand.y=s.y;
-  tryGrab('mouse', s.x, s.y);
-});
-window.addEventListener('pointerup', ()=>{ mouseHand.pinch=false; grabs.delete('mouse'); });
-document.addEventListener('pointerleave', ()=>{ mouseHand.active=false; mouseHand.pinch=false; grabs.delete('mouse'); });
-
-/* ---------------- personalities UI ---------------- */
-const cur = {A:[...PERSONAS.fire.colA], B:[...PERSONAS.fire.colB], C:[...PERSONAS.fire.colC]};
-function lerpColors(){
-  for(let k=0;k<3;k++){
-    cur.A[k]+= (persona.colA[k]-cur.A[k])*0.04;
-    cur.B[k]+= (persona.colB[k]-cur.B[k])*0.04;
-    cur.C[k]+= (persona.colC[k]-cur.C[k])*0.04;
-  }
-}
-const chipsEl = $('chips');
-const names = Object.keys(PERSONAS);
-for(const name of names){
-  const el=document.createElement('div');
-  el.className='chip'+(name==='fire'?' active':'');
-  el.dataset.i18n='idx.persona.'+name; /* re-hydrated on language switch */
-  el.textContent=tr('idx.persona.'+name, PERSONAS[name].label);
-  el.addEventListener('pointerdown', e=>e.stopPropagation());
-  el.addEventListener('click', ()=>setPersona(name));
-  el.dataset.name=name;
-  chipsEl.appendChild(el);
-}
-function setPersona(name){
-  persona=PERSONAS[name];
-  for(const c of chipsEl.children) c.classList.toggle('active', c.dataset.name===name);
-}
-window.addEventListener('keydown', e=>{
-  const k=parseInt(e.key,10);
-  if(k>=1 && k<=names.length) setPersona(names[k-1]);
-  if(e.key==='v'||e.key==='V') preview.style.display = preview.style.display==='none'?'block':'none';
-  if(e.key==='b'||e.key==='B'){ bloomOn=!bloomOn; setStatus('bloom '+(bloomOn?'on':'off')); }
-  if(e.key==='t'||e.key==='T'){ persist = persist>0?0:0.88; setStatus('trails '+(persist>0?'on':'off')); }
-  if(e.key===']'){ exposure=Math.min(2.2, exposure+0.1); setStatus('exposure '+exposure.toFixed(1)); }
-  if(e.key==='['){ exposure=Math.max(0.4, exposure-0.1); setStatus('exposure '+exposure.toFixed(1)); }
-  if(e.key==='h'||e.key==='H'){
-    const hidden = $('hud').style.display==='none';
-    $('hud').style.display = hidden?'block':'none';
-    chipsEl.style.display = hidden?'flex':'none';
-    statusEl.style.display = hidden?'block':'none';
-  }
-});
-
-/* ---------------- rendering ---------------- */
-let trailFlip = false;
-function render(t){
-  for(let i=0;i<N;i++){
-    positions[i*3]=posX[i]; positions[i*3+1]=posY[i]; positions[i*3+2]=posZ[i];
-  }
-  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
-  gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, normals);
-  gl.bindBuffer(gl.ARRAY_BUFFER, heatBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, heat);
-  gl.bindBuffer(gl.ARRAY_BUFFER, foldBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, foldS);
-  for(let i=0;i<ecount;i++){
-    emberData[i*5]=ex[i]; emberData[i*5+1]=ey[i]; emberData[i*5+2]=ez[i];
-    emberData[i*5+3]=elife[i]; emberData[i*5+4]=esize[i];
-  }
-  if(ecount>0){ gl.bindBuffer(gl.ARRAY_BUFFER, emberBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, emberData.subarray(0, ecount*5)); }
-
-  /* 1. fresh scene (additive on black) */
-  gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fb);
-  gl.viewport(0,0,pxW,pxH);
-  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // bounded: folds saturate, never blow out
-
-  // silk surface
-  const sk=U.silk;
-  gl.useProgram(sk.p);
-  useAttribs([[sk.a_pos,posBuf,3],[sk.a_nrm,nrmBuf,3],[sk.a_uv,uvBuf,2],[sk.a_heat,heatBuf,1],[sk.a_fold,foldBuf,1]]);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triBuf);
-  setProj(sk);
-  gl.uniform1f(sk.u_time, t);
-  gl.uniform1f(sk.u_flicker, persona.flicker);
-  gl.uniform1f(sk.u_gain, persona.gain);
-  gl.uniform3fv(sk.u_colA, cur.A); gl.uniform3fv(sk.u_colB, cur.B); gl.uniform3fv(sk.u_colC, cur.C);
-  gl.drawElements(gl.TRIANGLES, triCount, gl.UNSIGNED_SHORT, 0);
-  gl.blendFunc(gl.ONE, gl.ONE); // additive for the sparkle/glow layers
-
-  // faint woven lines
-  const ln=U.line;
-  gl.useProgram(ln.p);
-  useAttribs([[ln.a_pos,posBuf,3],[ln.a_uv,uvBuf,2],[ln.a_heat,heatBuf,1],[ln.a_fold,foldBuf,1]]);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineBuf);
-  setProj(ln);
-  gl.uniform1f(ln.u_time, t);
-  gl.uniform1f(ln.u_flicker, persona.flicker);
-  gl.uniform1f(ln.u_gain, persona.gain);
-  gl.uniform1f(ln.u_alpha, 0.025);
-  gl.uniform3fv(ln.u_colA, cur.A); gl.uniform3fv(ln.u_colB, cur.B); gl.uniform3fv(ln.u_colC, cur.C);
-  gl.drawElements(gl.LINES, lineCount, gl.UNSIGNED_SHORT, 0);
-
-  // node sparkles
-  const nd=U.node;
-  gl.useProgram(nd.p);
-  useAttribs([[nd.a_pos,posBuf,3],[nd.a_heat,heatBuf,1]]);
-  setProj(nd);
-  gl.uniform1f(nd.u_scale, pxH/900);
-  gl.uniform3fv(nd.u_col, cur.C);
-  gl.drawArrays(gl.POINTS, 0, N);
-
-  // embers
-  if(ecount>0){
-    const e=U.ember;
-    gl.useProgram(e.p);
-    useAttribs([[e.a_pos, emberBuf, 3, 20, 0],[e.a_ls, emberBuf, 2, 20, 12]]);
-    setProj(e);
-    gl.uniform1f(e.u_ph, pxH*0.9);
-    gl.uniform3fv(e.u_c1, cur.B); gl.uniform3fv(e.u_c2, cur.C);
-    gl.drawArrays(gl.POINTS, 0, ecount);
-  }
-
-  // hand glow
-  const g=U.glow;
-  gl.useProgram(g.p);
-  useAttribs([[g.a_p, quadBuf, 2]]);
-  setProj(g);
-  for(const hd of activeHands){
-    gl.uniform2f(g.u_center, hd.x, hd.y);
-    gl.uniform1f(g.u_radius, hd.pinch?0.12:0.16);
-    gl.uniform1f(g.u_int, (hd.pinch?0.35:0.18)+hd.speed*0.08);
-    gl.uniform3f(g.u_color, cur.B[0]*0.7+cur.C[0]*0.3, cur.B[1]*0.7+cur.C[1]*0.3, cur.B[2]*0.7+cur.C[2]*0.3);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  }
-  gl.disable(gl.BLEND);
-
-  /* 2. feedback trail: out = max(scene, prevTrail*persist) */
-  const tOut = trailFlip ? trailA : trailB;
-  const tPrev = trailFlip ? trailB : trailA;
-  trailFlip = !trailFlip;
-  const tr=U.trail;
-  gl.bindFramebuffer(gl.FRAMEBUFFER, tOut.fb);
-  gl.viewport(0,0,pxW,pxH);
-  gl.useProgram(tr.p);
-  useAttribs([[tr.a_p, quadBuf, 2]]);
-  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, sceneFBO.tex);
-  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tPrev.tex);
-  gl.uniform1i(tr.u_new, 0); gl.uniform1i(tr.u_prev, 1);
-  gl.uniform1f(tr.u_persist, persist);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  gl.activeTexture(gl.TEXTURE0);
-
-  /* 3. bloom from trail */
-  const q=U.bright;
-  gl.bindFramebuffer(gl.FRAMEBUFFER, bloomA.fb);
-  gl.viewport(0,0,bloomA.w,bloomA.h);
-  gl.useProgram(q.p);
-  useAttribs([[q.a_p, quadBuf, 2]]);
-  gl.bindTexture(gl.TEXTURE_2D, tOut.tex);
-  gl.uniform1i(q.u_tex, 0);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-  const b=U.blur;
-  gl.useProgram(b.p);
-  useAttribs([[b.a_p, quadBuf, 2]]);
-  gl.uniform1i(b.u_tex, 0);
-  for(let k=0;k<2;k++){
-    gl.bindFramebuffer(gl.FRAMEBUFFER, bloomB.fb);
-    gl.bindTexture(gl.TEXTURE_2D, bloomA.tex);
-    gl.uniform2f(b.u_dir, 1/bloomA.w, 0);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, bloomA.fb);
-    gl.bindTexture(gl.TEXTURE_2D, bloomB.tex);
-    gl.uniform2f(b.u_dir, 0, 1/bloomA.h);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  }
-
-  /* 4. composite */
-  const m=U.comp;
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.viewport(0,0,pxW,pxH);
-  gl.useProgram(m.p);
-  useAttribs([[m.a_p, quadBuf, 2]]);
-  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tOut.tex);
-  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bloomA.tex);
-  gl.uniform1i(m.u_scene, 0); gl.uniform1i(m.u_bloom, 1);
-  gl.uniform1f(m.u_bloomStr, bloomOn?1.1:0.0);
-  gl.uniform1f(m.u_expo, exposure);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  gl.activeTexture(gl.TEXTURE0);
-}
-
-/* camera preview with landmarks */
-const pctx = preview.getContext('2d');
-function drawPreview(){
-  if(preview.style.display==='none') return;
-  if(!tracking || video.readyState<2){
-    pctx.fillStyle='#0a0505'; pctx.fillRect(0,0,176,132);
-    pctx.fillStyle='rgba(255,150,80,.55)'; pctx.font='10px sans-serif';
-    const words=(tracking?'starting camera…':camMsg).split(' ');
-    let line='', ln=0;
-    for(const w of words){
-      if((line+' '+w).length>28){ pctx.fillText(line, 8, 52+ln*13); line=w; ln++; }
-      else line = line ? line+' '+w : w;
-    }
-    pctx.fillText(line, 8, 52+ln*13);
-    return;
-  }
-  pctx.save();
-  pctx.scale(-1,1);
-  pctx.drawImage(video, -176, 0, 176, 132);
-  pctx.restore();
-  pctx.fillStyle='rgba(0,0,0,.25)'; pctx.fillRect(0,0,176,132);
-  for(const lm of lastLandmarks){
-    for(const j of [4,8,12,16,20,0]){
-      const x=(1-lm[j].x)*176, y=lm[j].y*132;
-      pctx.beginPath(); pctx.arc(x,y,2.2,0,7);
-      pctx.fillStyle = (j===4||j===8) ? '#ffd080' : 'rgba(255,120,50,.8)';
-      pctx.fill();
+  function tickRecs() { /* driven by the shared rAF loop */
+    for (var i = 0; i < recs.length; i++) {
+      var rec = recs[i];
+      if (rec.state !== "recording") { continue; }
+      var ms = Date.now() - rec.start;
+      var m = Math.floor(ms / 60000);
+      var s = Math.floor(ms / 1000) % 60;
+      var f = Math.floor((ms % 1000) / (1000 / 30)); /* MM:SS:FF at 30fps */
+      rec.tc.textContent = pad2(m) + ":" + pad2(s) + ":" + pad2(f);
     }
   }
-}
 
-/* NaN watchdog: if the sim ever explodes, reset the cloth instead of going invisible */
-let watchdogTick = 0;
-function watchdog(){
-  if(++watchdogTick % 90 !== 0) return;
-  if(isFinite(posX[0]+posY[0]+posZ[0]+posX[N-1]+posY[N-1])) return;
-  const ox = aspect*0.5 - CLOTH_W/2, oy = 0.54 - CLOTH_H/2;
-  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
-    const i=y*GRID_W+x;
-    posX[i]=preX[i]=ox + CLOTH_W*x/(GRID_W-1);
-    posY[i]=preY[i]=oy + CLOTH_H*y/(GRID_H-1);
-    posZ[i]=preZ[i]=0.06*Math.sin(x*0.22)*Math.sin(y*0.19);
-    heat[i]=0; foldS[i]=0;
+  /* ---------- CH 02: TYPE form (mock submit, never navigates) ---------- */
+  var form = $("#offerForm");
+  var confirmBox = $("#queueConfirm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    form.hidden = true;
+    confirmBox.hidden = false;
+  });
+  $("#sendAnother").addEventListener("click", function () {
+    form.reset();
+    confirmBox.hidden = true;
+    form.hidden = false;
+  });
+
+  /* ---------- CH 00: tap toggles the credits roll (hover still pauses on desktop) ---------- */
+  var credits = $(".credits");
+  if (credits) {
+    credits.addEventListener("click", function () { credits.classList.toggle("paused"); });
   }
-  grabs.clear();
-  setStatus(tr('idx.status.reset', 'sim reset (numerical blow-up caught)'));
-}
 
-/* ---------------- main loop ---------------- */
-let last = performance.now()/1000, acc=0, simT=0;
-function frame(){
-  const now = performance.now()/1000;
-  const dt = Math.min(now-last, 0.1);
-  last = now;
-  watchdog();
-  updateHands(dt);
-  acc += dt;
-  let steps=0;
-  while(acc>=DT && steps<3){ step(DT, simT); updateEmbers(DT, simT); simT+=DT; acc-=DT; steps++; }
-  if(steps===3) acc=0;
-  computeNormals();
-  computeFolds();
-  lerpColors();
-  render(simT);
-  drawPreview();
-  requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
-initTracking();
+  /* ---------- power on ---------- */
+  setActive("ch01");
+  showTab("voice");
+  window.setTimeout(function () { flashOSD(OSD_NAMES.ch01); }, 450);
+
+  /* re-render idle recorder statuses when the language changes; active takes keep their text */
+  document.addEventListener("pf:lang", function () {
+    recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
+  });
+})();
 </script>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var film = document.getElementById("film");
+  if (!film) { return; }
+  if (reducedMotion.matches || !window.gsap || !window.ScrollTrigger) {
+    /* reduced motion (or missing vendor files): bypass every scroll-triggered tween —
+       scenes stay fully visible and the intro reads as a static page, hard cuts only */
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  var staticOverlay = document.getElementById("filmStatic");
+  var staticCanvas = staticOverlay.querySelector("canvas");
+  var staticCtx = staticCanvas.getContext("2d");
+  var staticImg = null;
+  var staticTimer = 0;
+  function drawOverlaySnow() {
+    /* fixed-position elements have no offsetParent, so the shared snow loop
+       skips this canvas — the burst drives its own frames instead */
+    if (!staticCtx) { return; }
+    if (!staticImg) { staticImg = staticCtx.createImageData(staticCanvas.width, staticCanvas.height); }
+    var px = new Uint32Array(staticImg.data.buffer);
+    for (var i = 0; i < px.length; i++) {
+      var v = (Math.random() * 210 + 12) | 0;
+      px[i] = (255 << 24) | (v << 16) | (v << 8) | v;
+    }
+    staticCtx.putImageData(staticImg, 0, 0);
+  }
+  function staticTick() {
+    if (staticOverlay.hidden) { return; }
+    drawOverlaySnow();
+    window.requestAnimationFrame(staticTick);
+  }
+  function staticBurst() { /* a beat of channel-change snow between scenes */
+    var wasHidden = staticOverlay.hidden;
+    staticOverlay.hidden = false;
+    if (wasHidden) { window.requestAnimationFrame(staticTick); }
+    window.clearTimeout(staticTimer);
+    staticTimer = window.setTimeout(function () { staticOverlay.hidden = true; }, 240);
+  }
+
+  var scenes = [].slice.call(film.querySelectorAll("[data-scene]"));
+  scenes.forEach(function (scene, ix) {
+    var parts = [].slice.call(scene.querySelectorAll(".scene-inner > *"));
+    if (ix === 0) {
+      /* the opening ident plays on power-on, not on scroll */
+      gsap.from(parts, { autoAlpha: 0, y: 28, stagger: 0.12, duration: 0.9, ease: "power2.out", delay: 0.2, clearProps: "all" });
+    } else {
+      gsap.timeline({
+        scrollTrigger: { trigger: scene, start: "top 80%", end: "top 32%", scrub: 0.5 }
+      }).from(parts, { autoAlpha: 0, y: 48, stagger: 0.1, ease: "none" });
+      ScrollTrigger.create({ trigger: scene, start: "top 58%", onEnter: staticBurst, onEnterBack: staticBurst });
+    }
+    var bars = scene.querySelector(".film-bars");
+    if (bars) {
+      gsap.from(bars.children, { scaleY: 0, transformOrigin: "50% 100%", stagger: 0.07, duration: 0.8, ease: "power2.out", delay: 0.15, clearProps: "all" });
+    }
+    var wall = scene.querySelector(".film-wall");
+    if (wall) {
+      gsap.from(wall.children, {
+        autoAlpha: 0, scale: 0.55, y: 70, stagger: 0.08, ease: "none",
+        scrollTrigger: { trigger: scene, start: "top 78%", end: "top 28%", scrub: 0.5 }
+      });
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

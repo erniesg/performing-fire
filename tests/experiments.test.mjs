@@ -5,8 +5,8 @@ import vm from 'node:vm'
 
 const rawJson = await readFile(new URL('../public/experiments/experiments.json', import.meta.url), 'utf8')
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
-const broadcast = await readFile(new URL('../public/broadcast.html', import.meta.url), 'utf8')
-const flameCloth = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const flameCloth = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
 
 const CMS_ENDPOINT = 'https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0'
 const LOCAL_COPY = './experiments.json'
@@ -126,10 +126,10 @@ test('the two seed experiments exist', () => {
   const entries = JSON.parse(rawJson)
   const flame = entries.find(entry => entry.title === 'Flame Cloth v3')
   assert.ok(flame, 'Flame Cloth v3 entry missing')
-  assert.equal(flame.url, '/')
+  assert.equal(flame.url, '/experiments/flame-cloth/')
   const direction5 = entries.find(entry => entry.title === 'The Broadcast — Direction 5')
   assert.ok(direction5, 'The Broadcast — Direction 5 entry missing')
-  assert.equal(direction5.url, '/broadcast')
+  assert.equal(direction5.url, '/')
 })
 
 test('the index renders one card per JSON entry from the JSON by relative path', () => {

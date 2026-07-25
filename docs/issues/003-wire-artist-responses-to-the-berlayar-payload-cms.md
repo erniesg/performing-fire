@@ -4,7 +4,7 @@ depends-on: 002
 
 ## Goal
 
-Give the Voices channel (CH 02) real persistence. Artist responses submitted through the existing offer form in `public/broadcast.html` are stored in the shared Payload CMS at `https://berlayar.ai/api/artist-responses` (collection added by a companion issue in the `erniesg/berlayar` repo), and published responses are fetched and rendered in the Voices channel. Team members moderate and edit responses in the Payload admin panel — the microsite itself needs no auth.
+Give the Voices channel (CH 02) real persistence. Artist responses submitted through the existing offer form in `public/index.html` (the Broadcast, now the site root) are stored in the shared Payload CMS at `https://berlayar.ai/api/artist-responses` (collection added by a companion issue in the `erniesg/berlayar` repo), and published responses are fetched and rendered in the Voices channel. Team members moderate and edit responses in the Payload admin panel — the microsite itself needs no auth.
 
 ## Acceptance tests
 
@@ -26,7 +26,7 @@ None. The collection allows public create and published-only public read; modera
 
 ## Artifact outputs
 
-- Updated `public/broadcast.html` (fetch, render, submit, fallback)
+- Updated `public/index.html` (the Broadcast root page: fetch, render, submit, fallback)
 - New `public/fixtures/artist-responses.json`
 - New `tests/responses.test.mjs`
 - Evidence: screenshot of Voices rendering fetched responses against the live or staging API, or against the fixture with the fallback banner visible if the API is not yet deployed

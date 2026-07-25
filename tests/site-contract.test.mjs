@@ -2,8 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-const broadcast = await readFile(new URL('../public/broadcast.html', import.meta.url), 'utf8')
-const experiment = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const experiment = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
 
 test('broadcast status appears once', () => {
   assert.equal((broadcast.match(/ON AIR/g) ?? []).length, 1)
@@ -32,10 +32,10 @@ test('every monitor shows a latent preview that clears on hover', () => {
   assert.match(broadcast, /preview-ident/)
 })
 
-test('the flame cloth remains the root index and Broadcast is separate', () => {
+test('the Broadcast is the root index and the flame cloth is its own experiment page', () => {
+  assert.match(broadcast, /THE BROADCAST/)
   assert.match(experiment, /FLAME CLOTH v3/)
   assert.doesNotMatch(experiment, /THE BROADCAST/)
-  assert.match(broadcast, /THE BROADCAST/)
 })
 
 test('reduced motion is supported', () => {

@@ -6,8 +6,8 @@ const publicDir = new URL('../public/', import.meta.url)
 const ORIGIN = 'https://performingfire.berlayar.ai'
 
 const PAGES = [
-  { file: 'index.html', path: '/', title: 'Performing Fire — Interactive Fire Study' },
-  { file: 'broadcast.html', path: '/broadcast', title: 'Performing Fire — The Broadcast' },
+  { file: 'index.html', path: '/', title: 'Performing Fire — The Broadcast' },
+  { file: 'experiments/flame-cloth/index.html', path: '/experiments/flame-cloth/', title: 'Performing Fire — Interactive Fire Study' },
   { file: 'experiments/index.html', path: '/experiments/', title: 'Performing Fire — Experiments Index' },
 ]
 

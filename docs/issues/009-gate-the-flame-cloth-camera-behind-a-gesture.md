@@ -4,7 +4,7 @@ depends-on: 002
 
 ## Goal
 
-`public/index.html` requests webcam access immediately on page load — visitors get a permission prompt before they understand what the page is, and browsers that deny leave the study half-dead. Gate the camera behind an explicit on-brand gesture ("TOUCH THE FIRE · 불을 만지기" button or equivalent), let the cloth simulation run beautifully without the camera until then, and take a performance pass: the WebGL loop should pause when the tab is hidden, and the page should stay responsive on battery-powered laptops.
+`public/experiments/flame-cloth/index.html` (the flame-cloth study, moved off the root) requests webcam access immediately on page load — visitors get a permission prompt before they understand what the page is, and browsers that deny leave the study half-dead. Gate the camera behind an explicit on-brand gesture ("TOUCH THE FIRE · 불을 만지기" button or equivalent), let the cloth simulation run beautifully without the camera until then, and take a performance pass: the WebGL loop should pause when the tab is hidden, and the page should stay responsive on battery-powered laptops.
 
 ## Acceptance tests
 
@@ -26,7 +26,7 @@ None.
 
 ## Artifact outputs
 
-- Updated `public/index.html`
+- Updated `public/experiments/flame-cloth/index.html`
 - New `tests/camera-gate.test.mjs`
 - Before/after evidence of load without a permission prompt
 

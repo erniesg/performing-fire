@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile, readdir, stat } from 'node:fs/promises'
 
 const publicDir = new URL('../public/', import.meta.url)
-const broadcast = await readFile(new URL('broadcast.html', publicDir), 'utf8')
+const broadcast = await readFile(new URL('index.html', publicDir), 'utf8')
 
 test('GSAP and ScrollTrigger are vendored and referenced by relative paths', async () => {
   const vendored = await readdir(new URL('vendor/', publicDir))
@@ -30,8 +30,8 @@ test('reduced motion bypasses scroll-triggered tweens', () => {
   assert.match(broadcast, /if \(reducedMotion\.matches[\s\S]{0,400}?return;[\s\S]{0,400}?gsap\.registerPlugin\(ScrollTrigger\)/)
 })
 
-test('broadcast.html plus public/vendor stays within the 900 KB budget', async () => {
-  let total = (await stat(new URL('broadcast.html', publicDir))).size
+test('the broadcast index.html plus public/vendor stays within the 900 KB budget', async () => {
+  let total = (await stat(new URL('index.html', publicDir))).size
   for (const name of await readdir(new URL('vendor/', publicDir))) {
     total += (await stat(new URL(`vendor/${name}`, publicDir))).size
   }
