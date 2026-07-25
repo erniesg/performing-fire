@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Post-deploy QA: prints "<status> <url>" for staging and production.
+# Staging non-200 is a warning (it may 404 until its first deploy);
+# production non-200 exits non-zero.
+set -u
+
+STAGING_URL="https://performingfire-stg.berlayar.ai"
+PRODUCTION_URL="https://performingfire.berlayar.ai"
+
+fetch_status() {
+  # curl writes 000 on connection failure; swallow the exit code so we
+  # can classify per environment instead of dying here.
+  curl --silent --output /dev/null --max-time 30 --write-out '%{http_code}' "$1" 2>/dev/null || true
+}
+
+exit_code=0
+
+staging_status="$(fetch_status "$STAGING_URL")"
+echo "${staging_status:-000} $STAGING_URL"
+if [ "${staging_status:-000}" != "200" ]; then
+  echo "warning: staging returned ${staging_status:-000} (staging may 404 until its first deploy)" >&2
+fi
+
+production_status="$(fetch_status "$PRODUCTION_URL")"
+echo "${production_status:-000} $PRODUCTION_URL"
+if [ "${production_status:-000}" != "200" ]; then
+  echo "error: production returned ${production_status:-000}" >&2
+  exit_code=1
+fi
+
+exit "$exit_code"
