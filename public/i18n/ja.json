@@ -117,7 +117,7 @@
   "bc.ident.tag": "送出進行中 · TRANSMISSION IN PROGRESS",
   "bc.footer.experiments": "すべての実験 — 実験索引",
   "idx.title": "パフォーミング・ファイア — インタラクティブ・ファイア・スタディ",
-  "idx.tagline": "インタラクティブ・ファイア・スタディ · ハンドトラッキング対応",
+  "idx.tagline": "インタラクティブ・ファイア・スタディ · ハンドトラッキングはリクエスト時",
   "idx.controls": "つまんで掴む＆伸ばす · なでてかき混ぜる · V カメラ表示 · T 軌跡 · B ブルーム · [ ] 露出",
   "idx.webgl": "このブラウザでは WebGL を利用できません。",
   "idx.footer": "すべての実験",
@@ -128,8 +128,12 @@
   "idx.persona.playful": "遊び心",
   "idx.persona.angry": "怒り",
   "idx.status.tracking": "ハンドトラッキング オン — 手を上げてください · 親指と人差し指でつまむと掴めます",
-  "idx.status.camera": "カメラを利用できません（{name}）— プレビューをクリックして再試行 · その間はマウスで操作できます",
+  "idx.status.camera": "カメラを利用できません（{name}）— 炎に触れて再試行 · その間はマウスで操作できます",
   "idx.status.loading": "ハンドトラッキングモデルを読み込み中…",
   "idx.status.modelFailed": "モデルの読み込みに失敗（{err}）— マウスモード：動かしてかき混ぜ、ドラッグで掴む",
-  "idx.status.reset": "シミュレーションをリセット（数値発散を検出）"
+  "idx.status.reset": "シミュレーションをリセット（数値発散を検出）",
+  "idx.status.ready": "カメラはオフ · マウスを動かしてかき混ぜる — 手を使うには炎に触れてください",
+  "idx.status.requesting": "カメラを要求中…",
+  "idx.camera.enable": "炎に触れる · TOUCH THE FIRE",
+  "idx.camera.retry": "もう一度 · TRY AGAIN"
 }

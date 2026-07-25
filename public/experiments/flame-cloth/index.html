@@ -27,6 +27,25 @@
   #preview { position:fixed; right:16px; bottom:16px; width:176px; height:132px;
     border-radius:8px; border:1px solid rgba(255,120,40,.25); opacity:.75; cursor:pointer;
     background:#0a0505; }
+  /* The camera gate sits exactly on top of the preview panel: the panel is the
+     control that turns it on, so no layout moves when the camera comes up. */
+  #camera-gate { position:fixed; right:16px; bottom:16px; width:178px; height:134px; z-index:6;
+    box-sizing:border-box; display:flex; align-items:center; justify-content:center; text-align:center;
+    padding:10px 12px; font-family:inherit; font-size:11px; line-height:1.7; letter-spacing:.12em;
+    text-transform:uppercase; color:rgba(255,225,200,.85); background:rgba(20,8,4,.72);
+    border:1px solid rgba(255,120,40,.35); border-radius:8px; cursor:pointer;
+    backdrop-filter:blur(8px); transition:all .18s ease; animation:gate-glow 3.2s ease-in-out infinite; }
+  #camera-gate[hidden] { display:none; }
+  #camera-gate:hover, #camera-gate:focus-visible { border-color:rgba(255,160,70,.9); color:#fff;
+    outline:none; }
+  @keyframes gate-glow {
+    0%, 100% { box-shadow:0 0 12px rgba(255,110,30,.18), inset 0 0 10px rgba(255,110,30,.08); }
+    50%      { box-shadow:0 0 24px rgba(255,110,30,.45), inset 0 0 14px rgba(255,110,30,.18); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #camera-gate { animation:none; }
+    #eterm { animation:none; }
+  }
   #hud { position:fixed; top:18px; left:22px; color:#e8d5c0; pointer-events:none; user-select:none; }
   #hud h1 { margin:0; font-size:13px; font-weight:600; letter-spacing:.28em; text-transform:uppercase;
     color:#ffb37a; text-shadow:0 0 18px rgba(255,100,20,.5); }
@@ -81,9 +100,10 @@
 <canvas id="gl"></canvas>
 <video id="cam" playsinline muted></video>
 <canvas id="preview" width="176" height="132"></canvas>
+<button id="camera-gate" type="button" data-i18n="idx.camera.enable">TOUCH THE FIRE · 불을 만지기</button>
 <div id="hud">
   <h1>Performing Fir<span id="eterm">e</span></h1>
-  <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking enabled</p>
+  <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking on request</p>
   <p data-i18n="idx.controls">pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
 </div>
 <nav class="lang-toggle" aria-label="Language">
@@ -93,7 +113,7 @@
   <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
 </nav>
 <div id="chips"></div>
-<div id="status">starting…</div>
+<div id="status" role="status" aria-live="polite" data-i18n="idx.status.ready">camera off · move the mouse to stir — touch the fire to use your hands</div>
 <div id="err" data-i18n="idx.webgl"></div>
 <footer id="site-footer"><a href="/experiments/" data-i18n="idx.footer">all experiments</a></footer>
 
@@ -195,7 +215,7 @@
    ============================================================ */
 
 const $ = id => document.getElementById(id);
-const canvas = $('gl'), video = $('cam'), preview = $('preview'), statusEl = $('status');
+const canvas = $('gl'), video = $('cam'), preview = $('preview'), statusEl = $('status'), gateEl = $('camera-gate');
 
 const PERSONAS = {
   fire:      {label:'Fire',      colA:[0.50,0.05,0.01], colB:[1.00,0.36,0.05], colC:[1.00,0.85,0.50],
@@ -777,7 +797,21 @@ function ndToSim(nx, ny){
   return { x: cx*(CAM_Z*TAN*aspect) + aspect*0.5, y: cy*(CAM_Z*TAN) + 0.5 };
 }
 
-let camMsg = 'starting…';
+/* ---------------- camera gate ----------------
+   Nothing in this block runs on load. enableCamera() is the only path to
+   getUserMedia and to the (multi-megabyte) hand-tracking model, and it is only
+   ever called from a user-gesture handler — see the click wiring below. The
+   cloth simulates, renders and responds to the mouse with the camera off, so a
+   denied or absent camera costs a status line, never the page. */
+let camMsg = 'camera off — touch the fire to enable';
+let camBusy = false;
+
+function showGate(key, fallback){
+  gateEl.dataset.i18n = key;                    /* re-hydrated on language switch */
+  gateEl.textContent = tr(key, fallback);
+  gateEl.hidden = false;
+}
+
 async function loadModel(){
   const CDN='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
   let mp;
@@ -795,33 +829,47 @@ async function loadModel(){
 }
 async function tryCamera(){
   camMsg = 'requesting camera…';
+  setStatus(tr('idx.status.requesting', 'requesting camera…'));
   try{
     const stream = await navigator.mediaDevices.getUserMedia({video:{width:640, height:480, facingMode:'user'}});
     video.srcObject = stream;
     await video.play();
     tracking = true;
+    gateEl.hidden = true;
     setStatus(tr('idx.status.tracking', 'hand tracking on — raise a hand · pinch (thumb+index) to grab'));
   }catch(err){
     console.warn(err);
     const name = err && err.name ? err.name : String(err);
-    camMsg = name==='NotAllowedError' ? 'camera blocked — allow it in browser/site settings, then click here'
-           : name==='NotFoundError'   ? 'no camera found — click to retry'
-           : 'camera error: '+name+' — click to retry';
-    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — click the preview panel to retry · mouse works meanwhile').replace('{name}', name));
+    camMsg = name==='NotAllowedError' ? 'camera blocked — allow it in browser/site settings, then touch the fire again'
+           : name==='NotFoundError'   ? 'no camera found — touch the fire to retry'
+           : 'camera error: '+name+' — touch the fire to retry';
+    /* non-blocking on purpose: one status line, the cloth keeps animating in mouse mode */
+    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — touch the fire to retry · mouse works meanwhile').replace('{name}', name));
+    showGate('idx.camera.retry', 'TRY AGAIN · 다시 시도');
   }
 }
-async function initTracking(){
-  setStatus(tr('idx.status.loading', 'loading hand-tracking model…'));
-  try{ await loadModel(); }
-  catch(err){
-    console.warn(err);
-    camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
-    setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
-    return;
+/* the single camera entry point — gesture only, never called on load */
+async function enableCamera(){
+  if(camBusy || tracking) return;
+  camBusy = true;
+  gateEl.hidden = true;
+  if(!landmarker){
+    setStatus(tr('idx.status.loading', 'loading hand-tracking model…'));
+    try{ await loadModel(); }
+    catch(err){
+      console.warn(err);
+      camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
+      setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
+      showGate('idx.camera.retry', 'TRY AGAIN · 다시 시도');
+      camBusy = false;
+      return;
+    }
   }
   await tryCamera();
+  camBusy = false;
 }
-preview.addEventListener('click', ()=>{ if(!tracking) tryCamera(); });
+gateEl.addEventListener('click', ()=>{ enableCamera(); });
+preview.addEventListener('click', ()=>{ if(!tracking) enableCamera(); });
 window.addEventListener('error', e=>{ setStatus('⚠ js error: '+e.message); });
 
 function lmToSim(lm){ return ndToSim(1-lm.x, lm.y); }
@@ -1140,9 +1188,16 @@ function watchdog(){
   setStatus(tr('idx.status.reset', 'sim reset (numerical blow-up caught)'));
 }
 
-/* ---------------- main loop ---------------- */
+/* ---------------- main loop ----------------
+   A hidden tab schedules no rAF at all: on battery that takes the WebGL passes,
+   the verlet solve and the MediaPipe inference to zero instead of leaving them
+   throttled. Resuming re-bases `last` so the first visible frame is not handed a
+   dt the size of the whole background stretch. */
 let last = performance.now()/1000, acc=0, simT=0;
+let rafId = 0;
 function frame(){
+  rafId = 0;
+  if(document.hidden) return;
   const now = performance.now()/1000;
   const dt = Math.min(now-last, 0.1);
   last = now;
@@ -1157,10 +1212,19 @@ function frame(){
   lerpColors();
   render(simT);
   drawPreview();
-  requestAnimationFrame(frame);
+  rafId = requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
-initTracking();
+function startLoop(){
+  if(rafId || document.hidden) return;
+  last = performance.now()/1000; acc = 0;
+  rafId = requestAnimationFrame(frame);
+}
+function stopLoop(){
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = 0;
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopLoop(); else startLoop(); });
+startLoop();
 </script>
 </body>
 </html>

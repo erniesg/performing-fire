@@ -117,7 +117,7 @@
   "bc.ident.tag": "TRANSMISSION IN PROGRESS · 송출 진행 중",
   "bc.footer.experiments": "ALL EXPERIMENTS — 실험 색인",
   "idx.title": "Performing Fire — Interactive Fire Study",
-  "idx.tagline": "interactive fire study · hand tracking enabled",
+  "idx.tagline": "interactive fire study · hand tracking on request",
   "idx.controls": "pinch to grab & stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure",
   "idx.webgl": "WebGL unavailable in this browser.",
   "idx.footer": "all experiments",
@@ -128,8 +128,12 @@
   "idx.persona.playful": "Playful",
   "idx.persona.angry": "Angry",
   "idx.status.tracking": "hand tracking on — raise a hand · pinch (thumb+index) to grab",
-  "idx.status.camera": "camera unavailable ({name}) — click the preview panel to retry · mouse works meanwhile",
+  "idx.status.camera": "camera unavailable ({name}) — touch the fire to retry · mouse works meanwhile",
   "idx.status.loading": "loading hand-tracking model…",
   "idx.status.modelFailed": "model load failed ({err}) — mouse mode: move to stir, drag to grab",
-  "idx.status.reset": "sim reset (numerical blow-up caught)"
+  "idx.status.reset": "sim reset (numerical blow-up caught)",
+  "idx.status.ready": "camera off · move the mouse to stir — touch the fire to use your hands",
+  "idx.status.requesting": "requesting camera…",
+  "idx.camera.enable": "TOUCH THE FIRE · 불을 만지기",
+  "idx.camera.retry": "TRY AGAIN · 다시 시도"
 }
