@@ -8,6 +8,7 @@ tmp/
 node_modules/
 .env
 .env.*
+.superpowers/
 
 # Local rucksack outputs and generated artifacts
 .agent/evidence/
