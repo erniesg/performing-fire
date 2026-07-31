@@ -10,6 +10,8 @@ Replace the current scroll-driven front sequence in `public/index.html` with one
 
 The hierarchy is deliberate: the main CRT remains animated, the selected preview is a static tuned frame, unselected previews are dimmed/softly blurred static frames, and only the preview under pointer/focus may wake into motion. Do not animate every surface at once.
 
+This is the consolidated overnight implementation PR. It must also complete the detailed requirements in checked-in specs `011-populate-about-and-contribute-with-sharp-localized-copy.md`, `012-populate-experiments-research-and-log.md`, and `013-add-a-payload-editable-localized-broadcast-content-layer.md`. Treat those three files as subsections of this issue, not as future branches: populate all five channels, complete EN/KO/ZH/JA, preserve existing response/experiment CMS behavior, and add the safe optional Payload broadcast-content adapter with complete static fallback. One consolidated PR avoids branching later content work from `main` before the console exists.
+
 ## Acceptance tests
 
 - The desktop experience fits within the available viewport without document-level vertical scrolling at the reference sizes used by the existing narrow-viewport harness and a 1728×1117 desktop viewport.
@@ -23,6 +25,7 @@ The hierarchy is deliberate: the main CRT remains animated, the selected preview
 - The language control remains a compact EN/한국어/中文/日本語 toggle and preserves the existing language-resolution contract.
 - Existing functionality for artist responses, experiments, accessibility, and reduced motion is preserved.
 - Add or update automated tests for the console structure, navigation, progress state, focus/hover state, no-scroll layout, and reduced-motion behavior.
+- Satisfy every acceptance test in issue specs 011, 012, and 013 in this same change, including sharp factual copy, complete localized content, all named experiments, technically honest Research/Log content, and the Payload broadcast-content fallback/security contract.
 
 ## Validation command
 
@@ -40,6 +43,7 @@ None.
 - Updated `public/index.html` and only the minimum supporting public assets
 - Updated/new console contract tests
 - Evidence manifest plus desktop and narrow-viewport screenshots for default state, hover/focus state, and one non-default channel
+- Evidence for all five populated channels and at least one complete CJK locale; keep screenshots/artifacts out of normal source commits except through the evidence mechanism
 
 ## Stop conditions
 
