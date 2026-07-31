@@ -6,7 +6,7 @@ vm-codex
 
 ## Goal
 
-Replace the current scroll-driven front sequence in `public/index.html` with one restrained, full-height broadcast console that preserves the established Performing Fire CRT language. Use `docs/superpowers/specs/2026-07-30-broadcast-console-redesign-progress.md` as the reviewed direction and the existing local animation implementations as the technical source of truth. The page must present five channel previews above one main CRT; selecting a preview changes the channel in the same console rather than navigating through a long page.
+Replace the current scroll-driven front sequence in `public/index.html` with one restrained, full-height broadcast console that preserves the established Performing Fire CRT language. Use `docs/superpowers/specs/2026-07-30-broadcast-console-redesign-progress.md` as the reviewed direction and the exact committed animation catalogs in `public/js/preview-anims.js` and `public/js/preview-anims3.js` as the technical source of truth. The page must present five channel previews above one main CRT; selecting a preview changes the channel in the same console rather than navigating through a long page.
 
 The hierarchy is deliberate: the main CRT remains animated, the selected preview is a static tuned frame, unselected previews are dimmed/softly blurred static frames, and only the preview under pointer/focus may wake into motion. Do not animate every surface at once.
 
