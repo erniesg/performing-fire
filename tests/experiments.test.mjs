@@ -6,7 +6,9 @@ import vm from 'node:vm'
 const rawJson = await readFile(new URL('../public/experiments/experiments.json', import.meta.url), 'utf8')
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const fabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const fabric = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
+const legacyFabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const redirects = await readFile(new URL('../public/_redirects', import.meta.url), 'utf8')
 
 const CMS_ENDPOINT = 'https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0'
 const LOCAL_COPY = './experiments.json'
@@ -147,7 +149,7 @@ test('the Fabric seed experiment exists and the retired second card is gone', ()
   const fabric = entries.find(entry => entry.title === 'Fabric')
   assert.ok(fabric, 'Fabric entry missing')
   assert.equal(fabric.slug, 'fabric')
-  assert.equal(fabric.url, '/experiments/flame-cloth/')
+  assert.equal(fabric.url, '/experiments/fabric/')
   assert.equal(entries.some(entry => entry.slug === 'broadcast-direction-5'), false)
 })
 
@@ -171,6 +173,13 @@ test('the index matches the broadcast visual language', () => {
 test('both existing pages link to /experiments/ from their footers', () => {
   assert.match(broadcast, /<footer class="pf-footer">[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
   assert.match(fabric, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
+})
+
+test('the legacy flame-cloth route redirects to canonical Fabric', () => {
+  assert.match(legacyFabric, /http-equiv="refresh"[^>]*url=\/experiments\/fabric\//)
+  assert.match(legacyFabric, /window\.location\.replace\("\/experiments\/fabric\//)
+  assert.match(legacyFabric, /href="\/experiments\/fabric\/"/)
+  assert.match(redirects, /\/experiments\/flame-cloth\/ \/experiments\/fabric\/ 301/)
 })
 
 // ---- CMS-first wiring -------------------------------------------------------

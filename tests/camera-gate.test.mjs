@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises'
 import vm from 'node:vm'
 
 const LOCALES = ['en', 'ko', 'zh', 'ja']
-const page = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const page = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 const dicts = {}
 for (const locale of LOCALES) {
   dicts[locale] = JSON.parse(await readFile(new URL(`../public/i18n/${locale}.json`, import.meta.url), 'utf8'))

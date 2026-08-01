@@ -145,7 +145,7 @@ body {
   var CMS_ENDPOINT = "https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0";
   var HIDDEN_SLUGS = ["broadcast-direction-5"];
   var LEGACY_FABRIC_SLUG = "flame-cloth-v3";
-  var CANONICAL_FABRIC_URL = "/experiments/flame-cloth/";
+  var CANONICAL_FABRIC_URL = "/experiments/fabric/";
 
   var wall = document.getElementById("wall");
   var offair = document.getElementById("offair");
@@ -236,7 +236,7 @@ body {
     if (HIDDEN_SLUGS.indexOf(slug) !== -1) { return null; }
     if (slug === LEGACY_FABRIC_SLUG) { slug = "fabric"; }
     var url = safeUrl(entry.url);
-    if (url === "/experiments/fabric/") { url = CANONICAL_FABRIC_URL; }
+    if (url === "/experiments/flame-cloth/") { url = CANONICAL_FABRIC_URL; }
     var title = text(entry.title);
     if (!url || !title) { return null; }
     return {

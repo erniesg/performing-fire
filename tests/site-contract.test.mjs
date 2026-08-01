@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const experiment = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const experiment = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 
 test('broadcast status appears once', () => {
   assert.equal((broadcast.match(/ON AIR/g) ?? []).length, 1)
