@@ -37,7 +37,7 @@ test('machine-draft dictionaries are marked for native review', () => {
 test('every data-i18n key referenced in the pages exists in the dictionaries', () => {
   const keys = new Set(Object.keys(dicts.en))
   for (const [name, page] of Object.entries(pages)) {
-    const refs = [...page.matchAll(/data-i18n(?:-placeholder|-ready)?="([^"]+)"/g)].map(m => m[1])
+    const refs = [...page.matchAll(/data-i18n(?:-placeholder|-ready|-aria-label)?="([^"]+)"/g)].map(m => m[1])
     assert.ok(refs.length > 0, `${name} must reference dictionary keys via data-i18n attributes`)
     for (const key of refs) {
       assert.ok(keys.has(key), `${name} references missing dictionary key ${key}`)
@@ -63,13 +63,19 @@ test('switching languages updates document.documentElement.lang without a reload
   }
 })
 
-test('a visible four-locale language toggle exists in both pages', () => {
+test('a visible four-locale language toggle uses short consistent labels with accessible native names', () => {
   for (const [name, page] of Object.entries(pages)) {
     assert.match(page, /class="lang-toggle/, `${name} must render the language toggle`)
     for (const locale of LOCALES) {
       assert.match(page, new RegExp(`<button[^>]*data-lang="${locale}"`), `${name} toggle must offer ${locale}`)
     }
-    assert.ok(page.includes('한국어') && page.includes('中文') && page.includes('日本語'), `${name} toggle must label locales in their own script`)
+    assert.match(page, /data-lang="en"[^>]*>EN</)
+    assert.match(page, /data-lang="ko"[^>]*>KO</)
+    assert.match(page, /data-lang="zh"[^>]*>ZH</)
+    assert.match(page, /data-lang="ja"[^>]*>JA</)
+    assert.match(page, /aria-label="한국어"/)
+    assert.match(page, /aria-label="中文"/)
+    assert.match(page, /aria-label="日本語"/)
   }
 })
 

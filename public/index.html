@@ -79,17 +79,17 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
 <div class="pf">
   <header class="station">
     <h1 class="station-id vt">PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</h1>
-    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> ON AIR</p>
+    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> <span data-i18n="bc.station.onair">ON AIR</span></p>
     <nav class="lang-toggle vt" aria-label="Language">
-      <button type="button" data-lang="en" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+      <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
     </nav>
   </header>
 
-  <main class="console" id="console" aria-label="Five-channel broadcast console">
-    <section class="previews" aria-label="Channel previews">
+  <main class="console" id="console" aria-label="Five-channel broadcast console" data-i18n-aria-label="bc.console.aria">
+    <section class="previews" aria-label="Channel previews" data-i18n-aria-label="bc.previews.aria">
       <button class="preview-btn bezel" type="button" data-channel="about" data-index="0" aria-pressed="true" aria-label="CH 01 ABOUT">
         <span class="preview-crt"><canvas data-anim="g7" aria-hidden="true"></canvas><span class="preview-osd vt">CH 01 <span class="preview-name">ABOUT</span></span></span>
       </button>
@@ -161,15 +161,15 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
             </section>
 
             <section class="channel" data-channel-panel="log" hidden>
-              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.log.1.label" data-content-field="label">2026-07-07 / EXPERIMENT</p><h2 class="tx-title vt" data-i18n="bc.log.1.heading" data-content-field="heading">FLAME CLOTH v3</h2><p class="tx-body" data-i18n="bc.log.1.body" data-content-field="body">An interactive fire-silk study entered the committed experiment feed.</p><a class="tx-link vt" href="/experiments/flame-cloth/" data-i18n="bc.log.1.link">OPEN EXPERIMENT</a></article>
+              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.log.1.label" data-content-field="label">2026-07-07 / EXPERIMENT</p><h2 class="tx-title vt" data-i18n="bc.log.1.heading" data-content-field="heading">FABRIC</h2><p class="tx-body" data-i18n="bc.log.1.body" data-content-field="body">An interactive fabric study entered the committed experiment feed.</p><a class="tx-link vt" href="/experiments/flame-cloth/" data-i18n="bc.log.1.link">OPEN EXPERIMENT</a></article>
               <article class="transmission" data-transmission="1" hidden><p class="tx-kicker vt" data-i18n="bc.log.2.label" data-content-field="label">2026-07-23 / BROADCAST</p><h2 class="tx-title vt" data-i18n="bc.log.2.heading" data-content-field="heading">DIRECTION 5</h2><p class="tx-body" data-i18n="bc.log.2.body" data-content-field="body">The five-channel station wall entered the committed experiment feed.</p><a class="tx-link vt" href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></article>
             </section>
           </div>
-          <nav class="transport" aria-label="Transmission navigation">
-            <button class="transport-btn vt" id="transmissionPrev" type="button" aria-label="Previous transmission">←</button>
+          <nav class="transport" aria-label="Transmission navigation" data-i18n-aria-label="bc.nav.transmission">
+            <button class="transport-btn vt" id="transmissionPrev" type="button" aria-label="Previous transmission" data-i18n-aria-label="bc.nav.previous">←</button>
             <output class="progress-count vt" id="progressCount" aria-live="polite">01 / 05</output>
             <ol class="progress-track" id="progressTrack" aria-label="Transmission progress"><li class="is-current"></li><li></li><li></li><li></li><li></li></ol>
-            <button class="transport-btn vt" id="transmissionNext" type="button" aria-label="Next transmission">→</button>
+            <button class="transport-btn vt" id="transmissionNext" type="button" aria-label="Next transmission" data-i18n-aria-label="bc.nav.next">→</button>
           </nav>
         </div>
         <div class="tuning-burst" aria-hidden="true"></div>
@@ -177,7 +177,7 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
     </section>
   </main>
 
-  <footer class="pf-footer"><p>Y = f(X) + ε · MOST SYSTEMS REDUCE ε. WE PERFORM IT.</p><p><a href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></p></footer>
+  <footer class="pf-footer"><p data-i18n="bc.footer.tagline">Y = f(X) + ε · MOST SYSTEMS REDUCE ε. WE PERFORM IT.</p><p><a href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></p></footer>
 </div>
 
 <script src="js/preview-anims.js"></script>
@@ -227,6 +227,12 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
       var ready = el.getAttribute("data-i18n-ready");
       if (ready && t(ready)) { el.setAttribute("data-ready", t(ready)); }
     }
+    var labelled = document.querySelectorAll("[data-i18n-aria-label]");
+    for (var j = 0; j < labelled.length; j++) {
+      var ariaKey = labelled[j].getAttribute("data-i18n-aria-label");
+      var ariaValue = ariaKey ? t(ariaKey) : "";
+      if (ariaValue) { labelled[j].setAttribute("aria-label", ariaValue); }
+    }
     if (t("bc.title")) { document.title = t("bc.title"); }
   }
   function markToggle() {
@@ -264,11 +270,11 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
   function tr(key, fallbackText) { var value = window.PF_I18N ? window.PF_I18N.t(key) : ""; return value || fallbackText; }
 
   var CHANNELS = [
-    { id: "about", label: "CH 01 ABOUT", signal: "g7", signalLabel: "G7 · CHROMATIC LOCK", count: 5 },
-    { id: "contribute", label: "CH 02 CONTRIBUTE", signal: "hj", signalLabel: "HJ · CHIMERA FIELD", count: 5 },
-    { id: "experiments", label: "CH 03 EXPERIMENTS", signal: "x3", signalLabel: "X3 · MAGNET BREATHE", count: 6 },
-    { id: "research", label: "CH 04 RESEARCH", signal: "r1", signalLabel: "R1 · PUNCH DATA", count: 5 },
-    { id: "log", label: "CH 05 LOG", signal: "l1", signalLabel: "L1 · MOON PHASES", count: 2 }
+    { id: "about", nameKey: "bc.channel.about", signalKey: "bc.signal.about", name: "ABOUT", signal: "g7", signalLabel: "G7 · CHROMATIC LOCK", count: 5 },
+    { id: "contribute", nameKey: "bc.channel.contribute", signalKey: "bc.signal.contribute", name: "CONTRIBUTE", signal: "hj", signalLabel: "HJ · CHIMERA FIELD", count: 5 },
+    { id: "experiments", nameKey: "bc.channel.experiments", signalKey: "bc.signal.experiments", name: "EXPERIMENTS", signal: "x3", signalLabel: "X3 · MAGNET BREATHE", count: 6 },
+    { id: "research", nameKey: "bc.channel.research", signalKey: "bc.signal.research", name: "RESEARCH", signal: "r1", signalLabel: "R1 · PUNCH DATA", count: 5 },
+    { id: "log", nameKey: "bc.channel.log", signalKey: "bc.signal.log", name: "LOG", signal: "l1", signalLabel: "L1 · MOON PHASES", count: 2 }
   ];
   var currentChannel = 0;
   var currentTransmission = 0;
@@ -309,6 +315,27 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
       if (index === currentChannel && window.PF_SIGNALS) { window.PF_SIGNALS.freeze($("canvas", button)); }
     });
     renderProgress(channel.count);
+  }
+
+  function localizeChrome() {
+    CHANNELS.forEach(function (channel, index) {
+      var name = tr(channel.nameKey, channel.name);
+      channel.label = "CH " + pad2(index + 1) + " " + name;
+      channel.signalLabel = tr(channel.signalKey, channel.signalLabel);
+      var button = previews[index];
+      if (button) {
+        button.setAttribute("aria-label", channel.label);
+        var nameNode = $(".preview-name", button);
+        if (nameNode) { nameNode.textContent = name; }
+      }
+    });
+    var transport = $(".transport");
+    if (transport) { transport.setAttribute("aria-label", tr("bc.nav.transmission", "Transmission navigation")); }
+    var previous = $("#transmissionPrev");
+    var next = $("#transmissionNext");
+    if (previous) { previous.setAttribute("aria-label", tr("bc.nav.previous", "Previous transmission")); }
+    if (next) { next.setAttribute("aria-label", tr("bc.nav.next", "Next transmission")); }
+    render();
   }
 
   function tuningFlash() {
@@ -520,9 +547,9 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
   loadBroadcastContent();
   window.requestAnimationFrame(tickRecs);
   document.addEventListener("pf:lang", function () {
+    localizeChrome();
     recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
     renderVoices();
-    render();
     loadBroadcastContent();
   });
 })();

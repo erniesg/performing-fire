@@ -1,16 +1,9 @@
 [
   {
-    "slug": "flame-cloth-v3",
-    "title": "Flame Cloth v3",
+    "slug": "fabric",
+    "title": "Fabric",
     "date": "2026-07-07",
-    "summary": "Interactive fire-silk study — a 3D verlet cloth shaded as flame, stirred and grabbed by MediaPipe hand tracking.",
+    "summary": "Interactive fabric study — a 3D surface shaped by hand movement.",
     "url": "/experiments/flame-cloth/"
-  },
-  {
-    "slug": "broadcast-direction-5",
-    "title": "The Broadcast — Direction 5",
-    "date": "2026-07-23",
-    "summary": "A five-channel station wall for the living totem — CRT monitors, phosphor tints, and one fire on air.",
-    "url": "/"
   }
 ]

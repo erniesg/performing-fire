@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Performing Fire — Interactive Fire Study</title>
-<meta name="description" content="Pinch, stir, and stretch a real-time flame with your hands — the interactive fire study behind Performing Fire · 퍼포밍 파이어.">
+<title>Performing Fire — Fabric Study</title>
+<meta name="description" content="Pinch, stir, and stretch a real-time fabric surface with your hands — the interactive fabric study behind Performing Fire.">
 <!-- canonical stays root-relative so no page ships an absolute-URL <link href> — see tests/broadcast-scroll.test.mjs -->
 <link rel="canonical" href="/experiments/flame-cloth/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:site_name" content="Performing Fire">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Performing Fire — Interactive Fire Study">
-<meta property="og:description" content="Pinch, stir, and stretch a real-time flame with your hands — the interactive fire study behind Performing Fire · 퍼포밍 파이어.">
+<meta property="og:title" content="Performing Fire — Fabric Study">
+<meta property="og:description" content="Pinch, stir, and stretch a real-time fabric surface with your hands — the interactive fabric study behind Performing Fire.">
 <meta property="og:url" content="https://performingfire.berlayar.ai/experiments/flame-cloth/">
 <meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
 <meta property="og:image:width" content="1200">
@@ -99,17 +99,17 @@
 <canvas id="gl"></canvas>
 <video id="cam" playsinline muted></video>
 <canvas id="preview" width="176" height="132"></canvas>
-<button id="camera-gate" type="button" data-i18n="idx.camera.enable">TOUCH THE FIRE · 불을 만지기</button>
+<button id="camera-gate" type="button" data-i18n="idx.camera.enable">TOUCH THE FIRE</button>
 <div id="hud">
   <h1>Performing Fir<span id="eterm">e</span></h1>
   <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking on request</p>
   <p data-i18n="idx.controls">pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
 </div>
 <nav class="lang-toggle" aria-label="Language">
-  <button type="button" data-lang="en" aria-pressed="false">EN</button>
-  <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button>
-  <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
-  <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+  <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button>
+  <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button>
+  <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button>
+  <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
 </nav>
 <div id="chips"></div>
 <div id="status" role="status" aria-live="polite" data-i18n="idx.status.ready">camera off · move the mouse to stir — touch the fire to use your hands</div>
@@ -202,7 +202,7 @@
 
 <script type="module">
 /* ============================================================
-   FLAME CLOTH v3 — TouchDesigner-style fire silk
+   FABRIC — TouchDesigner-style interactive surface
    Technique (mirrors the TD Spring-SOP + Bloom/Feedback pattern):
    - 3D verlet cloth (72x46) — z-axis folds driven by curl-ish wind
    - per-vertex normals -> fresnel rim + specular silk shading
@@ -844,7 +844,7 @@ async function tryCamera(){
            : 'camera error: '+name+' — touch the fire to retry';
     /* non-blocking on purpose: one status line, the cloth keeps animating in mouse mode */
     setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — touch the fire to retry · mouse works meanwhile').replace('{name}', name));
-    showGate('idx.camera.retry', 'TRY AGAIN · 다시 시도');
+    showGate('idx.camera.retry', 'TRY AGAIN');
   }
 }
 /* the single camera entry point — gesture only, never called on load */
@@ -859,7 +859,7 @@ async function enableCamera(){
       console.warn(err);
       camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
       setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
-      showGate('idx.camera.retry', 'TRY AGAIN · 다시 시도');
+      showGate('idx.camera.retry', 'TRY AGAIN');
       camBusy = false;
       return;
     }

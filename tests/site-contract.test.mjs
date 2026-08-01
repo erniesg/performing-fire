@@ -38,9 +38,9 @@ test('navigation and progress controls live inside the CRT', () => {
   assert.match(broadcast, /event\.key !== "ArrowLeft" && event\.key !== "ArrowRight"/)
 })
 
-test('the Broadcast is the root index and the flame cloth is its own experiment page', () => {
+test('the Broadcast is the root index and the fabric study is its own experiment page', () => {
   assert.match(broadcast, /THE BROADCAST/)
-  assert.match(experiment, /FLAME CLOTH v3/)
+  assert.match(experiment, /FABRIC/)
   assert.doesNotMatch(experiment, /THE BROADCAST/)
 })
 

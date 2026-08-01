@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Performing Fire — Experiments Index</title>
-<meta name="description" content="The running index of Performing Fire experiments — prototypes, burn tests, and scroll studies, aired as they happen · 실험 색인.">
+<meta name="description" content="The running index of Performing Fire experiments — prototypes, tests, and studies, aired as they happen.">
 <!-- canonical stays root-relative so no page ships an absolute-URL <link href> — see tests/broadcast-scroll.test.mjs -->
 <link rel="canonical" href="/experiments/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:site_name" content="Performing Fire">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Performing Fire — Experiments Index">
-<meta property="og:description" content="The running index of Performing Fire experiments — prototypes, burn tests, and scroll studies, aired as they happen · 실험 색인.">
+<meta property="og:description" content="The running index of Performing Fire experiments — prototypes, tests, and studies, aired as they happen.">
 <meta property="og:url" content="https://performingfire.berlayar.ai/experiments/">
 <meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
 <meta property="og:image:width" content="1200">
@@ -45,6 +45,9 @@ body {
 .station-onair { margin-left: auto; font-size: 14px; color: #9AA1AA; letter-spacing: 1px; white-space: nowrap; }
 .station-onair .dot { color: #FF5C0D; animation: pf-blink 1.4s steps(1) infinite; }
 .station-sub { margin: 0 2px 22px; font-size: 13px; color: #7C828C; }
+.lang-toggle { display: flex; gap: 4px; margin-left: auto; }
+.lang-toggle button { min-width: 34px; padding: 4px 7px; border: 1px solid #352016; border-radius: 999px; background: #120906; color: #C9B9AE; font: inherit; font-size: 11px; letter-spacing: 1px; cursor: pointer; }
+.lang-toggle button:hover, .lang-toggle button:focus-visible, .lang-toggle button[aria-pressed="true"] { border-color: #FF9D2E; color: #FFF1E6; box-shadow: 0 0 12px rgba(255, 120, 30, 0.22); }
 
 /* ---- experiment cards: bezel + CRT face ---- */
 .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; padding: 0; margin: 0; list-style: none; }
@@ -106,19 +109,25 @@ body {
 <div class="pf">
 
   <header class="station">
-    <h1 class="station-id">PERFORMING FIRE — EXPERIMENTS INDEX</h1>
-    <p class="station-onair"><span class="dot" aria-hidden="true">●</span> RUNNING STUDIES</p>
+    <h1 class="station-id" data-i18n="exp.title">PERFORMING FIRE — EXPERIMENTS INDEX</h1>
+    <p class="station-onair"><span class="dot" aria-hidden="true">●</span> <span data-i18n="exp.onair">RUNNING STUDIES</span></p>
+    <nav class="lang-toggle" aria-label="Language">
+      <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button>
+      <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button>
+      <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button>
+      <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
+    </nav>
   </header>
-  <p class="station-sub">Every study on one dial · 실험 색인 · pick a channel to tune in.</p>
+  <p class="station-sub" data-i18n="exp.subtitle">Every study on one dial · pick a channel to tune in.</p>
 
   <main>
-    <p id="local-copy" hidden>LOCAL COPY · 로컬 사본</p>
-    <ul class="wall" id="wall" aria-label="Experiments"></ul>
-    <p id="offair" hidden>OFF AIR — the experiment list could not be loaded.</p>
+    <p id="local-copy" hidden data-i18n="exp.local">LOCAL COPY</p>
+    <ul class="wall" id="wall" aria-label="Experiments" data-i18n-aria-label="exp.aria"></ul>
+    <p id="offair" hidden data-i18n="exp.offair">OFF AIR — the experiment list could not be loaded.</p>
   </main>
 
   <footer class="pf-footer">
-    <p>2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea 한국문화예술위원회 · July 7 – August 31, 2026</p>
+    <p data-i18n="exp.footer">2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea · July 7 – August 31, 2026</p>
   </footer>
 
 </div>
@@ -134,10 +143,16 @@ body {
   var SUPPORTED = ["en", "ko", "zh", "ja"];
   var LANG_KEY = "pf-lang";
   var CMS_ENDPOINT = "https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0";
+  var HIDDEN_SLUGS = ["broadcast-direction-5"];
 
   var wall = document.getElementById("wall");
   var offair = document.getElementById("offair");
   var localCopy = document.getElementById("local-copy");
+  var active = resolveLocale();
+  var dict = {};
+  var currentEntries = [];
+  var currentIsLocal = false;
+  var refreshId = 0;
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -164,8 +179,40 @@ body {
   }
 
   function cmsUrl() {
-    var locale = resolveLocale();
-    return locale ? CMS_ENDPOINT + "&locale=" + locale : CMS_ENDPOINT;
+    return active ? CMS_ENDPOINT + "&locale=" + active : CMS_ENDPOINT;
+  }
+
+  function textFor(key) {
+    var current = dict[active || "en"] || {};
+    var english = dict.en || {};
+    return text(current[key] || english[key]);
+  }
+
+  function loadLocale(locale) {
+    locale = locale || "en";
+    if (dict[locale]) { return Promise.resolve(dict[locale]); }
+    return readJson(window.fetch("/i18n/" + locale + ".json")).then(function (json) {
+      dict[locale] = json;
+      return json;
+    });
+  }
+
+  function hydrate() {
+    document.querySelectorAll("[data-i18n]").forEach(function (node) {
+      var value = textFor(node.getAttribute("data-i18n"));
+      if (value) { node.textContent = value; }
+    });
+    document.querySelectorAll("[data-i18n-aria-label]").forEach(function (node) {
+      var value = textFor(node.getAttribute("data-i18n-aria-label"));
+      if (value) { node.setAttribute("aria-label", value); }
+    });
+    document.title = textFor("exp.title") || document.title;
+  }
+
+  function markToggle() {
+    document.querySelectorAll(".lang-toggle [data-lang]").forEach(function (button) {
+      button.setAttribute("aria-pressed", String(button.getAttribute("data-lang") === active));
+    });
   }
 
   function text(value) {
@@ -183,6 +230,7 @@ body {
   /* One shape for both paths: a CMS doc and a JSON entry normalize to the same card input. */
   function normalize(entry) {
     if (!entry || typeof entry !== "object") { return null; }
+    if (HIDDEN_SLUGS.indexOf(text(entry.slug)) !== -1) { return null; }
     var url = safeUrl(entry.url);
     var title = text(entry.title);
     if (!url || !title) { return null; }
@@ -191,7 +239,21 @@ body {
       title: title,
       date: text(entry.date).slice(0, 10), /* CMS dates arrive as ISO datetimes */
       summary: text(entry.summary),
-      url: url
+      url: url,
+      i18nKey: text(entry.i18nKey)
+    };
+  }
+
+  function localizeEntry(entry) {
+    var key = entry.i18nKey || (entry.slug ? "exp." + entry.slug : "");
+    var title = key ? textFor(key + ".title") : "";
+    var summary = key ? textFor(key + ".summary") : "";
+    return {
+      slug: entry.slug,
+      title: title || entry.title,
+      date: entry.date,
+      summary: summary || entry.summary,
+      url: entry.url
     };
   }
 
@@ -201,7 +263,9 @@ body {
     card.href = entry.url;
     var face = el("div", "crt");
     var channel = "CH " + String(index + 1).padStart(2, "0");
-    face.appendChild(el("p", "card-ch", entry.slug ? channel + " · " + entry.slug : channel));
+    /* Keep implementation slugs out of the broadcast copy: they are identifiers,
+       not a second title (and would reintroduce English into a translated card). */
+    face.appendChild(el("p", "card-ch", channel));
     face.appendChild(el("h2", "card-title", entry.title));
     if (entry.date) {
       var date = el("time", "card-date", entry.date);
@@ -209,17 +273,21 @@ body {
       face.appendChild(date);
     }
     face.appendChild(el("p", "card-summary", entry.summary));
-    face.appendChild(el("p", "card-tune", "TUNE IN ▶"));
+    face.appendChild(el("p", "card-tune", textFor("exp.tune") || "TUNE IN ▶"));
     card.appendChild(face);
     item.appendChild(card);
     return item;
   }
 
   function render(entries, local) {
+    while (wall.firstChild) { wall.removeChild(wall.firstChild); }
+    currentEntries = entries;
+    currentIsLocal = local;
     entries.forEach(function (entry, index) {
-      wall.appendChild(renderCard(entry, index));
+      wall.appendChild(renderCard(localizeEntry(entry), index));
     });
-    if (local) { localCopy.hidden = false; }
+    localCopy.hidden = !local;
+    offair.hidden = true;
   }
 
   function readJson(promise) {
@@ -245,16 +313,42 @@ body {
     return readJson(window.fetch("./experiments.json")).then(entriesFrom);
   }
 
-  /* CMS → checked-in JSON → OFF AIR. */
-  fromCms().then(
-    function (entries) { render(entries, false); },
-    function () {
-      return fromLocalCopy().then(
-        function (entries) { render(entries, true); },
-        function () { offair.hidden = false; }
-      );
-    }
-  );
+  function refresh() {
+    var request = ++refreshId;
+    return fromCms().then(
+      function (entries) {
+        return loadLocale(active).then(function () {
+          if (request === refreshId) { hydrate(); markToggle(); render(entries, false); }
+        });
+      },
+      function () {
+        return fromLocalCopy().then(
+          function (entries) {
+            return loadLocale(active).then(function () {
+              if (request === refreshId) { hydrate(); markToggle(); render(entries, true); }
+            });
+          },
+          function () {
+            if (request === refreshId) { offair.hidden = false; localCopy.hidden = true; }
+          }
+        );
+      }
+    );
+  }
+
+  document.addEventListener("click", function (event) {
+    var button = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
+    if (!button) { return; }
+    var next = button.getAttribute("data-lang");
+    if (SUPPORTED.indexOf(next) === -1 || next === active) { return; }
+    active = next;
+    try { window.localStorage.setItem(LANG_KEY, active); } catch (e) {}
+    markToggle();
+    refresh();
+  });
+
+  markToggle();
+  refresh();
 })();
 </script>
 </body>
