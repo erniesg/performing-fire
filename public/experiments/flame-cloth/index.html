@@ -29,11 +29,15 @@
   /* The camera gate sits exactly on top of the preview panel: the panel is the
      control that turns it on, so no layout moves when the camera comes up. */
   #camera-gate { position:fixed; right:16px; bottom:16px; width:178px; height:134px; z-index:6;
-    box-sizing:border-box; display:flex; align-items:center; justify-content:center; text-align:center;
+    box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; text-align:center;
     padding:10px 12px; font-family:inherit; font-size:11px; line-height:1.7; letter-spacing:.12em;
     text-transform:uppercase; color:rgba(255,225,200,.85); background:rgba(20,8,4,.72);
     border:1px solid rgba(255,120,40,.35); border-radius:8px; cursor:pointer;
     backdrop-filter:blur(8px); transition:all .18s ease; animation:gate-glow 3.2s ease-in-out infinite; }
+  #camera-gate-label { display:block; }
+  #camera-gate-hint { display:block; max-width:145px; font-size:9px; line-height:1.35; letter-spacing:.08em;
+    text-transform:none; color:rgba(255,225,200,.62); }
   #camera-gate[hidden] { display:none; }
   #camera-gate:hover, #camera-gate:focus-visible { border-color:rgba(255,160,70,.9); color:#fff;
     outline:none; }
@@ -99,7 +103,10 @@
 <canvas id="gl"></canvas>
 <video id="cam" playsinline muted></video>
 <canvas id="preview" width="176" height="132"></canvas>
-<button id="camera-gate" type="button" data-i18n="idx.camera.enable">TOUCH THE FIRE</button>
+<button id="camera-gate" type="button" aria-describedby="camera-gate-hint">
+  <span id="camera-gate-label" data-i18n="idx.camera.enable">ENABLE HAND TRACKING</span>
+  <small id="camera-gate-hint" data-i18n="idx.camera.hint">Click to allow camera access</small>
+</button>
 <div id="hud">
   <h1>Performing Fir<span id="eterm">e</span></h1>
   <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking on request</p>
@@ -112,7 +119,7 @@
   <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
 </nav>
 <div id="chips"></div>
-<div id="status" role="status" aria-live="polite" data-i18n="idx.status.ready">camera off · move the mouse to stir — touch the fire to use your hands</div>
+<div id="status" role="status" aria-live="polite" data-i18n="idx.status.ready">camera off · click enable hand tracking for hand input — mouse mode stays available</div>
 <div id="err" data-i18n="idx.webgl"></div>
 <footer id="site-footer"><a href="/experiments/" data-i18n="idx.footer">all experiments</a></footer>
 
@@ -215,6 +222,7 @@
 
 const $ = id => document.getElementById(id);
 const canvas = $('gl'), video = $('cam'), preview = $('preview'), statusEl = $('status'), gateEl = $('camera-gate');
+const gateLabel = $('camera-gate-label');
 
 const PERSONAS = {
   fire:      {label:'Fire',      colA:[0.50,0.05,0.01], colB:[1.00,0.36,0.05], colC:[1.00,0.85,0.50],
@@ -802,12 +810,12 @@ function ndToSim(nx, ny){
    ever called from a user-gesture handler — see the click wiring below. The
    cloth simulates, renders and responds to the mouse with the camera off, so a
    denied or absent camera costs a status line, never the page. */
-let camMsg = 'camera off — touch the fire to enable';
+let camMsg = 'camera off — click enable hand tracking';
 let camBusy = false;
 
 function showGate(key, fallback){
-  gateEl.dataset.i18n = key;                    /* re-hydrated on language switch */
-  gateEl.textContent = tr(key, fallback);
+  gateLabel.dataset.i18n = key;                 /* re-hydrated on language switch */
+  gateLabel.textContent = tr(key, fallback);
   gateEl.hidden = false;
 }
 
@@ -839,11 +847,11 @@ async function tryCamera(){
   }catch(err){
     console.warn(err);
     const name = err && err.name ? err.name : String(err);
-    camMsg = name==='NotAllowedError' ? 'camera blocked — allow it in browser/site settings, then touch the fire again'
-           : name==='NotFoundError'   ? 'no camera found — touch the fire to retry'
-           : 'camera error: '+name+' — touch the fire to retry';
+    camMsg = name==='NotAllowedError' ? 'camera blocked — allow camera access, then click enable hand tracking again'
+           : name==='NotFoundError'   ? 'no camera found — click enable hand tracking to retry'
+           : 'camera error: '+name+' — click enable hand tracking to retry';
     /* non-blocking on purpose: one status line, the cloth keeps animating in mouse mode */
-    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — touch the fire to retry · mouse works meanwhile').replace('{name}', name));
+    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — click enable hand tracking to retry · mouse mode stays available').replace('{name}', name));
     showGate('idx.camera.retry', 'TRY AGAIN');
   }
 }

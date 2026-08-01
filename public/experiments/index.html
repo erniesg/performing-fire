@@ -144,6 +144,8 @@ body {
   var LANG_KEY = "pf-lang";
   var CMS_ENDPOINT = "https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0";
   var HIDDEN_SLUGS = ["broadcast-direction-5"];
+  var LEGACY_FABRIC_SLUG = "flame-cloth-v3";
+  var FABRIC_URL = "/experiments/flame-cloth/";
 
   var wall = document.getElementById("wall");
   var offair = document.getElementById("offair");
@@ -230,12 +232,15 @@ body {
   /* One shape for both paths: a CMS doc and a JSON entry normalize to the same card input. */
   function normalize(entry) {
     if (!entry || typeof entry !== "object") { return null; }
-    if (HIDDEN_SLUGS.indexOf(text(entry.slug)) !== -1) { return null; }
+    var slug = text(entry.slug);
+    if (HIDDEN_SLUGS.indexOf(slug) !== -1) { return null; }
+    if (slug === LEGACY_FABRIC_SLUG) { slug = "fabric"; }
     var url = safeUrl(entry.url);
+    if (url === "/experiments/fabric/") { url = FABRIC_URL; }
     var title = text(entry.title);
     if (!url || !title) { return null; }
     return {
-      slug: text(entry.slug),
+      slug: slug,
       title: title,
       date: text(entry.date).slice(0, 10), /* CMS dates arrive as ISO datetimes */
       summary: text(entry.summary),

@@ -9,8 +9,8 @@ for (const locale of LOCALES) {
   dicts[locale] = JSON.parse(await readFile(new URL(`../public/i18n/${locale}.json`, import.meta.url), 'utf8'))
 }
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const flameCloth = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
-const pages = { 'index.html': broadcast, 'experiments/flame-cloth/index.html': flameCloth }
+const fabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const pages = { 'index.html': broadcast, 'experiments/flame-cloth/index.html': fabric }
 
 test('all four locale dictionaries parse and share a byte-identical key set', () => {
   const enKeys = JSON.stringify(Object.keys(dicts.en).sort())

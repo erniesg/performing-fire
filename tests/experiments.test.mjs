@@ -6,7 +6,8 @@ import vm from 'node:vm'
 const rawJson = await readFile(new URL('../public/experiments/experiments.json', import.meta.url), 'utf8')
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const flameCloth = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const fabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const fabricAlias = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 
 const CMS_ENDPOINT = 'https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0'
 const LOCAL_COPY = './experiments.json'
@@ -170,7 +171,13 @@ test('the index matches the broadcast visual language', () => {
 
 test('both existing pages link to /experiments/ from their footers', () => {
   assert.match(broadcast, /<footer class="pf-footer">[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
-  assert.match(flameCloth, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
+  assert.match(fabric, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
+})
+
+test('the optional Fabric alias redirects to the requested canonical route', () => {
+  assert.match(fabricAlias, /http-equiv="refresh"[^>]*url=\/experiments\/flame-cloth\//)
+  assert.match(fabricAlias, /window\.location\.replace\("\/experiments\/flame-cloth\//)
+  assert.match(fabricAlias, /href="\/experiments\/flame-cloth\/"/)
 })
 
 // ---- CMS-first wiring -------------------------------------------------------

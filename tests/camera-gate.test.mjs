@@ -11,7 +11,7 @@ for (const locale of LOCALES) {
 }
 
 const module = page.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1]
-assert.ok(module, 'flame-cloth must ship the simulation as one module script')
+assert.ok(module, 'fabric must ship the simulation as one module script')
 const lines = module.split('\n')
 
 /** Slices out `function name(...) { ... }` by brace matching, so assertions can be scoped to one function. */
@@ -86,14 +86,14 @@ test('the hand-tracking model is fetched lazily too, inside the gate', () => {
 // ---- a visible, locale-owned enable control -------------------------------
 
 test('a visible enable control ships in the markup with one locale-owned label', () => {
-  const control = page.match(/<button id="camera-gate"([^>]*)>([^<]+)<\/button>/)
+  const control = page.match(/<button id="camera-gate"([^>]*)>([\s\S]*?)<\/button>/)
   assert.ok(control, 'the page must ship a #camera-gate button')
   const [, attributes, label] = control
   assert.match(attributes, /type="button"/)
-  assert.match(attributes, /data-i18n="idx\.camera\.enable"/, 'the label must be translatable')
+  assert.match(attributes, /aria-describedby="camera-gate-hint"/)
   assert.doesNotMatch(attributes, /\bhidden\b/, 'the gate must ship visible — it is the only way in')
-  assert.equal(label.trim(), 'TOUCH THE FIRE', 'the default label must belong to the default locale')
-  assert.doesNotMatch(label, /[가-힯]/, 'the default label must not mix in Korean')
+  assert.match(label, /id="camera-gate-label"[^>]*data-i18n="idx\.camera\.enable">ENABLE HAND TRACKING<\/span>/)
+  assert.match(label, /id="camera-gate-hint"[^>]*data-i18n="idx\.camera\.hint">Click to allow camera access<\/small>/)
 })
 
 test('the gate is styled as a real, hit-testable control and only hides via [hidden]', () => {
@@ -107,18 +107,18 @@ test('the gate is styled as a real, hit-testable control and only hides via [hid
 })
 
 test('all four locales label the gate in their own language', () => {
-  const expected = { en: 'TOUCH THE FIRE', ko: '불을 만지기', zh: '触摸火焰', ja: '火に触れる' }
+  const expected = { en: 'ENABLE HAND TRACKING', ko: '손 추적 켜기', zh: '启用手部追踪', ja: 'ハンドトラッキングを有効化' }
+  const hints = { en: 'Click to allow camera access', ko: '카메라 사용을 허용하려면 누르세요', zh: '点击以允许使用摄像头', ja: 'クリックしてカメラを許可' }
   const retry = { en: 'TRY AGAIN', ko: '다시 시도', zh: '重试', ja: '再試行' }
   for (const locale of LOCALES) {
-    for (const key of ['idx.camera.enable', 'idx.camera.retry', 'idx.status.ready', 'idx.status.requesting']) {
+    for (const key of ['idx.camera.enable', 'idx.camera.hint', 'idx.camera.retry', 'idx.status.ready', 'idx.status.requesting']) {
       assert.equal(typeof dicts[locale][key], 'string', `${locale}.json is missing ${key}`)
       assert.notEqual(dicts[locale][key].trim(), '', `${locale}.json ${key} must be non-empty`)
     }
     const label = dicts[locale]['idx.camera.enable']
     assert.equal(label, expected[locale], `${locale} gate label must be locale-owned`)
+    assert.equal(dicts[locale]['idx.camera.hint'], hints[locale], `${locale} gate hint must be locale-owned`)
     assert.equal(dicts[locale]['idx.camera.retry'], retry[locale], `${locale} retry label must be locale-owned`)
-    if (locale === 'en') assert.doesNotMatch(label, /[぀-ヿ一-鿿가-힯]/)
-    if (locale === 'ko') assert.doesNotMatch(label, /TOUCH THE FIRE/)
   }
 })
 
