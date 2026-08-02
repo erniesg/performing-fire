@@ -343,7 +343,10 @@
         /* fade dither in across dark tones — on large near-black flats (the recess
            walls) full-strength ordered dither prints its own matrix as a dot grid */
         float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
-        col += th * (0.85 / uLevels) * smoothstep(0.004, 0.10, lum);
+        /* full-step spread (1.0/12 still under the 1/(levels-1) dot-grid
+           ceiling) — at 0.85 the dither covered only ~78% of a level, so
+           quantize contours printed through on light fields (moonjar clay) */
+        col += th * (1.0 / uLevels) * smoothstep(0.004, 0.10, lum);
         col = floor(col * (uLevels - 1.0) + 0.5) / (uLevels - 1.0);
         /* tv screens tagged alpha 0 stay clean, full-res, undithered */
         vec4 fullTap = texture2D(tDiffuse, vUv + off);
@@ -1772,8 +1775,8 @@
       x.fillStyle = `rgba(110,84,58,${0.09 + rr() * 0.13})`;
       x.beginPath(); x.arc(rr() * W, rr() * H * 0.56, 0.8 + rr() * 1.6, 0, 7); x.fill();
     }
-    for (let i = 0; i < 16000; i++) {                       // dense grain — a 12-level quantizer flattens clay without it
-      x.fillStyle = `rgba(${rr() > 0.5 ? "232,216,190" : "44,40,35"},${0.015 + rr() * 0.035})`;
+    for (let i = 0; i < 22000; i++) {                       // grain STRONG enough to straddle a quantizer level (~9/255)
+      x.fillStyle = `rgba(${rr() > 0.5 ? "232,216,190" : "44,40,35"},${0.02 + rr() * 0.06})`;
       x.fillRect(rr() * W, rr() * H * 0.56, 1.8, 1.8);
     }
   });
@@ -1787,8 +1790,8 @@
     fg.addColorStop(1, "rgb(170,155,130)");
     x.fillStyle = fg; x.fillRect(0, 0, W, H);
     const rr = mkRnd(197);
-    for (let i = 0; i < 6000; i++) {
-      x.fillStyle = `rgba(${rr() > 0.5 ? "228,214,190" : "34,32,29"},${0.02 + rr() * 0.04})`;
+    for (let i = 0; i < 9000; i++) {
+      x.fillStyle = `rgba(${rr() > 0.5 ? "228,214,190" : "34,32,29"},${0.03 + rr() * 0.06})`;
       x.fillRect(rr() * W, rr() * H, 1.6, 1.6);
     }
   });
@@ -1908,10 +1911,11 @@
     }
   });
   const skyDome = new THREE.Mesh(
-    /* 64×40 segments: at 32×16 the per-vertex UV interpolation bends smooth
-       gradients into visible facet triangles — unnoticeable on black skies,
-       glaring on MOONJAR's light clay */
-    new THREE.SphereGeometry(38, 64, 40),
+    /* 96×64 segments: per-vertex UV interpolation kinks at facet edges, and on
+       a light backdrop the post quantizer's level contours follow those kinks —
+       printing straight-edged "triangles" into smooth clay. Finer facets push
+       the kinks under the dither. Unnoticeable on black skies. */
+    new THREE.SphereGeometry(38, 96, 64),
     /* fog:false is load-bearing — scene FogExp2 at this radius eats ~92% of the
        backdrop, which is why SCENE appeared to change nothing */
     new THREE.MeshBasicMaterial({ side: THREE.BackSide, fog: false })
