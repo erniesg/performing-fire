@@ -47,7 +47,8 @@ test('the Broadcast is the root index and the fabric study is its own experiment
 test('Experiments opens Fabric and Microsite together inside the console', () => {
   assert.match(broadcast, /data-channel-panel="experiments"[\s\S]*?class="[^"]*experiment-switchboard[^"]*"/)
   assert.match(broadcast, /data-study="fabric"[\s\S]*?href="\/experiments\/fabric\/"/)
-  assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/"/)
+  assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
+  assert.match(broadcast, /class="study-toggle"[\s\S]*?bc\.experiments\.open[\s\S]*?bc\.experiments\.close/)
   assert.match(broadcast, /signal: "x3"[\s\S]*?count: 1/)
 })
 

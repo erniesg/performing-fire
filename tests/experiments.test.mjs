@@ -7,6 +7,7 @@ const rawJson = await readFile(new URL('../public/experiments/experiments.json',
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
 const fabric = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
+const microsite = await readFile(new URL('../public/experiments/microsite/index.html', import.meta.url), 'utf8')
 const legacyFabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
 const redirects = await readFile(new URL('../public/_redirects', import.meta.url), 'utf8')
 
@@ -176,10 +177,21 @@ test('the Experiments page reads Fabric first, then the microsite study', () => 
   assert.match(index, /href="\/experiments\/fabric\/"[^>]*data-i18n="exp\.fabric\.inquiryLink"/)
   assert.match(index, /class="inquiry microsite-inquiry"/)
   assert.match(index, /data-i18n="exp\.microsite\.body"/)
-  assert.match(index, /href="\/"[^>]*data-i18n="exp\.microsite\.link"/)
-  for (const asset of ['candle-tv-render.jpg', 'slabs-render.jpg', 'rack-b-open-frame-render.jpg', 'water-autoflow-closeup.gif', 'satellite-dish-render.jpg', 'cheomseongdae-render.jpg', 'data-jangseung-render.jpg', 'moon-jars-render.jpg', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
-    assert.match(index, new RegExp(`/visuals/${asset.replace(/[.]/g, '\\.')}`))
+  assert.match(index, /href="\/experiments\/microsite\/"[^>]*data-i18n="exp\.microsite\.link"/)
+})
+
+test('the Microsite study turns the render catalogue into a narrative', () => {
+  for (const key of ['micro.hero.body', 'micro.system.body', 'micro.signal.body', 'micro.vessel.body', 'micro.final.body']) {
+    assert.match(microsite, new RegExp(`data-i18n="${key.replace(/[.]/g, '\\.') }"`))
   }
+  for (const asset of ['candle-tv-render.jpg', 'slabs-render.jpg', 'rack-b-open-frame-render.jpg', 'water-autoflow-closeup.gif', 'satellite-dish-render.jpg', 'cheomseongdae-render.jpg', 'data-jangseung-render.jpg', 'moon-jars-render.jpg', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
+    assert.match(microsite, new RegExp(`/visuals/${asset.replace(/[.]/g, '\\.')}`))
+  }
+})
+
+test('the Fabric page keeps its original compact HUD copy', () => {
+  assert.match(fabric, /data-i18n="idx\.tagline"/)
+  assert.doesNotMatch(fabric, /idx\.(?:kicker|signal|motivation)/)
 })
 
 test('both existing pages link to /experiments/ from their footers', () => {
