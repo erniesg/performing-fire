@@ -36,7 +36,10 @@
   }
   .hud h1 .eps { color: var(--g); }
   .hud .tag {
-    max-width: 62ch; font-size: 13px; line-height: 1.65; color: var(--ink);
+    /* dark ink — the locked MOONJAR clay is LIGHT, and the teletext grey
+       (--ink) disappeared into it */
+    max-width: 62ch; font-size: 13px; line-height: 1.65; color: #3b352b;
+    text-shadow: 0 1px 0 rgba(240,232,214,.4);
     transition: opacity .5s, transform .5s;
   }
   body.docked .hud h1 { font-size: clamp(20px, 2.4vw, 28px); }
@@ -1743,34 +1746,57 @@
     x.fillStyle = "rgb(174,158,132)"; x.fillRect(0, H * 0.56, W, H * 0.44);
     const rr = mkRnd(193);
     /* throwing rings — irregular spacing and weight, a ridge catching light
-       above its own soft shadow */
-    let ry = H * 0.08;
-    while (ry < H * 0.54) {
-      const rh = 8 + rr() * 26, dark = rr() > 0.42;
+       above its own soft shadow. DENSE and running all the way to the horizon
+       cut (user's jar-interior reference): the inside of a vessel is MANY
+       concentric wheel rings, not one lone line — the old loop stopped at
+       0.54H so almost none reached the visible band at rest. */
+    let ry = H * 0.06;
+    while (ry < H * 0.56) {
+      const rh = 8 + rr() * 22, dark = rr() > 0.42;
       const c = dark ? "70,63,54" : "220,204,178";
-      const a = 0.028 + rr() * 0.05;
+      const a = 0.032 + rr() * 0.055;
       const rg = x.createLinearGradient(0, ry, 0, ry + rh * 3);
       rg.addColorStop(0, `rgba(${c},0)`);
       rg.addColorStop(0.4, `rgba(${c},${a})`);
       rg.addColorStop(1, `rgba(${c},0)`);
       x.fillStyle = rg; x.fillRect(0, ry, W, rh * 3);
-      ry += rh * (2.1 + rr() * 2.4);
+      ry += rh * (1.5 + rr() * 1.9);
     }
+    /* FEATHERED blobs only — a constant-alpha ellipse fill rounds to a hard
+       1–2/255 step at its rim, and on this light clay the dither makes every
+       rim read as a drawn line: rims = the "circle" arcs, crossing rims = the
+       "triangle" wedges. Radial-fade to zero alpha leaves no rim to find. */
+    const blob = (cx, cy, brx, bry, rot, rgb, a) => {
+      const bg = x.createRadialGradient(0, 0, 0, 0, 0, 1);
+      bg.addColorStop(0, `rgba(${rgb},${a})`);
+      bg.addColorStop(0.55, `rgba(${rgb},${a * 0.7})`);
+      bg.addColorStop(1, `rgba(${rgb},0)`);
+      x.save();
+      x.translate(cx, cy); x.rotate(rot); x.scale(brx, bry);
+      x.fillStyle = bg;
+      x.beginPath(); x.arc(0, 0, 1, 0, 7); x.fill();
+      x.restore();
+    };
     for (let i = 0; i < 22; i++) {                          // clay-tone drift — broad, nearly invisible terrain
       const lite = rr() > 0.5;
-      x.fillStyle = `rgba(${lite ? "234,220,196" : "56,50,44"},${0.02 + rr() * 0.02})`;
-      x.beginPath();
-      x.ellipse(rr() * W, rr() * H * 0.56, 220 + rr() * 480, 120 + rr() * 260, rr() * 3, 0, 7);
-      x.fill();
+      blob(rr() * W, rr() * H * 0.56, 220 + rr() * 480, 120 + rr() * 260, rr() * 3,
+           lite ? "234,220,196" : "56,50,44", 0.02 + rr() * 0.02);
     }
     for (let i = 0; i < 7; i++) {                           // kiln blush — asymmetric warmth, all of it WARM like the clay
-      x.fillStyle = `rgba(202,156,110,${0.03 + rr() * 0.04})`;
-      x.beginPath();
-      x.ellipse(rr() * W, H * (0.26 + rr() * 0.24), 300 + rr() * 600, 160 + rr() * 280, rr() * 3, 0, 7);
-      x.fill();
+      blob(rr() * W, H * (0.26 + rr() * 0.24), 300 + rr() * 600, 160 + rr() * 280, rr() * 3,
+           "202,156,110", 0.03 + rr() * 0.04);
     }
-    x.fillStyle = "rgba(74,66,56,0.08)"; x.fillRect(0, H * 0.445, W, 4);         // belly seam, barely there
-    x.fillStyle = "rgba(226,210,184,0.06)"; x.fillRect(0, H * 0.445 + 4, W, 3);
+    /* the halves' join — one broader, slightly heavier ring among the others.
+       The old 4px+3px hard rects printed as a single drawn line across the sky
+       ("what is that horizontal line") — inside a jar the seam is just another
+       soft ridge in the ring family. */
+    const sy = H * 0.445;
+    const sg = x.createLinearGradient(0, sy - 26, 0, sy + 34);
+    sg.addColorStop(0, "rgba(74,66,56,0)");
+    sg.addColorStop(0.45, "rgba(74,66,56,0.10)");
+    sg.addColorStop(0.55, "rgba(226,210,184,0.09)");
+    sg.addColorStop(1, "rgba(226,210,184,0)");
+    x.fillStyle = sg; x.fillRect(0, sy - 26, W, 60);
     for (let i = 0; i < 170; i++) {                         // iron-spot freckles in the clay body
       x.fillStyle = `rgba(110,84,58,${0.09 + rr() * 0.13})`;
       x.beginPath(); x.arc(rr() * W, rr() * H * 0.56, 0.8 + rr() * 1.6, 0, 7); x.fill();
@@ -1780,21 +1806,58 @@
       x.fillRect(rr() * W, rr() * H * 0.56, 1.8, 1.8);
     }
   });
-  const floorJar = canvasTex(1024, 1024, (x, W, H) => {     // clay ground, tone-matched to the jar's belly light
+  const floorJar = canvasTex(2048, 2048, (x, W, H) => {     // clay ground, tone-matched to the jar's belly light
+    /* NO baked contact shadow — the old near-black pool sat under the bench
+       before any bench existed ("why is there a shadow before the tv is in"),
+       and its slow dark gradient quantized into red-fringed rings. The rooting
+       shadow is now jarShadow below, a decal that fades in with assembly.
+       2048px: at 1024 over the 90-unit floor each 1.6px grain speck was a
+       ~14cm smudge — the "lighter spots" — mip-smeared at grazing angles. */
     const fg = x.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
-    fg.addColorStop(0, "rgb(14,13,12)");                    // contact shadow — the bench must still ROOT
-    fg.addColorStop(0.06, "rgb(46,43,38)");
-    fg.addColorStop(0.11, "rgb(104,96,84)");
-    fg.addColorStop(0.20, "rgb(140,128,110)");
-    fg.addColorStop(0.55, "rgb(158,144,124)");
+    fg.addColorStop(0, "rgb(150,137,117)");                 // barely-there centre settle, still clay
+    fg.addColorStop(0.5, "rgb(160,146,125)");
     fg.addColorStop(1, "rgb(170,155,130)");
     x.fillStyle = fg; x.fillRect(0, 0, W, H);
     const rr = mkRnd(197);
-    for (let i = 0; i < 9000; i++) {
-      x.fillStyle = `rgba(${rr() > 0.5 ? "228,214,190" : "34,32,29"},${0.03 + rr() * 0.06})`;
+    for (let i = 0; i < 26000; i++) {
+      x.fillStyle = `rgba(${rr() > 0.5 ? "228,214,190" : "34,32,29"},${0.02 + rr() * 0.05})`;
       x.fillRect(rr() * W, rr() * H, 1.6, 1.6);
     }
   });
+  /* the bench's rooting shadow — arrives WITH the console instead of living in
+     the ground texture. Rim dissolves to stipple (density falloff, not a smooth
+     gradient) so the 12-level quantizer has noise to hide the falloff in —
+     a plain radial alpha ramp prints contour rings on the light clay. */
+  const jarShadowTex = (() => {
+    const cv = document.createElement("canvas"); cv.width = cv.height = 512;
+    const c = cv.getContext("2d");
+    const g = c.createRadialGradient(256, 256, 0, 256, 256, 250);
+    g.addColorStop(0, "rgba(8,7,6,0.85)");
+    g.addColorStop(0.42, "rgba(8,7,6,0.55)");
+    g.addColorStop(0.78, "rgba(8,7,6,0.16)");
+    g.addColorStop(1, "rgba(8,7,6,0)");
+    c.fillStyle = g; c.beginPath(); c.arc(256, 256, 250, 0, 7); c.fill();
+    /* dissolve holes: FINE (1.5px ≈ 2.5cm), faint, and only toward the rim —
+       big 2.5px holes at mid-radius read as bright specks sprinkled through
+       the pool ("bright spots on the floor damn weird") */
+    const rr = mkRnd(83);
+    c.globalCompositeOperation = "destination-out";
+    for (let i = 0; i < 9000; i++) {
+      const rf = 0.55 + rr() * 0.45, an = rr() * 6.283, rad = 250 * rf;
+      c.fillStyle = `rgba(0,0,0,${(0.05 + rr() * 0.18) * rf})`;
+      c.fillRect(256 + Math.cos(an) * rad, 256 + Math.sin(an) * rad, 1.5, 1.5);
+    }
+    return new THREE.CanvasTexture(cv);
+  })();
+  const jarShadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(8.6, 7.2),
+    new THREE.MeshBasicMaterial({ map: jarShadowTex, transparent: true, opacity: 0, depthWrite: false, fog: false })
+  );
+  jarShadow.rotation.x = -Math.PI / 2;
+  jarShadow.position.y = 0.03;                              // proud of the floor — coplanar decals z-fight (knob saga)
+  jarShadow.renderOrder = 1;
+  jarShadow.visible = false;
+  scene.add(jarShadow);
   const skyGraticule = canvasTex(1024, 512, (x, W, H) => {  // inside the instrument — a graticule burned into the dark
     x.fillStyle = "#020403"; x.fillRect(0, 0, W, H);
     const rr = mkRnd(113);
@@ -1910,16 +1973,47 @@
       }
     }
   });
+  /* dome textures sample at LOD 0 — with per-fragment equirect UVs the
+     screen-space derivative of longitude explodes toward the zenith (a pixel
+     there sweeps huge slices of u), so mip selection dives to the deepest
+     levels and prints the whole-texture average as a big lighter disc around
+     the pole. The camera magnifies the dome everywhere it can actually look
+     (4096 px over 360° beats screen density), so mips buy nothing here — and
+     skipping them also spares DATAMOSH a mip rebuild on every ~9fps redraw. */
+  for (const t of [skyCyc, skyBars, skyGraticule, skyAurora, skyMoon, skyBurn, skySkyline, skyGalaxy, skyMosh, skyMoonjar]) {
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
+  }
   const skyDome = new THREE.Mesh(
-    /* 96×64 segments: per-vertex UV interpolation kinks at facet edges, and on
-       a light backdrop the post quantizer's level contours follow those kinks —
-       printing straight-edged "triangles" into smooth clay. Finer facets push
-       the kinks under the dither. Unnoticeable on black skies. */
     new THREE.SphereGeometry(38, 96, 64),
     /* fog:false is load-bearing — scene FogExp2 at this radius eats ~92% of the
        backdrop, which is why SCENE appeared to change nothing */
     new THREE.MeshBasicMaterial({ side: THREE.BackSide, fog: false })
   );
+  /* equirect UV per FRAGMENT, not per vertex: interpolated vertex UVs are affine
+     within each facet, so their gradient jumps at facet edges — and the post
+     quantizer's level contours follow those jumps, printing straight-edged
+     "triangles" into smooth light fields (worst at the zenith fan, where every
+     meridian converges on one vertex — no segment count fixes that). Deriving
+     the mapping from the radial direction in the fragment shader makes the
+     gradient smooth everywhere, so no tessellation ever shows. */
+  skyDome.material.onBeforeCompile = sh => {
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vDir;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvDir = position;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vDir;")
+      .replace("#include <map_fragment>", `#ifdef USE_MAP
+        vec3 skyDir = normalize(vDir);
+        /* same mapping SphereGeometry bakes into its UVs, so the backdrops land
+           where they were authored. The fract() seam sits at world -X, 90° off
+           the clamped view axis — never on screen */
+        vec2 skyUv = vec2(fract(atan(skyDir.z, -skyDir.x) * ${(1 / (2 * Math.PI)).toFixed(11)}),
+                          1.0 - acos(clamp(skyDir.y, -1.0, 1.0)) * ${(1 / Math.PI).toFixed(11)});
+        vec4 sampledDiffuseColor = texture2D(map, skyUv);
+        diffuseColor *= sampledDiffuseColor;
+      #endif`);
+  };
   skyDome.visible = false;
   scene.add(skyDome);
   const midRing = new THREE.Mesh(
@@ -1959,6 +2053,7 @@
        void that hides the dome's lower half */
     floor.material.map = e.floor || floorTex;
     floor.material.needsUpdate = true;
+    jarShadow.visible = !!e.floor;                           // rooting shadow only reads on a lit ground
   }
   applyMasterScan(); applyBg(); applyEnv();
   addEventListener("keydown", e => {
@@ -2347,6 +2442,7 @@
     rim.intensity = lerp(0.03, 0.3, pOn);
     master.light.intensity = pOn * (0.9 + flash * 2.2);
     master.fireLight.intensity = pOn * (0.3 + masterFk * 1.4 + flash * 0.4);    // interior glow follows the fire
+    jarShadow.material.opacity = 0.9 * sm(0.40, 0.50, p);   // the ground darkens only once there is a bench to root
 
     const doTex = t - lastTex >= 1 / 30;
     if (doTex) {
