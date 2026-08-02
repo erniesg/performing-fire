@@ -106,6 +106,49 @@ body {
 
 #offair { margin: 8px 2px; font-size: 13px; color: #7C828C; }
 
+/* ---- the reading layer: Fabric first, then the larger microsite study ---- */
+.inquiry {
+  margin-top: 34px; padding: clamp(18px, 3vw, 30px);
+  border: 1px solid #33333E; border-radius: 14px;
+  background: linear-gradient(145deg, rgba(30, 30, 39, .9), rgba(11, 11, 16, .96) 58%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 10px 30px rgba(0, 0, 0, .35);
+}
+.inquiry.fabric-inquiry { --inquiry-tint: #FF9D2E; --inquiry-glow: rgba(255, 125, 30, .3); }
+.inquiry.microsite-inquiry { --inquiry-tint: #2BD9FF; --inquiry-glow: rgba(43, 217, 255, .24); }
+.inquiry-head { max-width: 72ch; }
+.inquiry-kicker { margin: 0 0 7px; color: var(--inquiry-tint); font-size: 12px; letter-spacing: 3px; }
+.inquiry-title { margin: 0 0 13px; color: #E8E9EE; font-size: clamp(22px, 4vw, 34px); line-height: 1.12; letter-spacing: 1px; text-shadow: 0 0 14px var(--inquiry-glow); }
+.inquiry-copy { margin: 0 0 12px; max-width: 68ch; color: #C9CFD6; font-size: 14px; }
+.inquiry-copy + .inquiry-copy { color: #9AA1AA; }
+.inquiry-link { display: inline-block; margin-top: 8px; padding: 7px 11px; color: var(--inquiry-tint); text-decoration: none; border: 1px solid color-mix(in srgb, var(--inquiry-tint) 62%, #33333E); border-radius: 999px; letter-spacing: 1px; font-size: 12px; transition: background .15s ease, box-shadow .15s ease, color .15s ease; }
+.inquiry-link:hover, .inquiry-link:focus-visible { color: #06060A; background: var(--inquiry-tint); box-shadow: 0 0 20px var(--inquiry-glow); }
+.reference-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.reference { min-width: 0; margin: 0; border: 1px solid #33333E; border-radius: 10px; overflow: hidden; background: #07070A; transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+.reference:hover, .reference:focus-within { border-color: var(--inquiry-tint); transform: translateY(-2px); box-shadow: 0 0 18px var(--inquiry-glow); }
+.reference-media { position: relative; display: grid; place-items: center; min-height: 128px; overflow: hidden; background: #030305; }
+.reference-media img { display: block; width: 100%; height: 160px; object-fit: cover; filter: saturate(.82) contrast(1.08); }
+.reference-media.stupa-media img { height: 220px; object-fit: contain; object-position: center bottom; background: #020204; }
+.reference-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .18) 0 1px, transparent 1px 3px); mix-blend-mode: screen; opacity: .65; }
+.reference-caption { display: block; padding: 9px 10px 11px; color: #C9CFD6; font-size: 12px; line-height: 1.35; letter-spacing: .8px; }
+.reference-caption small { display: block; margin-top: 3px; color: #767C86; font-size: 10px; letter-spacing: 1px; }
+.reference-rack { background: radial-gradient(circle at 70% 20%, rgba(255, 157, 46, .25), transparent 25%), repeating-linear-gradient(90deg, rgba(255, 157, 46, .22) 0 1px, transparent 1px 33px), repeating-linear-gradient(0deg, rgba(255, 157, 46, .16) 0 1px, transparent 1px 26px), #090604; }
+.reference-rack::before, .reference-rack::after { content: ""; position: absolute; border: 1px solid rgba(255, 193, 100, .72); box-shadow: 0 0 14px rgba(255, 120, 30, .28); }
+.reference-rack::before { inset: 20px 34px; }
+.reference-rack::after { inset: 34px 53px; }
+.reference-data { background: radial-gradient(circle at 28% 48%, rgba(43, 217, 255, .35), transparent 22%), repeating-radial-gradient(circle at 26% 50%, rgba(43, 217, 255, .72) 0 2px, transparent 3px 14px), #02070A; }
+.reference-data::before { content: ""; width: 45%; height: 58%; border: 1px solid rgba(43, 217, 255, .64); border-radius: 50% 50% 42% 42%; box-shadow: 0 0 18px rgba(43, 217, 255, .3); transform: skewY(-12deg); }
+.reference-moon { background: radial-gradient(circle at 56% 44%, rgba(239, 240, 244, .92) 0 23%, rgba(80, 83, 94, .72) 24% 38%, transparent 39%), repeating-linear-gradient(0deg, rgba(255, 255, 255, .1) 0 1px, transparent 1px 4px), #050507; }
+.reference-moon::before { content: ""; position: absolute; width: 72px; height: 72px; border: 1px solid rgba(232, 233, 238, .5); border-radius: 50%; box-shadow: 0 0 20px rgba(232, 233, 238, .18); }
+.microsite-note { margin: 20px 0 0; max-width: 74ch; color: #767C86; font-size: 12px; }
+@media (max-width: 720px) {
+  .reference-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reference-media img { height: 136px; }
+  .reference-media.stupa-media img { height: 190px; }
+}
+@media (max-width: 450px) {
+  .reference-grid { grid-template-columns: 1fr; }
+}
+
 /* shown only when the CMS is unreachable and the checked-in copy is on air */
 #local-copy {
   display: inline-block; margin: 0 2px 14px; padding: 2px 10px;
@@ -143,6 +186,53 @@ body {
     <p id="local-copy" hidden data-i18n="exp.local">LOCAL COPY</p>
     <ul class="wall" id="wall" aria-label="Experiments" data-i18n-aria-label="exp.aria"></ul>
     <p id="offair" hidden data-i18n="exp.offair">OFF AIR — the experiment list could not be loaded.</p>
+
+    <section class="inquiry fabric-inquiry" aria-labelledby="fabric-inquiry-title">
+      <div class="inquiry-head">
+        <p class="inquiry-kicker" data-i18n="exp.fabric.kicker">01 / INSTALLATION EXPERIMENT</p>
+        <h2 class="inquiry-title" id="fabric-inquiry-title" data-i18n="exp.fabric.inquiryTitle">FABRIC: A SURFACE THAT CAN CATCH FIRE</h2>
+        <p class="inquiry-copy" data-i18n="exp.fabric.inquiryBody">Hardware gives the installation its physical presence, but fabric is difficult to control: it drifts, folds, and resists every repeatable cue. Fabric asks whether software can stage those same behaviours instead. The surface follows a hand, gathers tension, and releases it as fire-like motion.</p>
+        <p class="inquiry-copy" data-i18n="exp.fabric.inquiryNote">We are not trying to make fabric obedient. We are testing how a simulated material can stay unstable enough to perform.</p>
+        <a class="inquiry-link" href="/experiments/fabric/" data-i18n="exp.fabric.inquiryLink">VISIT THE FABRIC EXPERIMENT →</a>
+      </div>
+    </section>
+
+    <section class="inquiry microsite-inquiry" aria-labelledby="microsite-inquiry-title">
+      <div class="inquiry-head">
+        <p class="inquiry-kicker" data-i18n="exp.microsite.kicker">02 / BROADCAST MICROSITE</p>
+        <h2 class="inquiry-title" id="microsite-inquiry-title" data-i18n="exp.microsite.title">FROM TOTEM TO CONTAINER</h2>
+        <p class="inquiry-copy" data-i18n="exp.microsite.body">The microsite is the broader visual-language study around the installation. We looked at Nam June Paik’s objects and the movement from totem to stupa, then asked what could carry a signal now. The answer became a wall of TV-like containers: slabs, racks, dishes, jars, and modular frames that can be assembled, repeated, and tuned.</p>
+        <p class="inquiry-copy" data-i18n="exp.microsite.note">These are not finished-object claims. They are tests of how architecture, systems, and design become legible on screen. The cyberpunk columbarium was one reference for thinking about stacked memory—not the direction we settled on.</p>
+        <a class="inquiry-link" href="/" data-i18n="exp.microsite.link">RETURN TO THE BROADCAST →</a>
+      </div>
+
+      <div class="reference-grid" aria-label="Microsite visual studies" data-i18n-aria-label="exp.microsite.aria">
+        <figure class="reference">
+          <div class="reference-media reference-rack" aria-hidden="true"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.rack">CANDLE TV · SLABS · RACK B</span><small data-i18n="exp.microsite.visual.rackNote">OPEN FRAME / ONE SLAB, THEN MANY</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media"><img src="/visuals/water-autoflow-closeup.gif" alt="" data-i18n-alt="exp.microsite.visual.waterAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.water">WATER STUDY</span><small data-i18n="exp.microsite.visual.waterNote">FALL · COLLIDE · BREAK</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media reference-data" aria-hidden="true"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.data">SATELLITE DISH · CHEOMSEONGDAE</span><small data-i18n="exp.microsite.visual.dataNote">CAMERA / DATA JANGSEUNG</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media reference-moon" aria-hidden="true"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.moon">MOON JARS</span><small data-i18n="exp.microsite.visual.moonNote">A QUIET VESSEL FOR SIGNAL</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media stupa-media"><img src="/visuals/stupa-ceramic-wind-jewel.png" alt="" data-i18n-alt="exp.microsite.visual.stupaCeramicAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.stupaCeramic">STUPA / CERAMIC · WIND · JEWEL</span><small data-i18n="exp.microsite.visual.stupaNote">TOTEM → STACKABLE FORM</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media stupa-media"><img src="/visuals/stupa-vertical-celadon-future-v3.png" alt="" data-i18n-alt="exp.microsite.visual.stupaCeladonAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.stupaCeladon">STUPA / VERTICAL CELADON</span><small data-i18n="exp.microsite.visual.stupaCeladonNote">A FUTURE VESSEL</small></figcaption>
+        </figure>
+      </div>
+    </section>
   </main>
 
   <footer class="pf-footer">
@@ -226,6 +316,10 @@ body {
     document.querySelectorAll("[data-i18n-aria-label]").forEach(function (node) {
       var value = textFor(node.getAttribute("data-i18n-aria-label"));
       if (value) { node.setAttribute("aria-label", value); }
+    });
+    document.querySelectorAll("[data-i18n-alt]").forEach(function (node) {
+      var value = textFor(node.getAttribute("data-i18n-alt"));
+      if (value) { node.setAttribute("alt", value); }
     });
     document.title = textFor("exp.title") || document.title;
   }

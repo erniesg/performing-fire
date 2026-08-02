@@ -170,6 +170,18 @@ test('the index matches the broadcast visual language', () => {
   assert.match(index, /prefers-reduced-motion:\s*reduce/)
 })
 
+test('the Experiments page reads Fabric first, then the microsite study', () => {
+  assert.match(index, /class="inquiry fabric-inquiry"/)
+  assert.match(index, /data-i18n="exp\.fabric\.inquiryBody"/)
+  assert.match(index, /href="\/experiments\/fabric\/"[^>]*data-i18n="exp\.fabric\.inquiryLink"/)
+  assert.match(index, /class="inquiry microsite-inquiry"/)
+  assert.match(index, /data-i18n="exp\.microsite\.body"/)
+  assert.match(index, /href="\/"[^>]*data-i18n="exp\.microsite\.link"/)
+  for (const asset of ['water-autoflow-closeup.gif', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
+    assert.match(index, new RegExp(`/visuals/${asset.replace(/[.]/g, '\\.')}`))
+  }
+})
+
 test('both existing pages link to /experiments/ from their footers', () => {
   assert.match(broadcast, /<footer class="pf-footer">[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
   assert.match(fabric, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)

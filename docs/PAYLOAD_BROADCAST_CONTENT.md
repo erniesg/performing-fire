@@ -48,3 +48,15 @@ endpoints, form fields, consent mechanics, and executable configuration remain
 code-owned. Missing configuration, timeouts, network errors, non-2xx responses,
 empty results, malformed JSON, unsupported locales, drafts, and invalid fields all
 degrade to the bundled content without leaving a blank CRT.
+
+## Experiments index
+
+The `/experiments/` page is also CMS-first for its experiment cards. Payload's
+`experiments` collection controls the card title, date, summary, and route; the
+checked-in `public/experiments/experiments.json` remains the offline fallback.
+The page's two editorial sections—Fabric and the broader Microsite visual-language
+study—are intentionally code-owned for now, along with the reference images in
+`public/visuals/`. This keeps the inquiry and its visual sequence stable while the
+Payload schema is extended. When those passages need editorial updates, add a
+localized content contract before moving them into the CMS; do not replace them
+with a single unlocalized rich-text field.
