@@ -64,10 +64,29 @@ body {
 }
 .card:nth-child(odd)  { --tint: #37FF8B; --glow: rgba(55, 255, 139, 0.38); }
 .card:nth-child(even) { --tint: #2BD9FF; --glow: rgba(43, 217, 255, 0.38); }
+.card.fabric-card { --tint: #FF9D2E; --glow: rgba(255, 125, 30, 0.42); }
 .crt {
   position: relative; overflow: hidden; height: 100%;
   background: #050507; border-radius: 8px; padding: 18px 16px 16px;
 }
+.fabric-card .crt {
+  background:
+    radial-gradient(circle at 68% 34%, rgba(255, 148, 60, .26) 0 1px, transparent 2px),
+    repeating-linear-gradient(14deg, transparent 0 13px, rgba(255, 173, 92, .11) 13px 14px, transparent 14px 27px),
+    repeating-linear-gradient(104deg, transparent 0 17px, rgba(255, 104, 33, .10) 17px 18px, transparent 18px 35px),
+    #050507;
+}
+.fabric-card .crt::before {
+  background:
+    radial-gradient(80% 90% at 68% 34%, transparent 28%, rgba(255, 94, 24, .13) 76%, transparent 100%),
+    linear-gradient(118deg, transparent 25%, rgba(255, 190, 105, .12) 48%, transparent 70%);
+}
+.fabric-card .crt::after {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px),
+    radial-gradient(135% 135% at 50% 50%, transparent 52%, rgba(0, 0, 0, .52) 100%);
+}
+.fabric-card .crt > * { position: relative; z-index: 7; }
 .crt::before {
   content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
   background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
@@ -118,7 +137,7 @@ body {
       <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
     </nav>
   </header>
-  <p class="station-sub" data-i18n="exp.subtitle">Every study on one dial · pick a channel to tune in.</p>
+  <p class="station-sub" data-i18n="exp.subtitle">Fabric is one experiment in this index · the Broadcast studies the larger visual language.</p>
 
   <main>
     <p id="local-copy" hidden data-i18n="exp.local">LOCAL COPY</p>
@@ -265,8 +284,10 @@ body {
   function renderCard(entry, index) {
     var item = document.createElement("li");
     var card = el("a", "card");
+    if (entry.slug === "fabric") { card.className += " fabric-card"; }
     card.href = entry.url;
     var face = el("div", "crt");
+    if (entry.slug === "fabric") { face.className += " fabric-crt"; }
     var channel = "CH " + String(index + 1).padStart(2, "0");
     /* Keep implementation slugs out of the broadcast copy: they are identifiers,
        not a second title (and would reintroduce English into a translated card). */

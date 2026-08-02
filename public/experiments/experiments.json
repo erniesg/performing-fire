@@ -3,7 +3,7 @@
     "slug": "fabric",
     "title": "Fabric",
     "date": "2026-07-07",
-    "summary": "Microsite for Experiments — a 3D software fabric shaped by fire-like motion and hand input.",
+    "summary": "Software simulates hand-responsive fabric with fire-like motion when physical hardware is hard to control.",
     "url": "/experiments/fabric/"
   }
 ]
