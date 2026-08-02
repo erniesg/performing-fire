@@ -122,7 +122,7 @@ body {
 .inquiry-copy + .inquiry-copy { color: #9AA1AA; }
 .inquiry-link { display: inline-block; margin-top: 8px; padding: 7px 11px; color: var(--inquiry-tint); text-decoration: none; border: 1px solid color-mix(in srgb, var(--inquiry-tint) 62%, #33333E); border-radius: 999px; letter-spacing: 1px; font-size: 12px; transition: background .15s ease, box-shadow .15s ease, color .15s ease; }
 .inquiry-link:hover, .inquiry-link:focus-visible { color: #06060A; background: var(--inquiry-tint); box-shadow: 0 0 20px var(--inquiry-glow); }
-.reference-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.reference-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
 .reference { min-width: 0; margin: 0; border: 1px solid #33333E; border-radius: 10px; overflow: hidden; background: #07070A; transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
 .reference:hover, .reference:focus-within { border-color: var(--inquiry-tint); transform: translateY(-2px); box-shadow: 0 0 18px var(--inquiry-glow); }
 .reference-media { position: relative; display: grid; place-items: center; min-height: 128px; overflow: hidden; background: #030305; }
@@ -131,15 +131,10 @@ body {
 .reference-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .18) 0 1px, transparent 1px 3px); mix-blend-mode: screen; opacity: .65; }
 .reference-caption { display: block; padding: 9px 10px 11px; color: #C9CFD6; font-size: 12px; line-height: 1.35; letter-spacing: .8px; }
 .reference-caption small { display: block; margin-top: 3px; color: #767C86; font-size: 10px; letter-spacing: 1px; }
-.reference-rack { background: radial-gradient(circle at 70% 20%, rgba(255, 157, 46, .25), transparent 25%), repeating-linear-gradient(90deg, rgba(255, 157, 46, .22) 0 1px, transparent 1px 33px), repeating-linear-gradient(0deg, rgba(255, 157, 46, .16) 0 1px, transparent 1px 26px), #090604; }
-.reference-rack::before, .reference-rack::after { content: ""; position: absolute; border: 1px solid rgba(255, 193, 100, .72); box-shadow: 0 0 14px rgba(255, 120, 30, .28); }
-.reference-rack::before { inset: 20px 34px; }
-.reference-rack::after { inset: 34px 53px; }
-.reference-data { background: radial-gradient(circle at 28% 48%, rgba(43, 217, 255, .35), transparent 22%), repeating-radial-gradient(circle at 26% 50%, rgba(43, 217, 255, .72) 0 2px, transparent 3px 14px), #02070A; }
-.reference-data::before { content: ""; width: 45%; height: 58%; border: 1px solid rgba(43, 217, 255, .64); border-radius: 50% 50% 42% 42%; box-shadow: 0 0 18px rgba(43, 217, 255, .3); transform: skewY(-12deg); }
-.reference-moon { background: radial-gradient(circle at 56% 44%, rgba(239, 240, 244, .92) 0 23%, rgba(80, 83, 94, .72) 24% 38%, transparent 39%), repeating-linear-gradient(0deg, rgba(255, 255, 255, .1) 0 1px, transparent 1px 4px), #050507; }
-.reference-moon::before { content: ""; position: absolute; width: 72px; height: 72px; border: 1px solid rgba(232, 233, 238, .5); border-radius: 50%; box-shadow: 0 0 20px rgba(232, 233, 238, .18); }
 .microsite-note { margin: 20px 0 0; max-width: 74ch; color: #767C86; font-size: 12px; }
+@media (max-width: 980px) {
+  .reference-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 720px) {
   .reference-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .reference-media img { height: 136px; }
@@ -208,20 +203,36 @@ body {
 
       <div class="reference-grid" aria-label="Microsite visual studies" data-i18n-aria-label="exp.microsite.aria">
         <figure class="reference">
-          <div class="reference-media reference-rack" aria-hidden="true"></div>
-          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.rack">CANDLE TV · SLABS · RACK B</span><small data-i18n="exp.microsite.visual.rackNote">OPEN FRAME / ONE SLAB, THEN MANY</small></figcaption>
+          <div class="reference-media"><img src="/visuals/candle-tv-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.candleAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.candle">CANDLE TV</span><small data-i18n="exp.microsite.visual.candleNote">SLABS · ONE SIGNAL</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media"><img src="/visuals/slabs-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.slabsAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.slabs">SLABS</span><small data-i18n="exp.microsite.visual.slabsNote">ONE → MANY</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media"><img src="/visuals/rack-b-open-frame-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.rackAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.rack">RACK B · OPEN FRAME</span><small data-i18n="exp.microsite.visual.rackNote">A WORKING CONTAINER</small></figcaption>
         </figure>
         <figure class="reference">
           <div class="reference-media"><img src="/visuals/water-autoflow-closeup.gif" alt="" data-i18n-alt="exp.microsite.visual.waterAlt" loading="lazy"></div>
           <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.water">WATER STUDY</span><small data-i18n="exp.microsite.visual.waterNote">FALL · COLLIDE · BREAK</small></figcaption>
         </figure>
         <figure class="reference">
-          <div class="reference-media reference-data" aria-hidden="true"></div>
-          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.data">SATELLITE DISH · CHEOMSEONGDAE</span><small data-i18n="exp.microsite.visual.dataNote">CAMERA / DATA JANGSEUNG</small></figcaption>
+          <div class="reference-media"><img src="/visuals/satellite-dish-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.dataAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.data">SATELLITE DISH</span><small data-i18n="exp.microsite.visual.dataNote">CATCH / CARRY / SIGNAL</small></figcaption>
         </figure>
         <figure class="reference">
-          <div class="reference-media reference-moon" aria-hidden="true"></div>
-          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.moon">MOON JARS</span><small data-i18n="exp.microsite.visual.moonNote">A QUIET VESSEL FOR SIGNAL</small></figcaption>
+          <div class="reference-media"><img src="/visuals/cheomseongdae-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.cheomseongdaeAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.cheomseongdae">CHEOMSEONGDAE</span><small data-i18n="exp.microsite.visual.cheomseongdaeNote">CAMERA / OBSERVATORY</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media"><img src="/visuals/data-jangseung-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.jangseungAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.jangseung">DATA JANGSEUNG</span><small data-i18n="exp.microsite.visual.jangseungNote">A SIGNAL TOTEM</small></figcaption>
+        </figure>
+        <figure class="reference">
+          <div class="reference-media"><img src="/visuals/moon-jars-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.moonAlt" loading="lazy"></div>
+          <figcaption class="reference-caption"><span data-i18n="exp.microsite.visual.moon">MOON JARS</span><small data-i18n="exp.microsite.visual.moonNote">TWO HALVES · ONE VESSEL</small></figcaption>
         </figure>
         <figure class="reference">
           <div class="reference-media stupa-media"><img src="/visuals/stupa-ceramic-wind-jewel.png" alt="" data-i18n-alt="exp.microsite.visual.stupaCeramicAlt" loading="lazy"></div>

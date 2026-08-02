@@ -177,7 +177,7 @@ test('the Experiments page reads Fabric first, then the microsite study', () => 
   assert.match(index, /class="inquiry microsite-inquiry"/)
   assert.match(index, /data-i18n="exp\.microsite\.body"/)
   assert.match(index, /href="\/"[^>]*data-i18n="exp\.microsite\.link"/)
-  for (const asset of ['water-autoflow-closeup.gif', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
+  for (const asset of ['candle-tv-render.jpg', 'slabs-render.jpg', 'rack-b-open-frame-render.jpg', 'water-autoflow-closeup.gif', 'satellite-dish-render.jpg', 'cheomseongdae-render.jpg', 'data-jangseung-render.jpg', 'moon-jars-render.jpg', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
     assert.match(index, new RegExp(`/visuals/${asset.replace(/[.]/g, '\\.')}`))
   }
 })
