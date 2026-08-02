@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pεrforming Fire — master-screen fire iterations</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #050506; color: #c9cbd4;
+    font-family: "SF Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    padding: 34px 30px 70px;
+  }
+  h1 { font-size: 26px; letter-spacing: .06em; color: #e8e9ee; margin-bottom: 10px; }
+  h1 .eps { color: #37ff8b; }
+  .lede { max-width: 78ch; font-size: 13px; line-height: 1.75; color: #8f939e; margin-bottom: 30px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 26px; }
+  figure { border: 1px solid #1e2027; border-radius: 4px; overflow: hidden; background: #0a0a0c; }
+  .tube { position: relative; aspect-ratio: 4 / 3; background: #000; }
+  .tube canvas { display: block; width: 100%; height: 100%; }
+  .num {
+    position: absolute; top: 8px; left: 10px; z-index: 2;
+    font-size: 10px; letter-spacing: .18em; color: #37ff8b;
+    background: rgba(1,3,2,.82); padding: 3px 7px; border-radius: 2px;
+  }
+  .verdict {
+    position: absolute; top: 8px; right: 10px; z-index: 2;
+    font-size: 10px; letter-spacing: .1em; padding: 3px 7px; border-radius: 2px;
+    background: rgba(1,3,2,.82);
+  }
+  .cut { color: #ff6b6b; }
+  .live { color: #37ff8b; }
+  figcaption { padding: 13px 15px 16px; }
+  figcaption h2 { font-size: 13px; letter-spacing: .05em; color: #e8e9ee; margin-bottom: 7px; font-weight: 600; }
+  figcaption p { font-size: 11.5px; line-height: 1.65; color: #868a95; }
+  figcaption p + p { margin-top: 7px; }
+  figcaption b { color: #b9bdc8; font-weight: 600; }
+  .why { color: #b58a6a; }
+  footer { margin-top: 40px; font-size: 11.5px; line-height: 1.8; color: #6b6f7c; max-width: 82ch; }
+  a { color: #37ff8b; }
+</style>
+</head>
+<body>
+
+<h1>P<span class="eps">ε</span>RFORMING FIRE — master-screen iterations</h1>
+<p class="lede">
+  Every version of the big screen's animation, running live. In sequence, oldest first — each caption
+  records what it was and why it was replaced. Tiles 5–6 are GLSL; the rest are canvas.
+</p>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  Reference for the character: the 火 evolution chart (甲骨文 → 金文 → 秦小篆 → 汉隶 → 唐楷).
+  The live version cycles 甲骨文 → 小篆 → 火 → 불, one per ignition.<br>
+  Back to the <a href="./">firefly console</a>.
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  const mkRnd = seed => { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; };
+  const lerp = (a, b, u) => a + (b - a) * u;
+  const sm = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
+
+  /* ---------- glyph paths (as used by the live version) ---------- */
+  const GLYPHS = (() => {
+    const build = strokes => {
+      const segs = []; let total = 0;
+      strokes.forEach(pts => {
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [ax, ay] = pts[i], [bx, by] = pts[i + 1];
+          const len = Math.hypot(bx - ax, by - ay);
+          segs.push({ ax, ay, bx, by, len, acc: total }); total += len;
+        }
+      });
+      return { segs, total };
+    };
+    return [
+      build([[[0.18,0.62],[0.27,0.32],[0.37,0.52],[0.50,0.18],[0.63,0.52],[0.73,0.32],[0.82,0.62]],
+             [[0.18,0.62],[0.30,0.76],[0.50,0.80],[0.70,0.76],[0.82,0.62]]]),
+      build([[[0.50,0.16],[0.48,0.40],[0.42,0.60],[0.33,0.80]],[[0.49,0.40],[0.56,0.60],[0.65,0.80]],
+             [[0.28,0.30],[0.36,0.42],[0.43,0.50]],[[0.72,0.30],[0.64,0.42],[0.57,0.50]]]),
+      build([[[0.50,0.10],[0.47,0.30],[0.40,0.52],[0.28,0.72],[0.16,0.86]],
+             [[0.49,0.38],[0.58,0.55],[0.70,0.72],[0.82,0.86]],
+             [[0.26,0.30],[0.33,0.40],[0.37,0.48]],[[0.74,0.28],[0.68,0.38],[0.63,0.46]]]),
+      build([[[0.32,0.06],[0.32,0.30]],[[0.68,0.06],[0.68,0.30]],[[0.32,0.17],[0.68,0.17]],[[0.32,0.30],[0.68,0.30]],
+             [[0.18,0.40],[0.82,0.40]],[[0.50,0.40],[0.50,0.56]],
+             [[0.30,0.62],[0.70,0.62]],[[0.70,0.62],[0.70,0.76]],[[0.70,0.76],[0.30,0.76]],
+             [[0.30,0.76],[0.30,0.90]],[[0.30,0.90],[0.70,0.90]]]),
+    ];
+  })();
+  function glyphPoint(u, gi) {
+    const G = GLYPHS[gi], d = u * G.total;
+    for (const s of G.segs) if (d <= s.acc + s.len) {
+      const k = (d - s.acc) / s.len;
+      return [s.ax + (s.bx - s.ax) * k, s.ay + (s.by - s.ay) * k];
+    }
+    const s = G.segs[G.segs.length - 1];
+    return [s.bx, s.by];
+  }
+
+  /* =================== 1. five-phase lock (sine) =================== */
+  function v1(x, W, H, t) {
+    x.fillStyle = "#020703"; x.fillRect(0, 0, W, H);
+    const lock = Math.pow(0.5 + 0.5 * Math.cos(t * 0.5), 3);
+    const rr = mkRnd(11);
+    for (let i = 0; i < 110; i++) {
+      const fx = rr(), fy = rr(), fw = 0.4 + rr() * 0.8, fp = rr() * 7;
+      const wx = W * (0.06 + fx * 0.88) + Math.sin(t * fw + fp) * 26 * (1 - lock);
+      const freeY = H * (0.12 + fy * 0.76) + Math.cos(t * fw * 0.8 + fp) * 22;
+      const waveY = H / 2 + Math.sin((wx / W) * Math.PI * 4 + t * 2) * H * 0.17;
+      const py = lerp(freeY, waveY, lock);
+      const blink = Math.pow(0.5 + 0.5 * Math.sin(t * (1.3 + fw) + fp), 3);
+      const warm = fx > 0.8 && lock < 0.5;
+      x.fillStyle = warm ? `rgba(255,190,90,${0.25 + blink * 0.6})` : `rgba(55,255,139,${0.18 + blink * 0.62 + lock * 0.2})`;
+      x.shadowColor = "rgba(55,255,139,0.8)"; x.shadowBlur = 8;
+      x.beginPath(); x.arc(wx, py, 1.7 + blink * 1.6, 0, 7); x.fill();
+    }
+    x.shadowBlur = 0;
+    if (lock > 0.55) {
+      x.strokeStyle = `rgba(230,255,240,${(lock - 0.55) * 1.6})`; x.lineWidth = 2.5;
+      x.shadowColor = "rgba(55,255,139,0.9)"; x.shadowBlur = 14;
+      x.beginPath();
+      for (let i = 0; i <= 120; i++) {
+        const u = i / 120, py = H / 2 + Math.sin(u * Math.PI * 4 + t * 2) * H * 0.17;
+        i ? x.lineTo(u * W, py) : x.moveTo(0, py);
+      }
+      x.stroke(); x.shadowBlur = 0;
+    }
+  }
+
+  /* =================== 2. teardrop cardioid =================== */
+  function v2(x, W, H, t) {
+    x.fillStyle = "#020703"; x.fillRect(0, 0, W, H);
+    const lock = Math.pow(0.5 + 0.5 * Math.cos(t * 0.45), 3);
+    const cx = W / 2, cy = H * 0.5, R = H * 0.3;
+    const sway = Math.sin(t * 2.1) * 0.5 + Math.sin(t * 3.7) * 0.25;
+    if (lock > 0.25) {
+      const g = x.createRadialGradient(cx, cy + R * 0.5, 0, cx, cy + R * 0.5, R * 1.6);
+      g.addColorStop(0, `rgba(255,165,55,${(lock - 0.25) * 0.55})`);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+    }
+    const rr = mkRnd(11);
+    for (let i = 0; i < 130; i++) {
+      const fx = rr(), fy = rr(), fw = 0.4 + rr() * 0.8, fp = rr() * 7;
+      const freeX = W * (0.06 + fx * 0.88) + Math.sin(t * fw + fp) * 26 * (1 - lock);
+      const freeY = H * (0.10 + fy * 0.80) + Math.cos(t * fw * 0.8 + fp) * 22;
+      const u = fx * Math.PI * 2;
+      const rad = R * (1 - 0.62 * Math.cos(u)) * (1 + fy * 0.05);
+      let tx = cx + rad * Math.sin(u) * 0.6;
+      let ty = cy - rad * Math.cos(u) * 0.85;
+      if (ty < cy) tx += sway * (cy - ty) * 0.14;
+      ty -= Math.max(0, Math.cos(u)) * Math.max(0, Math.sin(t * 5.3 + fp)) * H * 0.03;
+      const px = lerp(freeX, tx, lock), py = lerp(freeY, ty, lock);
+      const blink = Math.pow(0.5 + 0.5 * Math.sin(t * (1.3 + fw) + fp), 3);
+      if (lock > 0.4) {
+        const heat = (lock - 0.4) / 0.6;
+        x.fillStyle = `rgba(255,${120 + ((fy * 90 + heat * 40) | 0)},${50 + (fy * 40) | 0},${0.3 + blink * 0.45 + heat * 0.2})`;
+        x.shadowColor = "rgba(255,150,50,0.9)";
+      } else {
+        x.fillStyle = fx > 0.8 ? `rgba(255,190,90,${0.25 + blink * 0.6})` : `rgba(55,255,139,${0.18 + blink * 0.62})`;
+        x.shadowColor = "rgba(55,255,139,0.8)";
+      }
+      x.shadowBlur = 8;
+      x.beginPath(); x.arc(px, py, 1.7 + blink * 1.6, 0, 7); x.fill();
+    }
+    x.shadowBlur = 0;
+  }
+
+  /* =================== 3. three tongues, round embers =================== */
+  function v3(x, W, H, t) {
+    x.fillStyle = "rgba(2,7,3,0.32)"; x.fillRect(0, 0, W, H);
+    const lock = 1 - Math.pow(0.5 + 0.5 * Math.cos(t * 0.28), 10);
+    const cx = W / 2, baseY = H * 0.78, flameH = H * 0.58;
+    const sway = Math.sin(t * 1.9) * 0.6 + Math.sin(t * 3.3) * 0.3;
+    const g = x.createRadialGradient(cx, baseY, 0, cx, baseY, flameH * 0.9);
+    g.addColorStop(0, `rgba(255,150,40,${0.26 * lock + 0.05})`);
+    g.addColorStop(0.5, `rgba(180,60,10,${0.11 * lock})`);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const rr = mkRnd(11);
+    for (let i = 0; i < 150; i++) {
+      const s1 = rr(), s2 = rr(), s3 = rr(), fw = 0.4 + rr() * 0.8, fp = rr() * 7;
+      const freeX = W * (0.06 + s1 * 0.88) + Math.sin(t * fw + fp) * 26;
+      const freeY = H * (0.10 + s2 * 0.80) + Math.cos(t * fw * 0.8 + fp) * 22;
+      const tongue = s3 < 0.62 ? 0 : s3 < 0.81 ? 1 : 2;
+      const th = tongue === 0 ? flameH * (1 + 0.10 * Math.sin(t * 2.3))
+               : tongue === 1 ? flameH * 0.52 * (1 + 0.20 * Math.sin(t * 3.1 + 1.7))
+               : flameH * 0.47 * (1 + 0.20 * Math.sin(t * 2.6 + 3.9));
+      const tx0 = tongue === 0 ? cx : cx + (tongue === 1 ? -1 : 1) * flameH * 0.34;
+      const tw = (tongue === 0 ? 0.23 : 0.11) * flameH;
+      const v = (t * (0.16 + s3 * 0.22) + s1 * 7) % 1;
+      const env = Math.pow(1 - v, 0.8) * Math.sqrt(v + 0.06) * 2.1;
+      let fxp = tx0 + (s2 * 2 - 1) * tw * env + Math.sin(v * 9 + t * 3 + fp) * 6 * (1 - v);
+      fxp += tongue === 0 ? sway * v * v * 26 : (tongue === 1 ? -1 : 1) * (8 + sway * 4) * v;
+      const fyp = baseY - v * th;
+      const px = lerp(freeX, fxp, lock), py = lerp(freeY, fyp, lock);
+      const blink = Math.pow(0.5 + 0.5 * Math.sin(t * (1.3 + fw) + fp), 3);
+      if (lock > 0.35) {
+        x.fillStyle = `rgba(255,${(140 + v * 100) | 0},${(40 + v * 130) | 0},${(0.8 - v * 0.45) * lock})`;
+        x.shadowColor = "rgba(255,150,50,0.9)";
+      } else {
+        x.fillStyle = s1 > 0.8 ? `rgba(255,190,90,${0.25 + blink * 0.6})` : `rgba(55,255,139,${0.18 + blink * 0.62})`;
+        x.shadowColor = "rgba(55,255,139,0.8)";
+      }
+      x.shadowBlur = 8;
+      x.beginPath(); x.arc(px, py, lock > 0.35 ? 1.4 + (1 - v) * 1.9 : 1.7 + blink * 1.6, 0, 7); x.fill();
+    }
+    x.shadowBlur = 0;
+  }
+
+  /* =================== 4. stretched embers + hearth =================== */
+  function v4(x, W, H, t) {
+    x.fillStyle = "rgba(2,7,3,0.44)"; x.fillRect(0, 0, W, H);
+    const cyc = t % 26;
+    const lock = 1 - sm(12.2, 13.0, cyc) * (1 - sm(13.6, 14.4, cyc));
+    const gk = 0;
+    const cx = W / 2, baseY = H * 0.78, flameH = H * 0.58;
+    const sway = Math.sin(t * 1.9) * 0.6 + Math.sin(t * 3.3) * 0.3;
+    const fireGlow = lock;
+    if (fireGlow > 0.03) {
+      x.save();
+      x.translate(cx, baseY - flameH * 0.08); x.scale(1.2, 0.38);
+      const g = x.createRadialGradient(0, 0, 0, 0, 0, flameH * 0.55);
+      g.addColorStop(0, `rgba(255,140,45,${0.15 * fireGlow + 0.02})`);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = g; x.fillRect(-flameH * 3, -flameH * 3, flameH * 6, flameH * 6);
+      x.restore();
+      const fgd = x.createLinearGradient(0, baseY, 0, H);
+      fgd.addColorStop(0, `rgba(120,40,12,${0.10 * fireGlow})`);
+      fgd.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = fgd; x.fillRect(0, baseY, W, H - baseY);
+      const er = mkRnd(31);
+      x.shadowColor = "rgba(255,120,40,0.8)"; x.shadowBlur = 6;
+      for (let i = 0; i < 30; i++) {
+        const ang = er() * 6.283, rad = Math.sqrt(er());
+        const pul = 0.5 + 0.5 * Math.sin(t * (0.7 + er()) + i * 1.9);
+        const behind = Math.sin(ang) < 0 ? 0.55 : 1;
+        x.fillStyle = `rgba(255,${70 + (pul * 70) | 0},25,${(0.13 + pul * 0.28) * fireGlow * behind})`;
+        x.beginPath();
+        x.ellipse(cx + Math.cos(ang) * rad * flameH * 0.6, baseY + 2 + Math.sin(ang) * rad * flameH * 0.13,
+                  (3 + pul * 2) * behind, (1.8 + pul) * behind, 0, 0, 7);
+        x.fill();
+      }
+      x.shadowBlur = 0;
+    }
+    const rr = mkRnd(11);
+    for (let i = 0; i < 210; i++) {
+      const s1 = rr(), s2 = rr(), s3 = rr(), s4 = rr(), fw = 0.4 + rr() * 0.8, fp = rr() * 7;
+      const freeX = W * (0.06 + s1 * 0.88) + Math.sin(t * fw + fp) * 26;
+      const freeY = H * (0.10 + s2 * 0.80) + Math.cos(t * fw * 0.8 + fp) * 22;
+      const tongue = s3 < 0.62 ? 0 : s3 < 0.81 ? 1 : 2;
+      const th = tongue === 0 ? flameH * (1 + 0.10 * Math.sin(t * 2.3))
+               : tongue === 1 ? flameH * 0.52 * (1 + 0.20 * Math.sin(t * 3.1 + 1.7))
+               : flameH * 0.47 * (1 + 0.20 * Math.sin(t * 2.6 + 3.9));
+      const tx0 = tongue === 0 ? cx : cx + (tongue === 1 ? -1 : 1) * flameH * 0.34;
+      const tw = (tongue === 0 ? 0.23 : 0.11) * flameH;
+      const v = (t * (0.16 + s3 * 0.22) + s1 * 7) % 1;
+      const env = Math.pow(1 - v, 0.8) * Math.sqrt(v + 0.06) * 2.1;
+      let fxp = tx0 + (s2 * 2 - 1) * tw * env + Math.sin(v * 9 + t * 3 + fp) * 6 * (1 - v);
+      fxp += tongue === 0 ? sway * v * v * 26 : (tongue === 1 ? -1 : 1) * (8 + sway * 4) * v;
+      const dep = s4;
+      fxp = cx + (fxp - cx) * (1 - dep * 0.3);
+      const fyp = (baseY - dep * flameH * 0.16) - v * th * (1 - dep * 0.25);
+      const px = lerp(freeX, fxp, lock), py = lerp(freeY, fyp, lock);
+      const blink = Math.pow(0.5 + 0.5 * Math.sin(t * (1.3 + fw) + fp), 3);
+      if (lock > 0.35) {
+        x.fillStyle = `rgba(255,${(140 + v * 100) | 0},${(40 + v * 130) | 0},${(0.8 - v * 0.45) * lock})`;
+        x.shadowColor = "rgba(255,150,50,0.9)";
+      } else {
+        x.fillStyle = s1 > 0.8 ? `rgba(255,190,90,${0.25 + blink * 0.6})` : `rgba(55,255,139,${0.18 + blink * 0.62})`;
+        x.shadowColor = "rgba(55,255,139,0.8)";
+      }
+      x.shadowBlur = 8;
+      const rad2 = lock > 0.35 ? 1.4 + (1 - v) * 1.9 : 1.7 + blink * 1.6;
+      const stretchY = lock > 0.35 ? rad2 * (1.7 + v * 1.3) : rad2;
+      x.beginPath(); x.ellipse(px, py, rad2, stretchY, 0, 0, 7); x.fill();
+      if (lock > 0.35 && i % 2 === 0 && py < baseY) {
+        x.shadowBlur = 0; x.globalAlpha = 0.12 * lock;
+        x.beginPath(); x.ellipse(px, baseY + (baseY - py) * 0.3, rad2 * 0.9, stretchY * 0.45, 0, 0, 7); x.fill();
+        x.globalAlpha = 1;
+      }
+    }
+    x.shadowBlur = 0;
+  }
+
+  /* =================== 8. swarm → embers → character (LIVE) =================== */
+  const MT = [];
+  {
+    const rnd = mkRnd(53);
+    for (let i = 0; i < 170; i++) {
+      const f = {
+        x: 0.05 + rnd() * 0.9, y: 0.08 + rnd() * 0.84, vx: 0, vy: 0,
+        u: (i + 0.1 + rnd() * 0.8) / 170,
+        soc: Math.pow(rnd(), 1.3), cruise: 0.02 + Math.pow(rnd(), 1.7) * 0.075,
+        per: 1.0 + rnd() * 1.9, phase: rnd(), flash: rnd() * 0.3,
+        decay: 3.0 + rnd() * 4.5, size: 1.0 + Math.pow(rnd(), 2.2) * 2.0,
+        warm: rnd() < 0.16, fire: false,
+      };
+      f.hx = f.x; f.hy = f.y;
+      f.lat = rnd() * 2 - 1; f.rise = 0.14 + rnd() * 0.26;
+      f.tongue = f.u < 0.60 ? 0 : f.u < 0.81 ? 1 : 2;
+      f.wob = rnd() * 6.28; f.spark = rnd() < 0.2;
+      MT.push(f);
+    }
+  }
+  let mtLast = 0;
+  const CYC8 = 13;                                   // 26s live, halved here so a tile shows the whole cycle
+  function v8(x, W, H, t) {
+    const dt = Math.min(0.05, Math.max(0.001, t - mtLast));
+    mtLast = t;
+    x.clearRect(0, 0, W, H);
+    const cyc = t % CYC8;
+    const gk = sm(7, 8.3, cyc) * (1 - sm(11, 12.3, cyc));
+    const fk = sm(4, 5.3, cyc) * (1 - sm(11, 12.3, cyc)) * (1 - gk * 0.85);
+    const gi = Math.floor(t / CYC8) % 4;
+    const gm = [[0.24, 0.52, 0.15, 0.68], [0.27, 0.46, 0.13, 0.74], [0.26, 0.48, 0.13, 0.74], [0.30, 0.40, 0.11, 0.78]][gi];
+    const baseY = H * 0.86, flameH = H * 0.66;
+    const sway = Math.sin(t * 1.9) * 0.6 + Math.sin(t * 3.3) * 0.3;
+
+    for (let i = 0; i < MT.length; i++) {
+      const f = MT[i];
+      let cx2 = 0, cy2 = 0, nn = 0, litNear = 0;
+      for (let j = 0; j < MT.length; j++) {
+        if (j === i) continue;
+        const o = MT[j], dx = o.x - f.x, dy = o.y - f.y, d2 = dx * dx + dy * dy;
+        if (d2 > 0.02 || d2 < 1e-7) continue;
+        nn++; cx2 += o.x; cy2 += o.y;
+        if (d2 < 0.0016) { const wS = (0.0016 - d2) * 220; f.vx -= dx * wS * dt; f.vy -= dy * wS * dt; }
+        if (o.fire) litNear++;
+      }
+      if (nn > 0) {
+        const inv = 1 / nn, wc = f.soc * 0.10 * (1 - gk);
+        f.vx += (cx2 * inv - f.x) * wc * dt; f.vy += (cy2 * inv - f.y) * wc * dt;
+      }
+      const wn = 0.62 * dt;
+      f.vx += (Math.random() - 0.5) * wn; f.vy += (Math.random() - 0.5) * wn;
+      f.vx += (f.hx - f.x) * 0.05 * dt; f.vy += (f.hy - f.y) * 0.05 * dt;
+      f.vx -= f.vx * dt; f.vy -= f.vy * dt;
+      if (f.x < 0.05) f.vx += 0.4 * dt; if (f.x > 0.95) f.vx -= 0.4 * dt;
+      if (f.y < 0.06) f.vy += 0.4 * dt; if (f.y > 0.94) f.vy -= 0.4 * dt;
+      const sp = Math.hypot(f.vx, f.vy);
+      if (sp > f.cruise) { const k2 = f.cruise / sp; f.vx *= k2; f.vy *= k2; }
+      f.x += f.vx * dt * (1 - gk); f.y += f.vy * dt * (1 - gk);
+
+      f.fire = false;
+      f.phase += dt / f.per;
+      if (litNear > 0) f.phase += 0.10 * Math.min(3, litNear);
+      if (f.phase >= 1) { f.phase -= 1; f.fire = true; f.flash = 1; }
+      f.flash *= Math.exp(-f.decay * dt);
+
+      const v = (t * f.rise + f.u * 7) % 1;
+      const gkI = Math.min(1, Math.max(0, (gk - f.u * 0.22) / 0.78));
+      const [hx, hy] = glyphPoint(f.u, gi);
+      const jx = Math.sin(t * 2.7 + f.u * 41) * 2.2 + Math.sin(t * 6.1 + f.u * 13) * 0.9;
+      const jy = Math.cos(t * 2.3 + f.u * 37) * 2.2 - gkI * Math.abs(Math.sin(t * 1.7 + f.u * 9)) * 3.5;
+      const glx = W * gm[0] + hx * W * gm[1] + jx, gly = H * gm[2] + hy * H * gm[3] + jy;
+
+      const emberLit = 0.85 - v * 0.45;
+      const lit = Math.max(lerp(f.flash, emberLit, fk), gkI * (0.45 + 0.55 * f.flash));
+      const r = lerp(0.75 + f.size * 0.95, 1.15 + f.size * 0.3, gkI) * (0.7 + lit * 0.5);
+      const sc = f.warm ? [255, 190, 90] : [55, 255, 139];
+      const ec = [255, 140 + v * 100, 40 + v * 130];
+      const gc = [255, 96 + f.u * 60 + f.flash * 70, 45];
+      const c = [
+        lerp(lerp(sc[0], ec[0], fk), gc[0], gkI) | 0,
+        lerp(lerp(sc[1], ec[1], fk), gc[1], gkI) | 0,
+        lerp(lerp(sc[2], ec[2], fk), gc[2], gkI) | 0,
+      ];
+      const TR = fk > 0.02 ? 5 : 2;
+      for (let s = TR - 1; s >= 0; s--) {
+        const back = s * 0.02, vv = Math.max(0, v - back);
+        const th = f.tongue === 0 ? flameH * (1 + 0.10 * Math.sin(t * 2.3))
+                 : f.tongue === 1 ? flameH * 0.52 * (1 + 0.20 * Math.sin(t * 3.1 + 1.7))
+                 : flameH * 0.47 * (1 + 0.20 * Math.sin(t * 2.6 + 3.9));
+        const tx0 = W / 2 + (f.tongue === 0 ? 0 : (f.tongue === 1 ? -1 : 1) * flameH * 0.30);
+        const tw = (f.tongue === 0 ? 0.22 : 0.10) * flameH;
+        const env = Math.pow(1 - vv, 0.8) * Math.sqrt(vv + 0.06) * 2.1;
+        let ex2 = tx0 + f.lat * tw * env + Math.sin(vv * 9 + t * 3 + f.wob) * 6 * (1 - vv);
+        ex2 += f.tongue === 0 ? sway * vv * vv * 26 : (f.tongue === 1 ? -1 : 1) * (8 + sway * 4) * vv;
+        const ey2 = baseY - vv * th;
+        const sxp = lerp((f.x - f.vx * back * 7) * W, ex2, fk);
+        const syp = lerp((f.y - f.vy * back * 7) * H, ey2, fk);
+        const px = lerp(sxp, glx, gkI), py = lerp(syp, gly, gkI);
+        const fade = s === 0 ? 1 : (1 - s / TR) * 0.55 * (1 - gkI * 0.8);
+        if (fade <= 0.01) continue;
+        const rad = r * (s === 0 ? 3.2 : 2.2 - s * 0.22);
+        const stretch = 1 + fk * (1 - gkI) * (0.5 + vv * 0.8);
+        x.save();
+        x.translate(px, py); x.scale(1, stretch);
+        if (s === 0) {
+          const g = x.createRadialGradient(0, 0, 0, 0, 0, rad);
+          g.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.2 + lit * 0.8})`);
+          g.addColorStop(0.32, `rgba(${c[0]},${c[1]},${c[2]},${(0.08 + lit * 0.26) * (1 - gkI * 0.55)})`);
+          g.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+          x.fillStyle = g;
+        } else {
+          x.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${(0.10 + lit * 0.30) * fade})`;
+        }
+        x.beginPath(); x.arc(0, 0, rad, 0, 7); x.fill();
+        x.restore();
+      }
+      if (f.spark && gkI > 0.55) {
+        const sp2 = (t * 0.5 + f.u * 5.3) % 1;
+        const up = Math.pow(sp2, 1.35) * 30, af = (1 - sp2) * (1 - sp2) * gkI;
+        if (af > 0.02) {
+          x.fillStyle = `rgba(255,${(150 + sp2 * 90) | 0},${(60 + sp2 * 90) | 0},${af * 0.75})`;
+          x.beginPath();
+          x.arc(glx + up * 0.28 * Math.sin(f.u * 31 + t * 0.7), gly - up, r * (0.8 - sp2 * 0.35), 0, 7);
+          x.fill();
+        }
+      }
+    }
+  }
+
+  /* =================== 7. swarm ↔ glyph =================== */
+  function v7(x, W, H, t) {
+    x.globalCompositeOperation = "destination-out";
+    x.fillStyle = "rgba(0,0,0,0.38)"; x.fillRect(0, 0, W, H);
+    x.globalCompositeOperation = "source-over";
+    const CYC = 9;                                   // sped up from 26s so all four characters are visible here
+    const cyc = t % CYC;
+    const gk = sm(3.2, 4.6, cyc) * (1 - sm(7.0, 8.2, cyc));
+    const rr = mkRnd(11);
+    for (let i = 0; i < 190; i++) {
+      const s1 = rr(), s2 = rr(), s3 = rr(), fw = 0.4 + rr() * 0.8, fp = rr() * 7;
+      const freeX = W * (0.06 + s1 * 0.88) + Math.sin(t * fw + fp) * 26 + Math.sin(t * 0.31 + s3 * 6.3) * 14;
+      const freeY = H * (0.10 + s2 * 0.80) + Math.cos(t * fw * 0.8 + fp) * 22;
+      const gi = Math.floor(t / CYC) % 4;
+      const gm = [[0.28,0.44,0.22,0.54],[0.30,0.40,0.17,0.62],[0.27,0.46,0.17,0.64],[0.32,0.36,0.16,0.66]][gi];
+      const [hx, hy] = glyphPoint(s1, gi);
+      const gxp = W * gm[0] + hx * W * gm[1] + Math.sin(t * 4 + fp) * 2.5;
+      const gyp = H * gm[2] + hy * H * gm[3] + Math.cos(t * 3.4 + fp) * 2.5;
+      const px = lerp(freeX, gxp, gk), py = lerp(freeY, gyp, gk);
+      const blink = Math.pow(0.5 + 0.5 * Math.sin(t * (1.3 + fw) + fp), 3);
+      if (gk > 0.5) {
+        x.fillStyle = `rgba(255,${(96 + s2 * 60) | 0},45,${0.55 + gk * 0.35})`;
+        x.shadowColor = "rgba(255,90,40,0.9)";
+      } else {
+        x.fillStyle = s1 > 0.8 ? `rgba(255,190,90,${0.25 + blink * 0.6})` : `rgba(55,255,139,${0.18 + blink * 0.62})`;
+        x.shadowColor = "rgba(55,255,139,0.8)";
+      }
+      x.shadowBlur = 8 - gk * 5;
+      x.beginPath(); x.arc(px, py, 1.7 + blink * 1.6 * (1 - gk) + gk * 0.9, 0, 7); x.fill();
+    }
+    x.shadowBlur = 0;
+  }
+
+  /* =================== GLSL tiles =================== */
+  const GL_COMMON = `
+    precision highp float;
+    uniform float uTime; uniform vec2 uRes;
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float noise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+                 mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+    }
+    float fbm(vec2 p) {
+      float v = 0.0, a = 0.5;
+      for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
+      return v;
+    }`;
+
+  /* 5 — first GLSL campfire: broad plume, wide bed, wall splash, floor reflection */
+  const FRAG5 = GL_COMMON + `
+    vec3 fireLayer(vec2 uv, float tt, float sc, float off) {
+      float sway = sin(tt * 1.9 + off) * 0.035 + sin(tt * 3.3 + off * 2.0) * 0.018;
+      float fy = (uv.y - 0.14) / (0.62 * sc);
+      float fx = (uv.x - 0.5 - sway * fy * fy) / (0.26 * sc);
+      if (fy < -0.1 || fy > 1.25) return vec3(0.0);
+      float n = fbm(vec2(fx * 2.2 + off * 7.0, fy * 2.8 - tt * 1.5));
+      float body = 1.0 - abs(fx) / max(1.0 - fy * 0.72, 0.001);
+      float f = clamp(body * 0.7 + (n - 0.5) * 1.1 - max(fy, 0.0) * 0.42, 0.0, 1.0);
+      float inten = pow(f, 1.8);
+      return vec3(1.1, 0.30, 0.045) * inten + vec3(1.3, 0.95, 0.4) * pow(inten, 3.0);
+    }
+    void main() {
+      vec2 uv = gl_FragCoord.xy / uRes; float tt = uTime;
+      vec3 fire = fireLayer(uv, tt, 0.78, 3.7) * 0.4 + fireLayer(uv, tt, 1.0, 0.0);
+      float bed = exp(-pow((uv.y - 0.135) * 15.0, 2.0)) * (0.45 + 0.55 * noise(vec2(uv.x * 36.0, tt * 1.6)));
+      bed *= smoothstep(0.46, 0.12, abs(uv.x - 0.5));
+      fire += vec3(1.0, 0.32, 0.06) * bed * 0.75;
+      float wall = exp(-length((uv - vec2(0.5, 0.45)) * vec2(1.5, 1.9)) * 2.4);
+      fire += vec3(0.5, 0.16, 0.035) * wall * 0.2;
+      float refl = fireLayer(vec2(uv.x, 0.27 - uv.y), tt, 1.0, 0.0).r;
+      fire += vec3(0.8, 0.25, 0.05) * refl * 0.3 * step(uv.y, 0.135);
+      vec3 col = vec3(0.004, 0.010, 0.005) + fire;
+      col *= 1.0 - 0.55 * smoothstep(0.33, 0.75, length((uv - 0.5) * vec2(1.15, 1.4)));
+      gl_FragColor = vec4(pow(col, vec3(0.4545)), 1.0);
+    }`;
+
+  /* 6 — tightened: narrow eroded teardrop, blackbody ramp, tip fade, narrow coal line */
+  const FRAG6 = GL_COMMON + `
+    vec3 fireBody(vec2 uv, float tt, float sc, float off) {
+      float sway = sin(tt * 1.9 + off) * 0.05 + sin(tt * 3.3 + off * 2.0) * 0.025;
+      vec2 p = vec2(((uv.x - 0.5) - sway * (uv.y - 0.12)) * 3.6 / sc, (uv.y - 0.12) * 2.2 / sc);
+      if (p.y < -0.15 || p.y > 1.7) return vec3(0.0);
+      float n = fbm(vec2(p.x * 1.6 + off * 5.0, p.y * 2.4 - tt * 1.9))
+              + 0.4 * fbm(vec2(p.x * 3.4 + off * 5.0 + 4.7, p.y * 4.2 - tt * 3.1));
+      n /= 1.4;
+      float shape = 1.0 - length(vec2(p.x * (1.0 + p.y * 0.6), p.y * 0.6 - 0.16));
+      float inten = clamp((shape + (n - 0.5) * 1.0) * 1.35, 0.0, 1.0);
+      inten *= smoothstep(-0.05, 0.12, p.y);
+      inten *= 1.0 - smoothstep(0.9, 1.3, p.y);
+      inten = pow(inten, 1.75);
+      vec3 c = mix(vec3(0.0), vec3(0.9, 0.12, 0.01), smoothstep(0.0, 0.35, inten));
+      c = mix(c, vec3(1.15, 0.55, 0.06), smoothstep(0.3, 0.72, inten));
+      c = mix(c, vec3(1.35, 1.05, 0.55), smoothstep(0.72, 0.98, inten));
+      return c;
+    }
+    void main() {
+      vec2 uv = gl_FragCoord.xy / uRes; float tt = uTime;
+      vec3 fire = fireBody(uv, tt, 0.72, 3.7) * 0.35 + fireBody(uv, tt, 1.0, 0.0);
+      float bed = exp(-pow((uv.y - 0.125) * 22.0, 2.0)) * (0.4 + 0.6 * noise(vec2(uv.x * 40.0, tt * 1.7)));
+      bed *= smoothstep(0.30, 0.10, abs(uv.x - 0.5));
+      fire += vec3(1.0, 0.32, 0.06) * bed * 0.5;
+      gl_FragColor = vec4(pow(fire, vec3(0.4545)), 1.0);
+    }`;
+
+  function glTile(canvas, frag) {
+    const gl = canvas.getContext("webgl");
+    if (!gl) return null;
+    const sh = (type, src) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+      return s;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, "attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }"));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, "p");
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const uT = gl.getUniformLocation(prog, "uTime"), uR = gl.getUniformLocation(prog, "uRes");
+    return t => {
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform1f(uT, t); gl.uniform2f(uR, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+  }
+
+  /* =================== tiles =================== */
+  const TILES = [
+    { n: "01", verdict: "cut", title: "Five-phase lock — the sine",
+      draw: v1,
+      body: ["Fireflies drift, then periodically snap onto a four-cycle sine wave: five signals cohering into one.",
+             "<span class='why'>Why it went:</span> it was a straight duplicate of CH 01's own waveform motif — the master and one of its channels showed the same idea. <b>“why is this repeating the sine waves”</b>"] },
+    { n: "02", verdict: "cut", title: "Teardrop — cardioid outline",
+      draw: v2,
+      body: ["The swarm condenses onto a cardioid: a flame <em>outline</em>, tip flickering, leaning with a two-frequency sway. Green flies ignite to ember as it locks.",
+             "<span class='why'>Why it went:</span> it only held the shape briefly each cycle, so most of the time the tube was anonymous dots. <b>“what is the main thing supposed to show bro”</b>"] },
+    { n: "03", verdict: "cut", title: "Three tongues — always burning",
+      draw: v3,
+      body: ["Inverted the duty cycle: burning by default, dispersing only briefly. Embers rise through three tongue envelopes (the oracle-bone silhouette), each breathing on its own clock. Phosphor persistence added.",
+             "<span class='why'>Why it went:</span> round dots + 30fps persistence = spaced ghost trails; it read as dotted stripes, not fire."] },
+    { n: "04", verdict: "cut", title: "Stretched embers + hearth",
+      draw: v4,
+      body: ["Embers stretched along their motion so trails fuse into continuous licks; added a hearth interior — coal bed on an elliptical ground patch, floor sheen, reflections, depth-sorted embers.",
+             "<span class='why'>Why it went:</span> the glow behind the coals read as a <b>“random blob”</b>, and during the glyph phase the coal bed stayed lit as a floating <b>“horizontal thing”</b>. Canvas particles were the wrong tool."] },
+    { n: "05", verdict: "cut", title: "GLSL campfire — first pass",
+      frag: FRAG5,
+      body: ["Moved to a real fragment shader: fbm-noise flame in two parallax layers, wide ember bed, back-wall splash, floor reflection, tube vignette.",
+             "<span class='why'>Why it went:</span> too many broad additive washes — brown haze over the whole tube, and the vignette printed a visible disc."] },
+    { n: "06", verdict: "cut", title: "GLSL campfire — tightened",
+      frag: FRAG6,
+      body: ["Narrow teardrop mask strongly eroded by two octave bands, blackbody colour ramp (deep red → orange → white core), tip fading out below the tube top, narrow coal line only.",
+             "<span class='why'>Why it went:</span> nothing technical — the direction itself was rejected. <b>“get rid of the literal flame”</b>. A depicted fire was never the brief."] },
+    { n: "07", verdict: "cut", title: "Swarm ↔ character",
+      draw: v7,
+      body: ["No depicted fire at all. A firefly swarm drifts in the tube and periodically <em>ignites into the word</em>, holds, releases.",
+             "<span class='why'>Why it went:</span> right thesis, but it skipped the fire entirely — the swarm jumped straight to calligraphy. <em>Cycle shortened to 9s here.</em>"] },
+    { n: "08", verdict: "live", title: "Swarm → embers → character — shipped",
+      draw: v8,
+      body: ["The three keepers combined. A firefly swarm with real physics (stochastic flight, local flocking, pulse-coupled flashing where neighbours recruit each other) <em>catches fire</em> — embers rise through three tongues, each breathing on its own clock, trailing along their real paths — then gather into the written word, which writes itself on in brush order and keeps shedding sparks while it holds.",
+             "Each ignition advances the script: 甲骨文 → 小篆 → 火 → 불. No glow disc, no hearth slab, no persistence buffer — the embers <em>are</em> the fire. <em>Cycle halved to 13s here; it's 26s live.</em>"] },
+  ];
+
+  const grid = document.getElementById("grid");
+  const runners = [];
+  TILES.forEach(spec => {
+    const fig = document.createElement("figure");
+    fig.innerHTML =
+      `<div class="tube"><span class="num">${spec.n}</span>` +
+      `<span class="verdict ${spec.verdict}">${spec.verdict === "live" ? "● LIVE" : "RETIRED"}</span>` +
+      `<canvas width="440" height="330"></canvas></div>` +
+      `<figcaption><h2>${spec.title}</h2>${spec.body.map(p => `<p>${p}</p>`).join("")}</figcaption>`;
+    grid.appendChild(fig);
+    const cv = fig.querySelector("canvas");
+    if (spec.frag) {
+      const run = glTile(cv, spec.frag);
+      if (run) runners.push(run);
+    } else {
+      const ctx = cv.getContext("2d");
+      runners.push(t => spec.draw(ctx, cv.width, cv.height, t));
+    }
+  });
+
+  const t0 = performance.now() / 1000;
+  let last = 0;
+  (function loop() {
+    requestAnimationFrame(loop);
+    const t = performance.now() / 1000 - t0;
+    if (t - last < 1 / 30) return;
+    last = t;
+    runners.forEach(r => r(t));
+  })();
+})();
+</script>
+</body>
+</html>
