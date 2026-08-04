@@ -47,8 +47,8 @@ test('the Broadcast remains manual while preserving transmission controls', () =
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
   assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
-  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*1500/)
-  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*2\.5/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*1000/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*2/)
   assert.match(television, /duration: AUTO_REVEAL_DURATION, ease: "none"/)
   assert.match(television, /baseZ = lerp\(10\.6, 8\.05, sm\(0\.06, 0\.55, p\)\) \* layoutZ/)
   assert.match(television, /function deferAutoAdvance\(\)/)
