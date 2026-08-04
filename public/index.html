@@ -378,7 +378,7 @@
     const ctx = cv.getContext("2d");
     const tex = new THREE.CanvasTexture(cv);
     tex.encoding = THREE.sRGBEncoding;
-    return Object.assign({ cv, ctx, tex, st: {}, rndSeed: opts.seed || 7, power: 0, onAt: -1, phase: "off", frameReady: false }, opts);
+    return Object.assign({ cv, ctx, tex, st: {}, rndSeed: opts.seed || 7, power: 0, onAt: -1, bootAt: -1, phase: "off", frameReady: false }, opts);
   }
   function drawGlassOff(s) {
     const { ctx: x, cv } = s, W = cv.width, H = cv.height;
@@ -2385,32 +2385,44 @@
 
       const s = d.screen, x = s.ctx, W = s.cv.width, H = s.cv.height;
       if (fi < 0.9) {
-        if (s.phase !== "off") { drawGlassOff(s); s.phase = "off"; s.frameReady = false; }
+        if (s.phase !== "off") { drawGlassOff(s); s.phase = "off"; s.frameReady = false; s.bootAt = -1; }
         d.light.intensity = 0; return;
       }
       if (fi < 0.985) {
-        if (s.phase !== "static") { drawStatic(s); s.phase = "static"; s.frameReady = true; }
+        if (s.phase !== "static") { drawStatic(s); s.phase = "static"; s.frameReady = true; s.bootAt = -1; }
         d.light.intensity = 0.5; return;
       }
       const live = hoverDev === d && !reduced;
-      /* This is deliberately the same freeze contract as the broadcast
-         console: prepare each preview at t=1.7, including a filled CH 02
-         raster, and repaint only while that individual tube is hovered. */
-      if (live) {
+      /* Let every secondary tube breathe after the bench lands, then hold its
+         exact last frame. It wakes again only under the pointer; the master
+         CRT is the only display that keeps broadcasting by itself. */
+      if (s.bootAt < 0 && p >= 0.985) {
+        s.bootAt = t;
+        s.phase = "boot";
+        primeDeviceSignal(d);
+      }
+      const booting = s.phase === "boot" && t - s.bootAt < 2.1;
+      if (live || booting) {
         if (s.phase !== "live") s.phase = "live";
         paintDeviceSignal(d, t);
+        if (booting && !live) s.phase = "boot";
       } else if (s.phase !== "still") {
         s.phase = "still";
-        s.st = {};
-        if (d.chan.ch === 2 && d.draw) {
-          for (let k = 0; k < 80; k++) d.draw(x, W, H, k / 30, mkRnd(d.chan.ch * 13), s.st);
-        }
-        paintDeviceSignal(d, 1.7);
       }
       const [r, g, b] = TINT3[d.chan.ch];
-      d.light.intensity = 0.38 * (live ? 1.8 : 1);
+      d.light.intensity = 0.38 * (live ? 1.8 : booting ? 1.18 : 1);
       d.light.color.setRGB(r / 255, g / 255, b / 255);
     });
+  }
+
+  function primeDeviceSignal(d) {
+    const s = d.screen, x = s.ctx, W = s.cv.width, H = s.cv.height;
+    s.st = {};
+    /* CH 02 needs a small pre-roll to arrive as a full raster rather than
+       visibly drawing upward from an empty monitor. */
+    if (d.chan.ch === 2 && d.draw) {
+      for (let k = 0; k < 80; k++) d.draw(x, W, H, k / 30, mkRnd(d.chan.ch * 13), s.st);
+    }
   }
 
   function paintDeviceSignal(d, t) {
