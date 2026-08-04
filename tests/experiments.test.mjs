@@ -180,6 +180,12 @@ test('the Experiments page reads Fabric first, then the microsite study', () => 
   assert.match(index, /href="\/experiments\/microsite\/"[^>]*data-i18n="exp\.microsite\.link"/)
 })
 
+test('the two experiment propositions stay distinct and concise', () => {
+  assert.equal(localeCopies.en['bc.experiments.fabric.title'], 'SOFTWARE AS MATERIAL')
+  assert.equal(localeCopies.en['bc.experiments.microsite.title'], 'HOW DO YOU BUILD A BROADCAST?')
+  assert.doesNotMatch(localeCopies.en['bc.experiments.microsite.detail'], /signal/i)
+})
+
 test('the Microsite study turns the render catalogue into a narrative', () => {
   for (const key of ['micro.hero.body', 'micro.system.body', 'micro.signal.body', 'micro.vessel.body', 'micro.final.body']) {
     assert.match(microsite, new RegExp(`data-i18n="${key.replace(/[.]/g, '\\.') }"`))
