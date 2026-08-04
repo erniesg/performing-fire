@@ -1238,6 +1238,26 @@
   let mode = "orbit";               // orbit | flying | paged
   let flyT = 0, currentCh = 0;
   const masterFx = { state: "idle", t0: 0, pending: 0 };   // idle | collapse | static | chan
+  /* The bench is the opening shot; after it has settled, the master CRT takes
+     over as the broadcast programme. This mirrors the console reference's
+     7.5-second transmission advance without moving the camera again. */
+  const PROGRAM_ADVANCE_MS = 7500;
+  let programmeTimer = 0, programmeCh = 0;
+  function scheduleProgrammeAdvance() {
+    clearTimeout(programmeTimer);
+    if (reduced) return;
+    programmeTimer = setTimeout(() => {
+      if (document.hidden || mode !== "orbit" || sprog < 0.985) {
+        scheduleProgrammeAdvance();
+        return;
+      }
+      programmeCh = programmeCh % CHAN.length + 1;
+      masterFx.state = "collapse";
+      masterFx.t0 = performance.now() / 1000;
+      masterFx.pending = programmeCh;
+      scheduleProgrammeAdvance();
+    }, PROGRAM_ADVANCE_MS);
+  }
 
   function tuneTo(ch) {
     if (mode === "flying") return;
@@ -2140,6 +2160,7 @@
       gsap.to({ y: scrollY }, {
         y: maxScroll(), duration: 3.6, ease: "power2.inOut",
         onUpdate() { scrollTo(0, this.targets()[0].y); },
+        onComplete() { scheduleProgrammeAdvance(); },
       });
     }, 3600);
   }
@@ -2371,45 +2392,51 @@
         if (s.phase !== "static") { drawStatic(s); s.phase = "static"; s.frameReady = true; }
         d.light.intensity = 0.5; return;
       }
-      const enteringOn = s.phase !== "on";
-      if (enteringOn) { s.phase = "on"; s.frameReady = false; }
-      if (s.onAt < 0) s.onAt = t;
-      const flick = t - s.onAt < 0.45 ? ((Math.sin(t * 61) * 43758.5) % 1 > 0.35 ? 1 : 0.25) : 1;
-      /* Side instruments are frozen until the pointer wakes one. The master
-         display remains the only continuously animated screen. */
-      if (hoverDev === d || enteringOn || !s.frameReady) {
-        if (d.round) {
-        x.setTransform(1, 0, 0, 1, 0, 0);
-        x.fillStyle = "#0a0c0d"; x.fillRect(0, 0, W, H);
-        x.save();
-        x.beginPath(); x.arc(W / 2, H / 2, W * 0.46, 0, 7); x.clip();
-        if (d.chan.ch === 5) {                               // modest inset keeps the moon off the bezel without displacing its phase dots
-          x.translate(W / 2, H / 2); x.scale(0.82, 0.82); x.translate(-W / 2, -H / 2);
-          x.fillStyle = "#0a0c0d"; x.fillRect(-W, -H, W * 3, H * 3);
+      const live = hoverDev === d && !reduced;
+      /* This is deliberately the same freeze contract as the broadcast
+         console: prepare each preview at t=1.7, including a filled CH 02
+         raster, and repaint only while that individual tube is hovered. */
+      if (live) {
+        if (s.phase !== "live") s.phase = "live";
+        paintDeviceSignal(d, t);
+      } else if (s.phase !== "still") {
+        s.phase = "still";
+        s.st = {};
+        if (d.chan.ch === 2 && d.draw) {
+          for (let k = 0; k < 80; k++) d.draw(x, W, H, k / 30, mkRnd(d.chan.ch * 13), s.st);
         }
-        if (d.draw) d.draw(x, W, H, t, mkRnd(d.chan.ch * 13), s.st);
-        if (d.chan.ch === 5) moonLimb(x, W, H);              // earthshine: the unlit half would vanish into the black
-        x.restore();
-        if (d.chan.ch !== 5) {                               // tube-edge ring reads as "a big circle behind the moon" — radar only
-          x.strokeStyle = "rgba(200,205,215,0.25)"; x.lineWidth = 5;
-          x.beginPath(); x.arc(W / 2, H / 2, W * 0.46, 0, 7); x.stroke();
-        }
-        } else if (d.draw) {
-        if (d.chan.ch === 2 && !s.warmed) {                  // chimera raster fills bottom-up — pre-run ~3s of history
-          s.warmed = true;
-          for (let k = 84; k > 0; k--) d.draw(x, W, H, t - k / 15, mkRnd(d.chan.ch * 13), s.st);
-        }
-        d.draw(x, W, H, t, mkRnd(d.chan.ch * 13), s.st);
-        }
-        if (d.graticule) drawGraticule(s);
-        overlayCRT(s, TINT[d.chan.ch], `CH 0${d.chan.ch} · ${d.chan.name}`, sm(0.78, 0.90, p), d.round ? "round" : undefined);
-        if (flick < 1) { x.fillStyle = `rgba(0,0,0,${1 - flick})`; x.fillRect(0, 0, W, H); }
-        s.frameReady = true;
+        paintDeviceSignal(d, 1.7);
       }
       const [r, g, b] = TINT3[d.chan.ch];
-      d.light.intensity = 0.38 * flick * (hoverDev === d ? 1.8 : 1);
+      d.light.intensity = 0.38 * (live ? 1.8 : 1);
       d.light.color.setRGB(r / 255, g / 255, b / 255);
     });
+  }
+
+  function paintDeviceSignal(d, t) {
+    const s = d.screen, x = s.ctx, W = s.cv.width, H = s.cv.height;
+    x.setTransform(1, 0, 0, 1, 0, 0);
+    if (d.round) {
+      x.fillStyle = "#0a0c0d"; x.fillRect(0, 0, W, H);
+      x.save();
+      x.beginPath(); x.arc(W / 2, H / 2, W * 0.46, 0, 7); x.clip();
+      if (d.chan.ch === 5) {
+        x.translate(W / 2, H / 2); x.scale(0.82, 0.82); x.translate(-W / 2, -H / 2);
+        x.fillStyle = "#0a0c0d"; x.fillRect(-W, -H, W * 3, H * 3);
+      }
+      if (d.draw) d.draw(x, W, H, t, mkRnd(d.chan.ch * 13), s.st);
+      if (d.chan.ch === 5) moonLimb(x, W, H);
+      x.restore();
+      if (d.chan.ch !== 5) {
+        x.strokeStyle = "rgba(200,205,215,0.25)"; x.lineWidth = 5;
+        x.beginPath(); x.arc(W / 2, H / 2, W * 0.46, 0, 7); x.stroke();
+      }
+    } else if (d.draw) {
+      d.draw(x, W, H, t, mkRnd(d.chan.ch * 13), s.st);
+    }
+    if (d.graticule) drawGraticule(s);
+    overlayCRT(s, TINT[d.chan.ch], `CH 0${d.chan.ch} · ${d.chan.name}`, 1, d.round ? "round" : undefined);
+    s.frameReady = true;
   }
 
   const camLook = new THREE.Vector3(0, 2.3, 0);
@@ -2426,7 +2453,9 @@
        quantized cabinet faces crawl. The console only turns with the scroll. */
     console3d.rotation.y = lerp(-0.62, -0.20, sm(0.42, 0.92, p)) + dragYaw;
 
-    const baseZ = lerp(9.7, 7.4, sm(0.06, 0.55, p)) * layoutZ;
+    /* The whole bench must remain composed after the automatic reveal; the
+       previous close end-stop cropped the upper/right televisions. */
+    const baseZ = lerp(10.6, 8.8, sm(0.06, 0.55, p)) * layoutZ;
     const baseY = lerp(2.75, 2.15, sm(0.28, 0.75, p)) + layoutY;
     flyFrom.set(pointer.sx * 0.45, baseY + pointer.sy * -0.2 + dragPitch, baseZ);
     lookTo.set(0, lerp(2.35, 1.95, sm(0.3, 0.8, p)) + layoutY, 0);
