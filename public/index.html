@@ -60,6 +60,9 @@
     font-size: 11px; letter-spacing: .2em; color: #e8e9ee; display: flex; gap: 20px;
     text-shadow: 1px 1px 0 rgba(255,62,165,.5);
   }
+  /* Temporary presentation mode: keep the TV bench and wordmark, hide the
+     explanatory/index block until the broadcast copy is ready to return. */
+  .hud .tag, .hud .tt-head, .hud .idx { display: none !important; }
   body.docked .tt-head { opacity: 0; }
   .idx { display: flex; flex-wrap: wrap; gap: 8px 10px; pointer-events: auto; }
   .idx button {
