@@ -47,12 +47,16 @@ test('the Broadcast remains manual while preserving transmission controls', () =
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
   assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
-  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*3000/)
-  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*6\.2/)
-  assert.match(television, /mass:\s*w \* h/)
-  assert.match(television, /travel = lerp\(0\.16, 0\.24/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*5000/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*9/)
+  assert.match(television, /cabinetMass = \(w, h, d\) => w \* h \* \(0\.65 \+ d \* 0\.35\)/)
+  assert.match(television, /function deviceInertia\(d\)/)
+  assert.match(television, /weightLoad \* 0\.72 \+ distanceLoad \* 0\.28/)
+  assert.match(television, /function physicalArrival\(u, inertia\)/)
+  assert.match(television, /travel = lerp\(0\.15, 0\.31, inertia\)/)
   assert.match(television, /paintDeviceSignal\(d, 1\.7\)/)
   assert.match(television, /const live = hoverDev === d/)
+  assert.doesNotMatch(television, /outBack/)
   assert.doesNotMatch(television, /PROGRAM_ADVANCE_MS|scheduleProgrammeAdvance/)
 })
 
