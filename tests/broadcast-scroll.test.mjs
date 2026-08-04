@@ -4,14 +4,15 @@ import { readFile, stat } from 'node:fs/promises'
 
 const publicDir = new URL('../public/', import.meta.url)
 const broadcast = await readFile(new URL('index.html', publicDir), 'utf8')
+const television = await readFile(new URL('experiments/firefly-console/index.html', publicDir), 'utf8')
 const runtime = await readFile(new URL('js/preview-anims.js', publicDir), 'utf8')
 
 test('the scroll film is gone and the console owns exactly one viewport', () => {
   assert.doesNotMatch(broadcast, /data-scene=|ScrollTrigger|gsap\.registerPlugin/)
   assert.match(broadcast, /html,body\{[^}]*overflow:hidden/)
   assert.match(broadcast, /\.pf\{[^}]*height:100svh/)
-  assert.match(broadcast, /\.console\{[^}]*width:min\(1360px,100%\)/)
-  assert.match(broadcast, /\.pf\{[^}]*width:min\(1400px,/)
+  assert.match(broadcast, /\.console\{[^}]*width:min\(1124px,100%\)/)
+  assert.match(broadcast, /\.pf\{[^}]*width:min\(1180px,/)
 })
 
 test('the page loads no scripts or stylesheets over http(s)', () => {
@@ -37,10 +38,22 @@ test('the main signal is live while previews start frozen and wake individually'
   assert.match(broadcast, /addEventListener\("focus", wake\)/)
 })
 
-test('the main CRT auto-advances without waking preview screens', () => {
-  assert.match(broadcast, /AUTO_ADVANCE_MS\s*=\s*7500/)
-  assert.match(broadcast, /scheduleAutoAdvance\(\)[\s\S]*stepTransmission\(1\)[\s\S]*tune\(currentChannel \+ 1\)/)
-  assert.match(broadcast, /document\.addEventListener\("visibilitychange", scheduleAutoAdvance\)/)
+test('the Broadcast remains manual while preserving transmission controls', () => {
+  assert.doesNotMatch(broadcast, /AUTO_ADVANCE_MS|scheduleAutoAdvance/)
+  assert.match(broadcast, /#transmissionPrev"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(-1\)/)
+  assert.match(broadcast, /#transmissionNext"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(1\)/)
+  assert.match(broadcast, /event\.key === "ArrowLeft" \|\| event\.key === "ArrowRight"/)
+})
+
+test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
+  assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*3000/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*6\.2/)
+  assert.match(television, /mass:\s*w \* h/)
+  assert.match(television, /travel = lerp\(0\.16, 0\.24/)
+  assert.match(television, /paintDeviceSignal\(d, 1\.7\)/)
+  assert.match(television, /const live = hoverDev === d/)
+  assert.doesNotMatch(television, /PROGRAM_ADVANCE_MS|scheduleProgrammeAdvance/)
 })
 
 test('reduced motion uses stable frames and hard state changes', () => {
