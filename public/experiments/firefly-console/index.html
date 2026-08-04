@@ -371,13 +371,18 @@
   let wobbleV = 0;
 
   /* ================= screen canvas helpers ================= */
+  const SIDE_STILL_T = 1.7;
   function makeScreen(w, h, opts) {
     const cv = document.createElement("canvas");
     cv.width = w; cv.height = h;
     const ctx = cv.getContext("2d");
     const tex = new THREE.CanvasTexture(cv);
     tex.encoding = THREE.sRGBEncoding;
-    return Object.assign({ cv, ctx, tex, st: {}, rndSeed: opts.seed || 7, power: 0, onAt: -1, bootAt: -1, phase: "off", frameReady: false }, opts);
+    return Object.assign({
+      cv, ctx, tex, st: {}, rndSeed: opts.seed || 7, power: 0, onAt: -1,
+      bootAt: -1, phase: "off", frameReady: false,
+      signalT: SIDE_STILL_T, liveAt: -1, liveFrom: SIDE_STILL_T,
+    }, opts);
   }
   function drawGlassOff(s) {
     const { ctx: x, cv } = s, W = cv.width, H = cv.height;
@@ -2395,7 +2400,11 @@
          "broadcast bench" behaviour from the reference, rather than five
          permanently moving screens. */
       if (fi < 0.035) {
-        if (s.phase !== "off") { drawGlassOff(s); s.phase = "off"; s.frameReady = false; s.bootAt = -1; }
+        if (s.phase !== "off") {
+          drawGlassOff(s);
+          s.phase = "off"; s.frameReady = false; s.bootAt = -1;
+          s.signalT = SIDE_STILL_T; s.liveAt = -1; s.liveFrom = SIDE_STILL_T;
+        }
         d.light.intensity = 0; return;
       }
       const live = hoverDev === d && !reduced;
@@ -2404,15 +2413,32 @@
         s.bootAt = t;
         primeDeviceSignal(d);
       }
-      if (arriving || live) {
-        s.phase = arriving ? "arrival" : "live";
+      if (arriving) {
+        s.phase = "arrival";
         paintDeviceSignal(d, t);
-      } else if (s.phase !== "still") {
-        /* The Broadcast preview contract: every unhovered screen rests on the
-           same deterministic still, regardless of when its flight finished. */
-        primeDeviceSignal(d);
-        paintDeviceSignal(d, 1.7);
-        s.phase = "still";
+      } else {
+        if (s.phase === "arrival" || s.phase === "off" || !s.frameReady) {
+          /* Every tube lands on the canonical Broadcast still. That exact
+             frame also seeds its private playhead for future hover resumes. */
+          primeDeviceSignal(d);
+          s.signalT = SIDE_STILL_T;
+          paintDeviceSignal(d, s.signalT);
+          s.phase = "still";
+        }
+        if (live) {
+          if (s.phase !== "live") {
+            s.liveAt = t;
+            s.liveFrom = s.signalT;
+            s.phase = "live";
+          }
+          s.signalT = s.liveFrom + (t - s.liveAt);
+          paintDeviceSignal(d, s.signalT);
+        } else if (s.phase === "live") {
+          /* Pause on the frame that was actually visible. Re-entering hover
+             resumes from this playhead instead of jumping back or forward. */
+          s.phase = "still";
+          s.liveAt = -1;
+        }
       }
       const [r, g, b] = TINT3[d.chan.ch];
       d.light.intensity = 0.38 * (live ? 1.8 : arriving ? 1.18 : 1);
