@@ -2158,8 +2158,8 @@
 
   /* Let the swarm exist as its own scene before the bench begins to assemble.
      The reveal is intentionally long: this is an opening sequence, not UI latency. */
-  const AUTO_REVEAL_DELAY_MS = 8000;
-  const AUTO_REVEAL_DURATION = 14;
+  const AUTO_REVEAL_DELAY_MS = 3000;
+  const AUTO_REVEAL_DURATION = 5;
   let autoAdvanceTimer = 0;
   function clearAutoAdvanceTimer() {
     if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = 0; }
@@ -2171,7 +2171,9 @@
       autoAdvanceTimer = 0;
       if (mode !== "orbit" || scrollY > 2) return;
       gsap.to({ y: scrollY }, {
-        y: maxScroll(), duration: AUTO_REVEAL_DURATION, ease: "power1.inOut",
+        /* Linear programme time keeps the cabinet cues evenly spaced. Each
+           cabinet supplies its own mass-based acceleration and settling. */
+        y: maxScroll(), duration: AUTO_REVEAL_DURATION, ease: "none",
         onUpdate() { scrollTo(0, this.targets()[0].y); },
       });
     }, AUTO_REVEAL_DELAY_MS);
@@ -2408,13 +2410,19 @@
     return response / settled;
   }
 
+  /* The master is the stage: it resolves first, then each secondary cabinet
+     enters in order across the back half of the five-second assembly. */
+  const MASTER_ARRIVAL_P = 0.385;
+  const SIDE_ARRIVAL_P = 0.50;
+  const SIDE_STAGGER_P = 0.082;
+
   function deviceScreens(t, p) {
     devices.forEach((d, di) => {
       if (!d.chan) return;
       const i = [1, 3, 5, 4, 2].indexOf(d.chan.ch);          // fly-in order: osc, vect, radar, panel, then field lands on the radar
       const inertia = deviceInertia(d);
-      const a0 = 0.34 + i * 0.065;
-      const travel = lerp(0.20, 0.36, inertia);
+      const a0 = SIDE_ARRIVAL_P + i * SIDE_STAGGER_P;
+      const travel = lerp(0.11, 0.17, inertia);
       const fi = Math.min(1, Math.max(0, (p - a0) / travel));
       d.group.visible = fi > 0.002;                          // parked off-stage until its fly-in starts
       if (!d.group.visible) { d.light.intensity = 0; return; }
@@ -2620,7 +2628,7 @@
     updateFireflies(t, p, dt);
 
     /* master reveal: invisible until the swarm condenses — its first flash lights the cabinet */
-    master.group.visible = p > 0.385;
+    master.group.visible = p > MASTER_ARRIVAL_P;
     const pOn = sm(0.42, 0.455, p);
     const flash = Math.max(0, 1 - Math.abs(p - 0.452) * 40);
     key.intensity = pOn * 0.55 + flash * 0.9;
