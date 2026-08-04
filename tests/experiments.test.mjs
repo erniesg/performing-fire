@@ -212,6 +212,11 @@ test('the legacy flame-cloth route redirects to canonical Fabric', () => {
   assert.match(redirects, /\/experiments\/flame-cloth\/ \/experiments\/fabric\/ 301/)
 })
 
+test('the TV route serves the firefly console without replacing Broadcast', () => {
+  assert.match(redirects, /^\/tv \/tv\/ 301$/m)
+  assert.match(redirects, /^\/tv\/ \/experiments\/firefly-console\/index\.html 200$/m)
+})
+
 // ---- CMS-first wiring -------------------------------------------------------
 
 test('the documented CMS endpoint is the first request, with no other host in the page', () => {

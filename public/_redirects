@@ -1,3 +1,5 @@
 /broadcast / 301
 /broadcast.html / 301
+/tv /tv/ 301
+/tv/ /experiments/firefly-console/index.html 200
 /experiments/flame-cloth/ /experiments/fabric/ 301
