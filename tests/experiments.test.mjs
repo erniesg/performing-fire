@@ -6,12 +6,21 @@ import vm from 'node:vm'
 const rawJson = await readFile(new URL('../public/experiments/experiments.json', import.meta.url), 'utf8')
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const flameCloth = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const fabric = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
+const microsite = await readFile(new URL('../public/experiments/microsite/index.html', import.meta.url), 'utf8')
+const legacyFabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const redirects = await readFile(new URL('../public/_redirects', import.meta.url), 'utf8')
 
 const CMS_ENDPOINT = 'https://berlayar.ai/api/experiments?limit=100&sort=-date&depth=0'
 const LOCAL_COPY = './experiments.json'
 const inlineScript = index.match(/<script>([\s\S]*?)<\/script>/)?.[1]
 assert.ok(inlineScript, 'experiments/index.html must ship exactly one inline script')
+const localeCopies = {
+  en: JSON.parse(await readFile(new URL('../public/i18n/en.json', import.meta.url))),
+  ko: JSON.parse(await readFile(new URL('../public/i18n/ko.json', import.meta.url))),
+  zh: JSON.parse(await readFile(new URL('../public/i18n/zh.json', import.meta.url))),
+  ja: JSON.parse(await readFile(new URL('../public/i18n/ja.json', import.meta.url))),
+}
 
 /**
  * Just enough DOM to run the page script under node:vm — no dependencies, and any
@@ -30,6 +39,12 @@ function makeNode (tag) {
     setAttribute (name, value) { this.attributes[name] = String(value) },
     getAttribute (name) { return name in this.attributes ? this.attributes[name] : null },
     appendChild (child) { this.children.push(child); return child },
+    get firstChild () { return this.children[0] ?? null },
+    removeChild (child) {
+      const index = this.children.indexOf(child)
+      if (index >= 0) this.children.splice(index, 1)
+      return child
+    },
   }
 }
 
@@ -65,12 +80,20 @@ async function load ({ cms, local, search = '', stored = null, language = 'en-US
   const document = {
     getElementById: id => byId[id] ?? null,
     createElement: tag => makeNode(tag),
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    title: '',
   }
   const window = {
     document,
     fetch (url) {
       requested.push(url)
-      return /^https?:\/\//i.test(url) ? respond(cms) : respond(local)
+      if (/^https?:\/\//i.test(url)) return respond(cms)
+      if (/^\/i18n\//.test(url)) {
+        const locale = url.match(/\/i18n\/([a-z]+)\.json$/)?.[1] ?? 'en'
+        return respond({ body: localeCopies[locale] ?? localeCopies.en })
+      }
+      return respond(local)
     },
     location: { search },
     localStorage: { getItem: key => (key === 'pf-lang' ? stored : null) },
@@ -91,11 +114,11 @@ const cmsDocs = [
     url: '/broadcast',
   },
   {
-    slug: 'flame-cloth-v3',
-    title: 'Flame Cloth v3',
+    slug: 'fabric',
+    title: 'Fabric',
     date: '2026-07-07T00:00:00.000Z',
-    summary: 'Interactive fire-silk study.',
-    url: '/',
+    summary: 'Interactive fabric study.',
+    url: '/experiments/flame-cloth/',
   },
 ]
 const localEntries = JSON.parse(rawJson)
@@ -103,7 +126,7 @@ const localEntries = JSON.parse(rawJson)
 test('experiments.json parses into a non-empty array', () => {
   const entries = JSON.parse(rawJson)
   assert.ok(Array.isArray(entries))
-  assert.ok(entries.length >= 2)
+  assert.equal(entries.length, 1)
 })
 
 test('every entry has non-empty slug, title, ISO 8601 date, summary, and url', () => {
@@ -122,19 +145,18 @@ test('slugs are unique', () => {
   assert.equal(new Set(slugs).size, slugs.length)
 })
 
-test('the two seed experiments exist', () => {
+test('the Fabric seed experiment exists and the retired second card is gone', () => {
   const entries = JSON.parse(rawJson)
-  const flame = entries.find(entry => entry.title === 'Flame Cloth v3')
-  assert.ok(flame, 'Flame Cloth v3 entry missing')
-  assert.equal(flame.url, '/experiments/flame-cloth/')
-  const direction5 = entries.find(entry => entry.title === 'The Broadcast — Direction 5')
-  assert.ok(direction5, 'The Broadcast — Direction 5 entry missing')
-  assert.equal(direction5.url, '/')
+  const fabric = entries.find(entry => entry.title === 'Fabric')
+  assert.ok(fabric, 'Fabric entry missing')
+  assert.equal(fabric.slug, 'fabric')
+  assert.equal(fabric.url, '/experiments/fabric/')
+  assert.equal(entries.some(entry => entry.slug === 'broadcast-direction-5'), false)
 })
 
 test('the index renders one card per JSON entry from the JSON by relative path', () => {
   assert.match(index, /fetch\("\.\/experiments\.json"\)/)
-  assert.match(index, /entries\.forEach\(function \(entry, index\) \{[\s\S]*?renderCard\(entry, index\)/)
+  assert.match(index, /entries\.forEach\(function \(entry, index\) \{[\s\S]*?renderCard\(localizeEntry\(entry\), index\)/)
   assert.match(index, /entry\.title/)
   assert.match(index, /entry\.date/)
   assert.match(index, /entry\.summary/)
@@ -149,9 +171,45 @@ test('the index matches the broadcast visual language', () => {
   assert.match(index, /prefers-reduced-motion:\s*reduce/)
 })
 
+test('the Experiments page reads Fabric first, then the microsite study', () => {
+  assert.match(index, /class="inquiry fabric-inquiry"/)
+  assert.match(index, /data-i18n="exp\.fabric\.inquiryBody"/)
+  assert.match(index, /href="\/experiments\/fabric\/"[^>]*data-i18n="exp\.fabric\.inquiryLink"/)
+  assert.match(index, /class="inquiry microsite-inquiry"/)
+  assert.match(index, /data-i18n="exp\.microsite\.body"/)
+  assert.match(index, /href="\/experiments\/microsite\/"[^>]*data-i18n="exp\.microsite\.link"/)
+})
+
+test('the two experiment propositions stay distinct and concise', () => {
+  assert.equal(localeCopies.en['bc.experiments.fabric.title'], 'SOFTWARE AS MATERIAL')
+  assert.equal(localeCopies.en['bc.experiments.microsite.title'], 'HOW DO YOU BUILD A BROADCAST?')
+  assert.doesNotMatch(localeCopies.en['bc.experiments.microsite.detail'], /signal/i)
+})
+
+test('the Microsite study turns the render catalogue into a narrative', () => {
+  for (const key of ['micro.hero.body', 'micro.system.body', 'micro.signal.body', 'micro.vessel.body', 'micro.final.body']) {
+    assert.match(microsite, new RegExp(`data-i18n="${key.replace(/[.]/g, '\\.') }"`))
+  }
+  for (const asset of ['candle-tv-render.jpg', 'slabs-render.jpg', 'rack-b-open-frame-render.jpg', 'water-autoflow-closeup.gif', 'satellite-dish-render.jpg', 'cheomseongdae-render.jpg', 'data-jangseung-render.jpg', 'moon-jars-render.jpg', 'stupa-ceramic-wind-jewel.png', 'stupa-vertical-celadon-future-v3.png']) {
+    assert.match(microsite, new RegExp(`/visuals/${asset.replace(/[.]/g, '\\.')}`))
+  }
+})
+
+test('the Fabric page keeps its original compact HUD copy', () => {
+  assert.match(fabric, /data-i18n="idx\.tagline"/)
+  assert.doesNotMatch(fabric, /idx\.(?:kicker|signal|motivation)/)
+})
+
 test('both existing pages link to /experiments/ from their footers', () => {
   assert.match(broadcast, /<footer class="pf-footer">[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
-  assert.match(flameCloth, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
+  assert.match(fabric, /<footer[^>]*>[\s\S]*?href="\/experiments\/"[\s\S]*?<\/footer>/)
+})
+
+test('the legacy flame-cloth route redirects to canonical Fabric', () => {
+  assert.match(legacyFabric, /http-equiv="refresh"[^>]*url=\/experiments\/fabric\//)
+  assert.match(legacyFabric, /window\.location\.replace\("\/experiments\/fabric\//)
+  assert.match(legacyFabric, /href="\/experiments\/fabric\/"/)
+  assert.match(redirects, /\/experiments\/flame-cloth\/ \/experiments\/fabric\/ 301/)
 })
 
 // ---- CMS-first wiring -------------------------------------------------------
@@ -167,9 +225,9 @@ test('the documented CMS endpoint is the first request, with no other host in th
 
 test('a live CMS response renders the cards and no LOCAL COPY badge', async () => {
   const { requested, cards, localCopy, offair } = await load({ cms: { body: { docs: cmsDocs } } })
-  assert.deepEqual(requested, [`${CMS_ENDPOINT}&locale=en`], 'only the CMS is asked when it answers')
-  assert.equal(cards.length, cmsDocs.length)
-  assert.ok(cardText(cards[0]).includes('The Broadcast — Direction 5'), 'CMS order is preserved (server sorts)')
+  assert.deepEqual(requested, [`${CMS_ENDPOINT}&locale=en`, '/i18n/en.json'], 'the CMS response is followed by the selected locale dictionary')
+  assert.equal(cards.length, 1, 'the retired Direction 5 card is filtered from CMS responses')
+  assert.ok(cardText(cards[0]).includes('Fabric'), 'CMS content renders through the card renderer')
   assert.equal(localCopy.hidden, true, 'the badge stays hidden on the CMS path')
   assert.equal(offair.hidden, true)
 })
@@ -182,12 +240,12 @@ for (const [label, cms] of Object.entries({
 })) {
   test(`${label} falls back to the checked-in JSON with the LOCAL COPY badge`, async () => {
     const { requested, cards, localCopy, offair } = await load({ cms, local: { body: localEntries } })
-    assert.deepEqual(requested, [`${CMS_ENDPOINT}&locale=en`, LOCAL_COPY], 'CMS first, then the local copy')
+    assert.deepEqual(requested, [`${CMS_ENDPOINT}&locale=en`, LOCAL_COPY, '/i18n/en.json'], 'CMS first, then local copy and its locale dictionary')
     assert.equal(cards.length, localEntries.length)
     assert.deepEqual(
       cards.map(card => cardText(card).find(text => text.startsWith('CH'))),
-      ['CH 01 · flame-cloth-v3', 'CH 02 · broadcast-direction-5'],
-      'the JSON renders in file order, exactly as before'
+      ['CH 01'],
+      'the JSON renders the single Fabric entry'
     )
     assert.equal(localCopy.hidden, false, 'the LOCAL COPY badge must show')
     assert.equal(offair.hidden, true)
@@ -195,7 +253,7 @@ for (const [label, cms] of Object.entries({
 }
 
 test('the LOCAL COPY badge ships hidden in the markup and is hidden by CSS', () => {
-  assert.match(index, /<p id="local-copy" hidden>LOCAL COPY · 로컬 사본<\/p>/)
+  assert.match(index, /<p id="local-copy" hidden data-i18n="exp\.local">LOCAL COPY<\/p>/)
   assert.match(index, /\[hidden\] \{ display: none !important; \}/)
 })
 
