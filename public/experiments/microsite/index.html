@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performing Fire — Microsite Study</title>
+<meta name="description" content="How Performing Fire developed its broadcast microsite from screens and signal objects into a five-channel system.">
+<link rel="canonical" href="/experiments/microsite/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:site_name" content="Performing Fire">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Performing Fire — Microsite Study">
+<meta property="og:description" content="How Performing Fire developed its broadcast microsite from screens and signal objects into a five-channel system.">
+<meta property="og:url" content="https://performingfire.berlayar.ai/experiments/microsite/">
+<meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A CRT test card for the Performing Fire broadcast.">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#08090e;--panel:#0e1017;--line:#30333d;--text:#d8dde4;--muted:#8d949f;--cyan:#2bd9ff;--glow:rgba(43,217,255,.28)}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,"Apple SD Gothic Neo","Noto Sans KR",monospace;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+::selection{background:var(--cyan);color:#03070a}
+.mast{position:absolute;top:0;left:0;right:0;z-index:4;display:flex;align-items:center;gap:18px;padding:18px clamp(18px,4vw,54px);color:#d8dde4}
+.mast-brand{font-size:13px;letter-spacing:.18em;text-decoration:none}
+.mast-rule{height:1px;flex:1;background:rgba(220,225,235,.2)}
+.lang-toggle{display:flex;gap:3px}
+.lang-toggle button{min-width:32px;border:1px solid transparent;background:transparent;color:#7d8490;padding:5px 7px;font:inherit;font-size:10px;letter-spacing:.08em;cursor:pointer}
+.lang-toggle button:hover,.lang-toggle button[aria-pressed="true"]{border-color:#404550;color:#eef2f7}
+.hero{position:relative;min-height:76svh;display:flex;align-items:flex-end;overflow:hidden;border-bottom:1px solid var(--line);background:#030406}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%;filter:saturate(.7) contrast(1.12) brightness(.56)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,10,.96) 0,rgba(5,6,10,.8) 38%,rgba(5,6,10,.18) 75%),linear-gradient(0deg,rgba(5,6,10,.9),transparent 55%),repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)}
+.hero-copy{position:relative;z-index:2;width:min(720px,calc(100% - 36px));margin:0 0 clamp(38px,7vw,84px) clamp(18px,7vw,96px)}
+.kicker{margin:0 0 14px;color:var(--cyan);font-size:12px;letter-spacing:.18em}
+h1{max-width:12ch;margin:0;color:#f2f5f8;font-size:clamp(42px,8vw,102px);font-weight:500;line-height:.88;letter-spacing:-.035em;text-wrap:balance;text-shadow:0 0 24px rgba(232,240,248,.2)}
+.hero-intro{max-width:58ch;margin:24px 0 0;color:#c2c8d0;font-size:clamp(15px,1.7vw,20px);line-height:1.55}
+.hero-link,.final-link{display:inline-block;margin-top:25px;color:var(--cyan);font-size:12px;letter-spacing:.13em;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:3px}
+.story{width:min(1120px,calc(100% - 36px));margin:0 auto}
+.chapter{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.55fr);gap:clamp(34px,7vw,100px);padding:clamp(70px,10vw,130px) 0;border-bottom:1px solid var(--line)}
+.chapter-copy{align-self:start;position:sticky;top:34px}
+.chapter-no{margin:0 0 12px;color:var(--cyan);font-size:11px;letter-spacing:.18em}
+h2{margin:0 0 21px;color:#eef1f5;font-size:clamp(29px,4.4vw,54px);font-weight:500;line-height:1.02;letter-spacing:-.025em;text-wrap:balance}
+.chapter-copy p{max-width:48ch;margin:0 0 16px;color:#aeb5bf}
+.chapter-copy p:last-child{color:#7f8792}
+.evidence{display:grid;gap:12px;align-content:start}
+.evidence.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.evidence.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+.study{margin:0;min-width:0;border-top:1px solid var(--line);padding-top:8px}
+.study img{width:100%;height:clamp(170px,22vw,300px);object-fit:cover;background:#020305;filter:saturate(.78) contrast(1.08)}
+.study.tall img{object-fit:contain;background:#020305}
+.study figcaption{padding:9px 0 0;color:#d1d6dc;font-size:12px;letter-spacing:.06em}
+.study small{display:block;margin-top:2px;color:#727a86;font-size:10px;letter-spacing:.1em}
+.final{padding:clamp(80px,12vw,150px) 0 clamp(90px,12vw,150px)}
+.final h2{max-width:13ch;color:var(--cyan);text-shadow:0 0 18px var(--glow)}
+.final p{max-width:64ch;color:#b5bbc4;font-size:clamp(15px,1.5vw,18px)}
+.site-footer{display:flex;justify-content:space-between;gap:20px;padding:20px clamp(18px,4vw,54px);border-top:1px solid var(--line);color:#656d78;font-size:10px;letter-spacing:.08em}
+html[lang="ko"] body{font-family:ui-monospace,"SF Mono","Apple SD Gothic Neo","Noto Sans KR",monospace;word-break:keep-all;line-break:strict}
+html[lang^="zh"] body{font-family:ui-monospace,"SF Mono","PingFang SC","Microsoft YaHei",monospace;word-break:normal;line-break:strict}
+html[lang="ja"] body{font-family:ui-monospace,"SF Mono","Hiragino Kaku Gothic ProN","Meiryo",monospace;word-break:normal;line-break:strict}
+@media(max-width:760px){.mast{padding:12px}.mast-rule{display:none}.mast-brand{margin-right:auto;font-size:10px}.hero{min-height:72svh}.hero-copy{margin:0 18px 38px}.chapter{grid-template-columns:1fr;gap:28px;padding:64px 0}.chapter-copy{position:static}.evidence.three{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence.four{grid-template-columns:1fr 1fr}.study img{height:190px}.site-footer{display:block;padding:18px}.site-footer span{display:block;margin-top:5px}}
+@media(max-width:430px){.evidence.three,.evidence.four{grid-template-columns:1fr}.study img{height:230px}.lang-toggle button{min-width:28px;padding-inline:4px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <a class="mast-brand" href="/" data-i18n="micro.brand">PERFORMING FIRE · THE BROADCAST</a>
+  <span class="mast-rule" aria-hidden="true"></span>
+  <nav class="lang-toggle" aria-label="Language">
+    <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button>
+    <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button>
+    <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button>
+    <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="micro-title">
+    <img src="/visuals/candle-tv-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.candleAlt">
+    <div class="hero-copy">
+      <p class="kicker" data-i18n="micro.hero.kicker">MICROSITE / VISUAL LANGUAGE STUDY</p>
+      <h1 id="micro-title" data-i18n="micro.hero.title">HOW DO YOU BUILD A BROADCAST?</h1>
+      <p class="hero-intro" data-i18n="micro.hero.body">Performing Fire has five different parts. The microsite asks how they can share one visual structure without becoming the same.</p>
+      <a class="hero-link" href="/" data-i18n="micro.hero.link">OPEN THE BROADCAST →</a>
+    </div>
+  </section>
+
+  <div class="story">
+    <section class="chapter" aria-labelledby="chapter-system">
+      <div class="chapter-copy">
+        <p class="chapter-no" data-i18n="micro.system.kicker">01 / SCREEN → SYSTEM</p>
+        <h2 id="chapter-system" data-i18n="micro.system.title">ONE SCREEN BECOMES MANY</h2>
+        <p data-i18n="micro.system.body">Nam June Paik treated television as an object and a building block. We began with CANDLE TV, then repeated the screen through SLABS, RACK B, and the OPEN FRAME.</p>
+        <p data-i18n="micro.system.note">The direction settled into a modular wall: five containers, one for each part of Performing Fire.</p>
+      </div>
+      <div class="evidence three" aria-label="Container studies" data-i18n-aria-label="micro.system.aria">
+        <figure class="study"><img src="/visuals/candle-tv-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.candleAlt"><figcaption><span data-i18n="exp.microsite.visual.candle">CANDLE TV</span><small data-i18n="exp.microsite.visual.candleNote">ONE SCREEN · FIRST CONTAINER</small></figcaption></figure>
+        <figure class="study"><img src="/visuals/slabs-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.slabsAlt"><figcaption><span data-i18n="exp.microsite.visual.slabs">SLABS</span><small data-i18n="exp.microsite.visual.slabsNote">ONE → MANY</small></figcaption></figure>
+        <figure class="study tall"><img src="/visuals/rack-b-open-frame-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.rackAlt"><figcaption><span data-i18n="exp.microsite.visual.rack">RACK B · OPEN FRAME</span><small data-i18n="exp.microsite.visual.rackNote">A WORKING CONTAINER</small></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="chapter" aria-labelledby="chapter-signal">
+      <div class="chapter-copy">
+        <p class="chapter-no" data-i18n="micro.signal.kicker">02 / BEHAVIOUR</p>
+        <h2 id="chapter-signal" data-i18n="micro.signal.title">EACH CONTAINER HAS A ROLE</h2>
+        <p data-i18n="micro.signal.body">Water falls, collides, and breaks. A satellite dish receives. Cheomseongdae observes. DATA JANGSEUNG marks a threshold. Each study tested a different role for a channel.</p>
+      </div>
+      <div class="evidence four" aria-label="Container behaviour studies" data-i18n-aria-label="micro.signal.aria">
+        <figure class="study"><img src="/visuals/water-autoflow-closeup.gif" alt="" data-i18n-alt="exp.microsite.visual.waterAlt"><figcaption><span data-i18n="exp.microsite.visual.water">WATER STUDY</span><small data-i18n="exp.microsite.visual.waterNote">FALL · COLLIDE · BREAK</small></figcaption></figure>
+        <figure class="study"><img src="/visuals/satellite-dish-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.dataAlt"><figcaption><span data-i18n="exp.microsite.visual.data">SATELLITE DISH</span><small data-i18n="exp.microsite.visual.dataNote">RECEIVE / RELAY / RETURN</small></figcaption></figure>
+        <figure class="study tall"><img src="/visuals/cheomseongdae-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.cheomseongdaeAlt"><figcaption><span data-i18n="exp.microsite.visual.cheomseongdae">CHEOMSEONGDAE</span><small data-i18n="exp.microsite.visual.cheomseongdaeNote">CAMERA / OBSERVATORY</small></figcaption></figure>
+        <figure class="study tall"><img src="/visuals/data-jangseung-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.jangseungAlt"><figcaption><span data-i18n="exp.microsite.visual.jangseung">DATA JANGSEUNG</span><small data-i18n="exp.microsite.visual.jangseungNote">DATA AT THE THRESHOLD</small></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="chapter" aria-labelledby="chapter-vessel">
+      <div class="chapter-copy">
+        <p class="chapter-no" data-i18n="micro.vessel.kicker">03 / FORM</p>
+        <h2 id="chapter-vessel" data-i18n="micro.vessel.title">FROM TOTEM TO CONTAINER</h2>
+        <p data-i18n="micro.vessel.body">Moon jars and stupa studies asked how separate parts could gather into one form. The cyberpunk columbarium tested stacked memory, but felt too fixed.</p>
+        <p data-i18n="micro.vessel.note">We kept the logic of assembly and returned to a simpler unit: the repeatable TV-like container.</p>
+      </div>
+      <div class="evidence three" aria-label="Vessel studies" data-i18n-aria-label="micro.vessel.aria">
+        <figure class="study"><img src="/visuals/moon-jars-render.jpg" alt="" data-i18n-alt="exp.microsite.visual.moonAlt"><figcaption><span data-i18n="exp.microsite.visual.moon">MOON JARS</span><small data-i18n="exp.microsite.visual.moonNote">TWO HALVES · ONE VESSEL</small></figcaption></figure>
+        <figure class="study tall"><img src="/visuals/stupa-ceramic-wind-jewel.png" alt="" data-i18n-alt="exp.microsite.visual.stupaCeramicAlt"><figcaption><span data-i18n="exp.microsite.visual.stupaCeramic">STUPA / CERAMIC · WIND · JEWEL</span><small data-i18n="exp.microsite.visual.stupaNote">TOTEM → STACKABLE FORM</small></figcaption></figure>
+        <figure class="study tall"><img src="/visuals/stupa-vertical-celadon-future-v3.png" alt="" data-i18n-alt="exp.microsite.visual.stupaCeladonAlt"><figcaption><span data-i18n="exp.microsite.visual.stupaCeladon">STUPA / VERTICAL CELADON</span><small data-i18n="exp.microsite.visual.stupaCeladonNote">A FUTURE VESSEL</small></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="final" aria-labelledby="chapter-final">
+      <p class="chapter-no" data-i18n="micro.final.kicker">SETTLED DIRECTION</p>
+      <h2 id="chapter-final" data-i18n="micro.final.title">FIVE CONTAINERS. ONE BROADCAST.</h2>
+      <p data-i18n="micro.final.body">ABOUT frames the work. CONTRIBUTE brings people in. EXPERIMENTS tests its form. RESEARCH tracks its sources. LOG keeps time. Together, they form one open system.</p>
+      <a class="final-link" href="/" data-i18n="micro.final.link">RETURN TO THE BROADCAST →</a>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer"><span data-i18n="micro.footer.project">PERFORMING FIRE · MICROSITE STUDY</span><span data-i18n="exp.footer">2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea · July 7 – August 31, 2026</span></footer>
+
+<script>
+(function(){
+  "use strict";
+  var SUPPORTED=["en","ko","zh","ja"];
+  var HTML_LANG={en:"en",ko:"ko",zh:"zh-Hans",ja:"ja"};
+  var STORE_KEY="pf-lang";
+  var active=resolveLang();
+  var dicts={};
+  function resolveLang() {
+    var q=null;
+    try{q=new URLSearchParams(location.search).get("lang")}catch(e){}
+    if(SUPPORTED.indexOf(q)!==-1){return q}
+    var stored=null;
+    try{stored=localStorage.getItem(STORE_KEY)}catch(e){}
+    if(SUPPORTED.indexOf(stored)!==-1){return stored}
+    var nav=String(navigator.language||"").slice(0,2).toLowerCase();
+    if(SUPPORTED.indexOf(nav)!==-1){return nav}
+    return "en";
+  }
+  function load(locale){if(dicts[locale]){return Promise.resolve(dicts[locale])}return fetch("/i18n/"+locale+".json").then(function(res){if(!res.ok){throw new Error("HTTP "+res.status)}return res.json()}).then(function(json){dicts[locale]=json;return json})}
+  function text(key){var current=dicts[active]||{};var english=dicts.en||{};return String(current[key]||english[key]||"").trim()}
+  function hydrate(){var lang=active;document.documentElement.lang = HTML_LANG[lang];document.querySelectorAll("[data-i18n]").forEach(function(node){var value=text(node.getAttribute("data-i18n"));if(value){node.textContent=value}});document.querySelectorAll("[data-i18n-alt]").forEach(function(node){var value=text(node.getAttribute("data-i18n-alt"));if(value){node.alt=value}});document.querySelectorAll("[data-i18n-aria-label]").forEach(function(node){var value=text(node.getAttribute("data-i18n-aria-label"));if(value){node.setAttribute("aria-label",value)}});document.querySelectorAll("[data-lang]").forEach(function(button){button.setAttribute("aria-pressed",String(button.dataset.lang===active))});document.title=text("micro.title")||document.title}
+  function apply(locale){active=locale;try{localStorage.setItem(STORE_KEY,locale)}catch(e){}var required=[load("en")];if(locale!=="en"){required.push(load(locale))}return Promise.all(required).then(hydrate)}
+  document.querySelectorAll("[data-lang]").forEach(function(button){button.addEventListener("click",function(){apply(button.dataset.lang)})});
+  apply(active).catch(function(){active="en";return apply("en")});
+}());
+</script>
+</body>
+</html>

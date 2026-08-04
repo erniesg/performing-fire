@@ -3,41 +3,55 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
 const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
-const experiment = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
+const experiment = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 
 test('broadcast status appears once', () => {
   assert.equal((broadcast.match(/ON AIR/g) ?? []).length, 1)
 })
 
-test('the Performing Fire wordmark is stable and contains no equation', () => {
+test('the Performing Fire wordmark is stable and the equation lives in content', () => {
   assert.match(broadcast, />PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</)
-  assert.doesNotMatch(broadcast, /error-e|pf-error-e/)
-  assert.doesNotMatch(broadcast, /ŷ|f\(hands\)|error term/)
+  assert.match(broadcast, /Y = f\(X\) \+ ε/)
 })
 
-test('all six channel previews are keyboard focusable', () => {
-  assert.equal((broadcast.match(/class="wall-btn bezel"/g) ?? []).length, 6)
-  assert.equal((broadcast.match(/class="wall-preview /g) ?? []).length, 6)
+test('all five approved channel previews are keyboard-focusable buttons', () => {
+  assert.equal((broadcast.match(/class="preview-btn bezel"/g) ?? []).length, 5)
+  for (const label of ['CH 01 ABOUT', 'CH 02 CONTRIBUTE', 'CH 03 EXPERIMENTS', 'CH 04 RESEARCH', 'CH 05 LOG']) {
+    assert.match(broadcast, new RegExp(`aria-label="${label}"`))
+  }
 })
 
-test('every monitor shows a latent preview that clears on hover', () => {
-  assert.match(broadcast, /\.wall-preview \{[\s\S]*opacity: \.76/)
-  assert.match(broadcast, /\.wall-btn:hover canvas\.snow/)
-  assert.match(broadcast, /\.wall-btn:hover \.wall-preview/)
-  assert.match(broadcast, /preview-signal/)
-  assert.match(broadcast, /preview-voices/)
-  assert.match(broadcast, /preview-log/)
-  assert.match(broadcast, /preview-score/)
-  assert.match(broadcast, /preview-static/)
-  assert.match(broadcast, /preview-ident/)
+test('selected, latent, pointer, and focus preview states are explicit', () => {
+  assert.match(broadcast, /\.preview-btn:not\(\[aria-pressed="true"\]\) canvas\{filter:blur/)
+  assert.match(broadcast, /:hover canvas/)
+  assert.match(broadcast, /:focus-visible canvas/)
+  assert.match(broadcast, /\.preview-btn\.is-awake canvas/)
+  assert.match(broadcast, /aria-pressed="true" aria-label="CH 01 ABOUT"/)
 })
 
-test('the Broadcast is the root index and the flame cloth is its own experiment page', () => {
+test('navigation and progress controls live inside the CRT', () => {
+  assert.match(broadcast, /<div class="viewer viewer-screen"[\s\S]*?<nav class="transport"[\s\S]*?<\/div>\s*<\/section>/)
+  assert.match(broadcast, /id="transmissionPrev"/)
+  assert.match(broadcast, /id="transmissionNext"/)
+  assert.match(broadcast, /id="progressCount"/)
+  assert.match(broadcast, /id="progressTrack"/)
+  assert.match(broadcast, /event\.key !== "ArrowLeft" && event\.key !== "ArrowRight"/)
+})
+
+test('the Broadcast is the root index and the fabric study is its own experiment page', () => {
   assert.match(broadcast, /THE BROADCAST/)
-  assert.match(experiment, /FLAME CLOTH v3/)
+  assert.match(experiment, /FABRIC/)
   assert.doesNotMatch(experiment, /THE BROADCAST/)
 })
 
+test('Experiments opens Fabric and Microsite together inside the console', () => {
+  assert.match(broadcast, /data-channel-panel="experiments"[\s\S]*?class="[^"]*experiment-switchboard[^"]*"/)
+  assert.match(broadcast, /data-study="fabric"[\s\S]*?href="\/experiments\/fabric\/"/)
+  assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
+  assert.match(broadcast, /class="study-toggle"[\s\S]*?bc\.experiments\.open[\s\S]*?bc\.experiments\.close/)
+  assert.match(broadcast, /signal: "x3"[\s\S]*?count: 1/)
+})
+
 test('reduced motion is supported', () => {
-  assert.match(broadcast, /prefers-reduced-motion:\s*reduce/)
+  assert.match(broadcast, /prefers-reduced-motion:reduce/)
 })

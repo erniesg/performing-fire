@@ -7,7 +7,8 @@ const ORIGIN = 'https://performingfire.berlayar.ai'
 
 const PAGES = [
   { file: 'index.html', path: '/', title: 'Performing Fire — The Broadcast' },
-  { file: 'experiments/flame-cloth/index.html', path: '/experiments/flame-cloth/', title: 'Performing Fire — Interactive Fire Study' },
+  { file: 'experiments/fabric/index.html', path: '/experiments/fabric/', title: 'Performing Fire — Fabric Study' },
+  { file: 'experiments/microsite/index.html', path: '/experiments/microsite/', title: 'Performing Fire — Microsite Study' },
   { file: 'experiments/index.html', path: '/experiments/', title: 'Performing Fire — Experiments Index' },
 ]
 

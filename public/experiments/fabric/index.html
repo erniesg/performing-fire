@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performing Fire — Fabric Study</title>
+<meta name="description" content="Fabric — a microsite for experiments: pinch, stir, and stretch a real-time software surface with your hands.">
+<!-- canonical stays root-relative so no page ships an absolute-URL <link href> — see tests/broadcast-scroll.test.mjs -->
+<link rel="canonical" href="/experiments/fabric/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:site_name" content="Performing Fire">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Performing Fire — Fabric Study">
+<meta property="og:description" content="Fabric — a microsite for experiments: pinch, stir, and stretch a real-time software surface with your hands.">
+<meta property="og:url" content="https://performingfire.berlayar.ai/experiments/fabric/">
+<meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A CRT test card: the Performing Fire wordmark in phosphor type over five channel tints.">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  html, body { margin:0; padding:0; background:#000; overflow:hidden; height:100%;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif; }
+  #gl { position:fixed; inset:0; width:100vw; height:100vh; display:block; touch-action:none; }
+  /* A quiet woven field keeps the experiment legible even before the surface catches fire. */
+  #fabric-field { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.18;
+    background:
+      radial-gradient(circle at 50% 52%, rgba(255,146,52,.14), transparent 34%),
+      repeating-linear-gradient(12deg, transparent 0 14px, rgba(255,173,92,.10) 14px 15px, transparent 15px 30px),
+      repeating-linear-gradient(102deg, transparent 0 18px, rgba(255,108,32,.08) 18px 19px, transparent 19px 38px); }
+  #fabric-field::before { content:""; position:absolute; inset:5vh 3.5vw; border:1px solid rgba(255,157,65,.22);
+    border-radius:20px; }
+  #fabric-field::after { content:""; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center, transparent 0 37%, rgba(0,0,0,.42) 86%, rgba(0,0,0,.72)); }
+  #cam { position:fixed; right:4px; bottom:4px; width:2px; height:2px; opacity:0; pointer-events:none; }
+  #preview { position:fixed; right:16px; bottom:16px; width:176px; height:132px; z-index:2;
+    border-radius:8px; border:1px solid rgba(255,120,40,.25); opacity:.75; cursor:pointer;
+    background:#0a0505; }
+  /* The camera gate sits exactly on top of the preview panel: the panel is the
+     control that turns it on, so no layout moves when the camera comes up. */
+  #camera-gate { position:fixed; right:16px; bottom:16px; width:178px; height:134px; z-index:6;
+    box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; text-align:center;
+    padding:10px 12px; font-family:inherit; font-size:11px; line-height:1.7; letter-spacing:.12em;
+    text-transform:uppercase; color:rgba(255,225,200,.85); background:rgba(20,8,4,.72);
+    border:1px solid rgba(255,120,40,.35); border-radius:8px; cursor:pointer;
+    backdrop-filter:blur(8px); transition:all .18s ease; animation:gate-glow 3.2s ease-in-out infinite; }
+  #camera-gate-label { display:block; }
+  #camera-gate-hint { display:block; max-width:145px; font-size:9px; line-height:1.35; letter-spacing:.08em;
+    text-transform:none; color:rgba(255,225,200,.62); }
+  #camera-gate[hidden] { display:none; }
+  #camera-gate:hover, #camera-gate:focus-visible { border-color:rgba(255,160,70,.9); color:#fff;
+    outline:none; }
+  @keyframes gate-glow {
+    0%, 100% { box-shadow:0 0 12px rgba(255,110,30,.18), inset 0 0 10px rgba(255,110,30,.08); }
+    50%      { box-shadow:0 0 24px rgba(255,110,30,.45), inset 0 0 14px rgba(255,110,30,.18); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #camera-gate { animation:none; }
+    #eterm { animation:none; }
+  }
+  #hud { position:fixed; top:18px; left:22px; z-index:4; max-width:min(430px, calc(100vw - 44px));
+    color:#e8d5c0; pointer-events:none; user-select:none; }
+  #hud h1 { margin:0; font-size:13px; font-weight:600; letter-spacing:.28em; text-transform:uppercase;
+    color:#ffb37a; text-shadow:0 0 18px rgba(255,100,20,.5); }
+  #hud p { margin:6px 0 0; font-size:11.5px; letter-spacing:.04em; color:rgba(232,213,192,.55); }
+  #hud .eq { color:rgba(255,190,130,.72); font-style:italic; letter-spacing:.06em; }
+  #eterm { display:inline-block; animation:eterm 1.7s steps(1) infinite; }
+  @keyframes eterm {
+    0%   { transform:translate(0,0) rotate(0deg); }
+    12%  { transform:translate(.9px,-1.3px) rotate(3deg); }
+    25%  { transform:translate(-.8px,.6px) rotate(-2deg); }
+    40%  { transform:translate(.3px,1.1px) rotate(1deg); }
+    55%  { transform:translate(-1.1px,-.5px) rotate(2deg); }
+    70%  { transform:translate(.7px,.4px) rotate(-3deg); }
+    85%  { transform:translate(-.4px,-1px) rotate(1deg); }
+    100% { transform:translate(0,0) rotate(0deg); }
+  }
+  #status { position:fixed; bottom:18px; left:22px; z-index:4; font-size:11px; color:rgba(232,213,192,.45);
+    letter-spacing:.03em; pointer-events:none; user-select:none; max-width:46vw; }
+  #chips { position:fixed; bottom:16px; left:50%; z-index:4; transform:translateX(-50%);
+    display:flex; gap:8px; }
+  .chip { padding:7px 14px; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:rgba(255,225,200,.75); background:rgba(20,8,4,.55); border:1px solid rgba(255,120,40,.18);
+    border-radius:999px; cursor:pointer; backdrop-filter:blur(8px); transition:all .18s ease;
+    user-select:none; }
+  .chip:hover { border-color:rgba(255,150,60,.5); color:#ffe6cc; }
+  .chip.active { border-color:rgba(255,160,70,.9); color:#fff;
+    box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
+  #err { position:fixed; inset:0; z-index:8; display:none; align-items:center; justify-content:center;
+    color:#f66; font-size:14px; }
+  #site-footer { position:fixed; right:16px; bottom:156px; z-index:4; font-size:10.5px; letter-spacing:.12em;
+    text-transform:uppercase; }
+  #site-footer a { color:rgba(232,213,192,.55); text-decoration:none; padding:4px 8px;
+    border:1px solid rgba(255,120,40,.18); border-radius:999px; background:rgba(20,8,4,.55); }
+  #site-footer a:hover { color:#ffe6cc; border-color:rgba(255,150,60,.5); }
+  .lang-toggle { position:fixed; top:16px; right:16px; display:flex; gap:6px; z-index:5; }
+  .lang-toggle button { padding:5px 10px; font-size:11px; letter-spacing:.08em; cursor:pointer;
+    color:rgba(255,225,200,.75); background:rgba(20,8,4,.55); border:1px solid rgba(255,120,40,.18);
+    border-radius:999px; backdrop-filter:blur(8px); transition:all .18s ease; user-select:none; }
+  .lang-toggle button:hover { border-color:rgba(255,150,60,.5); color:#ffe6cc; }
+  .lang-toggle button[aria-pressed="true"] { border-color:rgba(255,160,70,.9); color:#fff;
+    box-shadow:0 0 16px rgba(255,110,30,.35), inset 0 0 10px rgba(255,110,30,.15); }
+  /* CJK typography — system stacks only (Hangul, Han, Kana), no webfont downloads */
+  html[lang="ko"] body { font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    word-break:keep-all; line-break:strict; }
+  html[lang^="zh"] body { font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    word-break:normal; line-break:strict; }
+  html[lang="ja"] body { font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
+    word-break:normal; line-break:strict; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="fabric-field" aria-hidden="true"></div>
+<video id="cam" playsinline muted></video>
+<canvas id="preview" width="176" height="132"></canvas>
+<button id="camera-gate" type="button" aria-describedby="camera-gate-hint">
+  <span id="camera-gate-label" data-i18n="idx.camera.enable">ENABLE HAND TRACKING</span>
+  <small id="camera-gate-hint" data-i18n="idx.camera.hint">Click to allow camera access</small>
+</button>
+<div id="hud">
+  <h1>Performing Fir<span id="eterm">e</span></h1>
+  <p class="eq" data-i18n="idx.tagline">interactive fire study · hand tracking on request</p>
+  <p data-i18n="idx.controls">pinch to grab &amp; stretch · sweep to stir · V camera view · T trails · B bloom · [ ] exposure</p>
+</div>
+<nav class="lang-toggle" aria-label="Language">
+  <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button>
+  <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button>
+  <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button>
+  <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
+</nav>
+<div id="chips"></div>
+<div id="status" role="status" aria-live="polite" data-i18n="idx.status.ready">camera off · click enable hand tracking for hand input — mouse mode stays available</div>
+<div id="err" data-i18n="idx.webgl"></div>
+<footer id="site-footer"><a href="/experiments/" data-i18n="idx.footer">all experiments</a></footer>
+
+<script>
+/* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
+(function () {
+  "use strict";
+  var SUPPORTED = ["en", "ko", "zh", "ja"];
+  var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
+  var STORE_KEY = "pf-lang";
+  var TITLE_KEY = "idx.title";
+  var dicts = {};
+  var active = "en";
+
+  function resolveLang() {
+    var q = null;
+    try { q = new URLSearchParams(window.location.search).get("lang"); } catch (e) {}
+    if (q && SUPPORTED.indexOf(q) !== -1) { return q; }
+    var stored = null;
+    try { stored = window.localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (stored && SUPPORTED.indexOf(stored) !== -1) { return stored; }
+    var nav = String(window.navigator.language || "").slice(0, 2).toLowerCase();
+    if (SUPPORTED.indexOf(nav) !== -1) { return nav; }
+    return "en";
+  }
+
+  function t(key) {
+    var d = dicts[active];
+    if (d && typeof d[key] === "string" && d[key]) { return d[key]; }
+    var en = dicts.en;
+    if (en && typeof en[key] === "string") { return en[key]; }
+    return "";
+  }
+
+  function load(lang) {
+    if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
+    return window.fetch("/i18n/" + lang + ".json")
+      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
+      .then(function (json) { dicts[lang] = json; return json; })
+      .catch(function () { return null; }); /* offline / file:// — defaults in the markup stay up */
+  }
+
+  function hydrate() {
+    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder]");
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var key = el.getAttribute("data-i18n");
+      var text = key ? t(key) : "";
+      if (text) { el.textContent = text; }
+      var phKey = el.getAttribute("data-i18n-placeholder");
+      var ph = phKey ? t(phKey) : "";
+      if (ph) { el.setAttribute("placeholder", ph); }
+    }
+    var title = t(TITLE_KEY);
+    if (title) { document.title = title; }
+  }
+
+  function markToggle() {
+    var btns = document.querySelectorAll(".lang-toggle [data-lang]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", String(btns[i].getAttribute("data-lang") === active));
+    }
+  }
+
+  function setLang(lang, persist) {
+    if (SUPPORTED.indexOf(lang) === -1) { lang = "en"; }
+    active = lang;
+    if (persist) { try { window.localStorage.setItem(STORE_KEY, lang); } catch (e) {} }
+    document.documentElement.lang = HTML_LANG[lang];
+    markToggle();
+    Promise.all([load("en"), load(lang)]).then(function () {
+      hydrate();
+      document.dispatchEvent(new CustomEvent("pf:lang", { detail: { lang: lang } }));
+    });
+  }
+
+  window.PF_I18N = { t: t, resolveLang: resolveLang, setLang: setLang, current: function () { return active; } };
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
+    if (btn) { setLang(btn.getAttribute("data-lang"), true); }
+  });
+
+  setLang(resolveLang(), false);
+})();
+</script>
+
+<script type="module">
+/* ============================================================
+   FABRIC — TouchDesigner-style interactive surface
+   Technique (mirrors the TD Spring-SOP + Bloom/Feedback pattern):
+   - 3D verlet cloth (72x46) — z-axis folds driven by curl-ish wind
+   - per-vertex normals -> fresnel rim + specular silk shading
+   - additive translucent surface: overlapping folds stack brightness
+   - faint warp/weft lines + node sparkles + embers
+   - feedback trails (max-decay) + bloom + filmic tonemap
+   - MediaPipe hands: approach = attract/ripple, pinch = grab/stretch,
+     release = throw; idle = autonomous billowing
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+const canvas = $('gl'), video = $('cam'), preview = $('preview'), statusEl = $('status'), gateEl = $('camera-gate');
+const gateLabel = $('camera-gate-label');
+
+const PERSONAS = {
+  fire:      {label:'Fire',      colA:[0.50,0.05,0.01], colB:[1.00,0.36,0.05], colC:[1.00,0.85,0.50],
+              wind:1.4, windSpeed:0.55, drag:0.022, stiff:0.90, iters:3, buoy:0.16,
+              attract:2.2, repel:8,  flicker:0.30, ember:1.0,
+              jitter:0.25,swirl:0.6, gain:1.00},
+  calm:      {label:'Calm',      colA:[0.38,0.26,0.11], colB:[0.95,0.78,0.48], colC:[1.00,0.98,0.90],
+              wind:0.5, windSpeed:0.28, drag:0.045, stiff:0.90, iters:3, buoy:0.10,
+              attract:1.2, repel:4,  flicker:0.10, ember:0.35,
+              jitter:0.05,swirl:0.2, gain:0.85},
+  curious:   {label:'Curious',   colA:[0.32,0.07,0.13], colB:[0.42,0.55,1.00], colC:[0.95,0.95,1.00],
+              wind:1.0, windSpeed:0.50, drag:0.028, stiff:0.90, iters:3, buoy:0.13,
+              attract:5.0, repel:3,  flicker:0.20, ember:0.6,
+              jitter:0.15,swirl:1.2, gain:0.95},
+  resistant: {label:'Resistant', colA:[0.34,0.01,0.06], colB:[0.92,0.08,0.16], colC:[1.00,0.50,0.45],
+              wind:1.2, windSpeed:0.90, drag:0.018, stiff:1.00, iters:4, buoy:0.12,
+              attract:0.0, repel:20, flicker:0.55, ember:0.8,
+              jitter:1.0, swirl:0.3, gain:1.05},
+  playful:   {label:'Playful',   colA:[0.36,0.03,0.26], colB:[1.00,0.28,0.58], colC:[1.00,0.78,0.92],
+              wind:1.8, windSpeed:0.95, drag:0.015, stiff:0.85, iters:3, buoy:0.15,
+              attract:3.0, repel:6,  flicker:0.30, ember:1.0,
+              jitter:0.35,swirl:3.0, gain:1.00},
+  angry:     {label:'Angry',     colA:[0.30,0.01,0.01], colB:[0.90,0.12,0.03], colC:[1.00,0.48,0.12],
+              wind:2.2, windSpeed:1.20, drag:0.020, stiff:0.90, iters:3, buoy:0.18,
+              attract:0.0, repel:16, flicker:0.85, ember:2.2,
+              jitter:1.8, swirl:0.6, gain:1.10},
+};
+let persona = PERSONAS.fire;
+
+const GRID_W = 72, GRID_H = 46;
+const CLOTH_W = 1.15, CLOTH_H = 0.62;
+const DT = 1/60;
+const HAND_R = 0.30;
+const GRAB_R = 0.22;
+const EMAX = 300;
+const CAM_Z = 1.7, TAN = 0.45;     // simple perspective camera
+
+let aspect = 1.6;
+let bloomOn = true, persist = 0.88, exposure = 1.45;
+
+/* ---------------- WebGL setup ---------------- */
+const gl = canvas.getContext('webgl', {alpha:false, antialias:true});
+if(!gl){ $('err').style.display='flex'; $('err').textContent='WebGL unavailable in this browser.'; throw new Error('no webgl'); }
+
+function compile(type, src){
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error('shader: '+gl.getShaderInfoLog(s));
+  return s;
+}
+function program(vs, fs){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: '+gl.getProgramInfoLog(p));
+  return p;
+}
+
+/* shared perspective projection: sim (x in [0,aspect], y in [0,1], z around 0) */
+const PROJ = `
+uniform float u_aspect, u_half;
+vec3 toWorld(vec3 p){ return vec3(p.x-u_half, p.y-0.5, p.z); }
+vec4 project(vec3 w){
+  float d = ${CAM_Z.toFixed(2)} - w.z;
+  return vec4(w.x/(d*${TAN}*u_aspect), w.y/(d*${TAN}), 0., 1.);
+}`;
+
+/* silk surface: fresnel rim + specular + fold/heat emission, additive */
+const SILK_VS = `
+attribute vec3 a_pos; attribute vec3 a_nrm; attribute vec2 a_uv;
+attribute float a_heat; attribute float a_fold;
+${PROJ}
+varying vec2 v_uv; varying float v_heat; varying float v_fold;
+varying vec3 v_nrm; varying vec3 v_view;
+void main(){
+  vec3 w = toWorld(a_pos);
+  v_uv=a_uv; v_heat=a_heat; v_fold=a_fold;
+  v_nrm = a_nrm;
+  v_view = normalize(vec3(0.,0.,${CAM_Z.toFixed(2)}) - w);
+  gl_Position = project(w);
+}`;
+const SILK_FS = `
+precision highp float;
+varying vec2 v_uv; varying float v_heat; varying float v_fold;
+varying vec3 v_nrm; varying vec3 v_view;
+uniform float u_time, u_flicker, u_gain;
+uniform vec3 u_colA, u_colB, u_colC;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
+float noise(vec2 p){
+  vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),
+             mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);
+}
+float fbm(vec2 p){
+  float v=0., a=.5;
+  for(int k=0;k<4;k++){ v+=a*noise(p); p=p*2.03+vec2(11.7,5.3); a*=.55; }
+  return v;
+}
+void main(){
+  vec3 N = normalize(v_nrm);
+  vec3 V = normalize(v_view);
+  float ndv = abs(dot(N, V));
+  float fres = pow(1.0 - ndv, 1.6);
+  vec3 L = normalize(vec3(0.3, 0.6, 0.75));
+  float spec = pow(max(abs(dot(reflect(-L, N), V)), 0.0), 24.0);
+  // flame wisps flowing upward across the surface
+  vec2 q = v_uv*vec2(3.0, 2.2);
+  float wisp = fbm(q + vec2(fbm(q + vec2(0., -u_time*0.9))*1.4, -u_time*0.55));
+  // ragged, noise-eaten edges + rounded organic silhouette
+  vec2 eu = clamp(v_uv + vec2(wisp-0.5)*0.30, 0.0, 1.0);
+  float edge = smoothstep(0.,0.14,eu.x)*smoothstep(1.,0.86,eu.x)
+             * smoothstep(0.,0.11,eu.y)*smoothstep(1.,0.80,eu.y);
+  edge *= smoothstep(0.88, 0.42, length((eu-0.5)*vec2(1.05,1.3)));
+  float flick = 1.0 + u_flicker*0.4*sin(u_time*11.0 + v_uv.x*23.0 + v_uv.y*17.0);
+  float lum = (0.30 + fres*1.4 + v_fold*0.45 + v_heat*0.55)
+            * (0.62 + 0.85*wisp) * edge * flick;
+  lum = min(lum, 2.4);
+  vec3 col = mix(u_colA, u_colB, clamp(lum*1.1, 0.0, 1.0));
+  col = mix(col, u_colC, clamp((lum-0.85)*1.3, 0.0, 1.0));
+  col += u_colC * spec * 0.5 * edge;
+  // premultiplied "over" output: stacked folds saturate toward col, never to white
+  float a = clamp(lum*0.55, 0.0, 0.90);
+  gl_FragColor = vec4(col * lum * 0.55 * u_gain, a);
+}`;
+
+/* faint warp/weft lines for the woven TD feel */
+const LINE_VS = `
+attribute vec3 a_pos; attribute vec2 a_uv; attribute float a_heat; attribute float a_fold;
+${PROJ}
+uniform float u_time, u_flicker, u_gain;
+uniform vec3 u_colA, u_colB, u_colC;
+varying vec3 v_col;
+void main(){
+  gl_Position = project(toWorld(a_pos));
+  float grad = 1.0 - a_uv.y;
+  vec3 base = mix(u_colA, u_colB, clamp(grad*0.85 + a_fold*0.5, 0.0, 1.0));
+  float e = 0.35 + a_fold*0.9 + a_heat*1.2;
+  float flick = 1.0 + u_flicker*0.5*sin(u_time*13.0 + a_uv.x*40.0 + a_uv.y*23.0);
+  float em = smoothstep(0.,0.10,a_uv.x)*smoothstep(1.,0.90,a_uv.x)
+           * smoothstep(0.,0.08,a_uv.y)*smoothstep(1.,0.84,a_uv.y);
+  v_col = mix(base, u_colC, clamp(a_heat*0.8 + a_fold*0.4 - 0.15, 0.0, 1.0)) * e * flick * em * u_gain;
+}`;
+const LINE_FS = `
+precision mediump float;
+varying vec3 v_col; uniform float u_alpha;
+void main(){ gl_FragColor = vec4(v_col*u_alpha, 1.0); }`;
+
+const NODE_VS = `
+attribute vec3 a_pos; attribute float a_heat;
+${PROJ}
+uniform float u_scale;
+varying float v_h;
+void main(){
+  v_h = a_heat;
+  vec3 w = toWorld(a_pos);
+  gl_Position = project(w);
+  gl_PointSize = (0.5 + a_heat*2.5)*u_scale*(${CAM_Z.toFixed(2)}/(${CAM_Z.toFixed(2)}-w.z));
+}`;
+const NODE_FS = `
+precision mediump float;
+varying float v_h; uniform vec3 u_col;
+void main(){
+  vec2 q = gl_PointCoord*2.-1.;
+  float a = pow(max(1.0-length(q), 0.0), 2.0)*pow(v_h, 3.0)*0.5;
+  gl_FragColor = vec4(u_col*a, 1.0);
+}`;
+
+const GLOW_VS = `
+attribute vec2 a_p;
+${PROJ}
+uniform vec2 u_center; uniform float u_radius;
+varying vec2 v_p;
+void main(){
+  v_p = a_p;
+  vec4 c = project(toWorld(vec3(u_center, 0.)));
+  float rc = u_radius/(${CAM_Z.toFixed(2)}*${TAN});
+  gl_Position = c + vec4(a_p.x*rc/u_aspect, a_p.y*rc, 0., 0.);
+}`;
+const GLOW_FS = `
+precision mediump float;
+varying vec2 v_p; uniform vec3 u_color; uniform float u_int;
+void main(){
+  float d = length(v_p);
+  float a = pow(max(1.0-d, 0.0), 2.5)*u_int;
+  gl_FragColor = vec4(u_color*a, 1.0);
+}`;
+
+const EMBER_VS = `
+attribute vec3 a_pos; attribute vec2 a_ls;
+${PROJ}
+uniform float u_ph;
+varying float v_l;
+void main(){
+  v_l = a_ls.x;
+  vec3 w = toWorld(a_pos);
+  gl_Position = project(w);
+  gl_PointSize = a_ls.y*u_ph*(0.5+0.5*a_ls.x);
+}`;
+const EMBER_FS = `
+precision mediump float;
+varying float v_l; uniform vec3 u_c1, u_c2;
+void main(){
+  vec2 q = gl_PointCoord*2.-1.;
+  float a = pow(max(1.0-length(q), 0.0), 2.0)*v_l*0.9;
+  gl_FragColor = vec4(mix(u_c1,u_c2,smoothstep(0.,1.,v_l))*a, 1.0);
+}`;
+
+const QUAD_VS = `
+attribute vec2 a_p; varying vec2 v_uv;
+void main(){ v_uv = a_p*0.5+0.5; gl_Position = vec4(a_p,0.,1.); }`;
+
+const TRAIL_FS = `
+precision mediump float;
+varying vec2 v_uv; uniform sampler2D u_new, u_prev; uniform float u_persist;
+void main(){
+  vec3 n = texture2D(u_new, v_uv).rgb;
+  vec3 p = texture2D(u_prev, v_uv).rgb*u_persist;
+  gl_FragColor = vec4(max(n, p), 1.0);
+}`;
+
+const BRIGHT_FS = `
+precision mediump float;
+varying vec2 v_uv; uniform sampler2D u_tex;
+void main(){
+  vec3 c = texture2D(u_tex, v_uv).rgb;
+  gl_FragColor = vec4(max(c-0.55, 0.0)*1.3, 1.0);
+}`;
+
+const BLUR_FS = `
+precision mediump float;
+varying vec2 v_uv; uniform sampler2D u_tex; uniform vec2 u_dir;
+void main(){
+  vec4 c = texture2D(u_tex, v_uv)*0.227;
+  c += (texture2D(u_tex, v_uv+u_dir*1.384) + texture2D(u_tex, v_uv-u_dir*1.384))*0.316;
+  c += (texture2D(u_tex, v_uv+u_dir*3.230) + texture2D(u_tex, v_uv-u_dir*3.230))*0.070;
+  gl_FragColor = c;
+}`;
+
+const COMP_FS = `
+precision mediump float;
+varying vec2 v_uv; uniform sampler2D u_scene, u_bloom;
+uniform float u_bloomStr, u_expo;
+void main(){
+  vec3 c = texture2D(u_scene, v_uv).rgb + texture2D(u_bloom, v_uv).rgb*u_bloomStr;
+  // hue-preserving tonemap: brightness compresses, color stays saturated
+  float l = max(c.r, max(c.g, c.b));
+  if(l > 1e-4) c *= (1.0 - exp(-l*u_expo))/l;
+  c = mix(c, vec3(1.0), smoothstep(2.2, 4.5, l)*0.28);
+  float g = dot(c, vec3(0.299, 0.587, 0.114));
+  c = clamp(mix(vec3(g), c, 1.28), 0.0, 1.0);
+  float d = distance(v_uv, vec2(0.5));
+  c *= 1.0 - 0.4*smoothstep(0.5, 0.95, d);
+  gl_FragColor = vec4(c, 1.0);
+}`;
+
+const progSilk  = program(SILK_VS, SILK_FS);
+const progLine  = program(LINE_VS, LINE_FS);
+const progNode  = program(NODE_VS, NODE_FS);
+const progGlow  = program(GLOW_VS, GLOW_FS);
+const progEmber = program(EMBER_VS, EMBER_FS);
+const progTrail = program(QUAD_VS, TRAIL_FS);
+const progBright= program(QUAD_VS, BRIGHT_FS);
+const progBlur  = program(QUAD_VS, BLUR_FS);
+const progComp  = program(QUAD_VS, COMP_FS);
+
+const U = {};
+for(const [name, p] of [['silk',progSilk],['line',progLine],['node',progNode],['glow',progGlow],
+                        ['ember',progEmber],['trail',progTrail],['bright',progBright],
+                        ['blur',progBlur],['comp',progComp]]){
+  U[name] = {p};
+  const nu = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for(let i=0;i<nu;i++){ const info = gl.getActiveUniform(p,i); U[name][info.name] = gl.getUniformLocation(p, info.name); }
+  const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES);
+  for(let i=0;i<na;i++){ const info = gl.getActiveAttrib(p,i); U[name][info.name] = gl.getAttribLocation(p, info.name); }
+}
+function setProj(u){
+  gl.uniform1f(u.u_aspect, aspect);
+  gl.uniform1f(u.u_half, aspect*0.5);
+}
+
+/* geometry buffers */
+const quadBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+const N = GRID_W*GRID_H;
+const positions = new Float32Array(N*3);
+const normals = new Float32Array(N*3);
+const uvs = new Float32Array(N*2);
+for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+  const i=y*GRID_W+x; uvs[i*2]=x/(GRID_W-1); uvs[i*2+1]=y/(GRID_H-1);
+}
+const triIdx = [];
+for(let y=0;y<GRID_H-1;y++) for(let x=0;x<GRID_W-1;x++){
+  const i=y*GRID_W+x;
+  triIdx.push(i,i+1,i+GRID_W, i+1,i+GRID_W+1,i+GRID_W);
+}
+const lineIdx = [];
+for(let y=0;y<GRID_H;y+=2) for(let x=0;x<GRID_W-1;x++){ const i=y*GRID_W+x; lineIdx.push(i,i+1); }
+for(let x=0;x<GRID_W;x+=2) for(let y=0;y<GRID_H-1;y++){ const i=y*GRID_W+x; lineIdx.push(i,i+GRID_W); }
+
+function staticBuf(data){ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); return b; }
+function dynBuf(bytes){ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,bytes,gl.DYNAMIC_DRAW); return b; }
+const posBuf = dynBuf(positions.byteLength);
+const nrmBuf = dynBuf(normals.byteLength);
+const uvBuf = staticBuf(uvs);
+const heatBuf = dynBuf(N*4);
+const foldBuf = dynBuf(N*4);
+const triBuf = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triBuf);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triIdx), gl.STATIC_DRAW);
+const lineBuf = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineBuf);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(lineIdx), gl.STATIC_DRAW);
+const triCount = triIdx.length, lineCount = lineIdx.length;
+
+const emberData = new Float32Array(EMAX*5); // x,y,z,life,size
+const emberBuf = dynBuf(emberData.byteLength);
+
+let enabledLocs = new Set();
+function useAttribs(list){
+  const next = new Set();
+  for(const [loc, buf, size, stride, offset] of list){
+    if(loc===undefined || loc<0) continue;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride||0, offset||0);
+    next.add(loc);
+  }
+  for(const loc of enabledLocs) if(!next.has(loc)) gl.disableVertexAttribArray(loc);
+  enabledLocs = next;
+}
+
+function makeFBO(w,h){
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
+  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return {fb, tex, w, h};
+}
+let sceneFBO, trailA, trailB, bloomA, bloomB, pxW=0, pxH=0;
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  pxW = Math.max(2, Math.round(canvas.clientWidth*dpr));
+  pxH = Math.max(2, Math.round(canvas.clientHeight*dpr));
+  canvas.width = pxW; canvas.height = pxH;
+  aspect = canvas.clientWidth/canvas.clientHeight;
+  sceneFBO = makeFBO(pxW, pxH);
+  trailA = makeFBO(pxW, pxH);
+  trailB = makeFBO(pxW, pxH);
+  bloomA = makeFBO(Math.max(2,pxW>>2), Math.max(2,pxH>>2));
+  bloomB = makeFBO(bloomA.w, bloomA.h);
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* ---------------- cloth physics (3D) ---------------- */
+const posX=new Float32Array(N), posY=new Float32Array(N), posZ=new Float32Array(N);
+const preX=new Float32Array(N), preY=new Float32Array(N), preZ=new Float32Array(N);
+const heat=new Float32Array(N), foldS=new Float32Array(N);
+let cenX=0, cenY=0, avgHeat=0;
+
+{
+  const ox = aspect*0.5 - CLOTH_W/2, oy = 0.54 - CLOTH_H/2;
+  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+    const i=y*GRID_W+x;
+    posX[i]=preX[i]=ox + CLOTH_W*x/(GRID_W-1);
+    posY[i]=preY[i]=oy + CLOTH_H*y/(GRID_H-1);
+    posZ[i]=preZ[i]=0.06*Math.sin(x*0.22)*Math.sin(y*0.19) + (Math.random()-0.5)*0.01;
+  }
+  cenX = aspect*0.5; cenY = 0.54;
+}
+
+const cons = [];
+const rx = CLOTH_W/(GRID_W-1), ry = CLOTH_H/(GRID_H-1), rd = Math.hypot(rx,ry);
+for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+  const i=y*GRID_W+x;
+  if(x<GRID_W-1) cons.push(i,i+1,rx,1.0);
+  if(y<GRID_H-1) cons.push(i,i+GRID_W,ry,1.0);
+  if(x<GRID_W-1 && y<GRID_H-1){ cons.push(i,i+GRID_W+1,rd,0.7); cons.push(i+1,i+GRID_W,rd,0.7); }
+  if(x<GRID_W-2) cons.push(i,i+2,rx*2,0.25);
+  if(y<GRID_H-2) cons.push(i,i+GRID_W*2,ry*2,0.25);
+}
+const CN = cons.length/4;
+const CI = new Int32Array(CN*2), CR = new Float32Array(CN), CK = new Float32Array(CN);
+for(let c=0;c<CN;c++){ CI[c*2]=cons[c*4]; CI[c*2+1]=cons[c*4+1]; CR[c]=cons[c*4+2]; CK[c]=cons[c*4+3]; }
+
+const grabs = new Map();
+function tryGrab(key, hx, hy){
+  let best=-1, bd=GRAB_R*GRAB_R;
+  for(let i=0;i<N;i++){
+    const dx=posX[i]-hx, dy=posY[i]-hy, d2=dx*dx+dy*dy;
+    if(d2<bd){ bd=d2; best=i; }
+  }
+  if(best<0) return;
+  const gx=best%GRID_W, gy=(best/GRID_W)|0;
+  const nodes=[];
+  for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){
+    const md=Math.abs(dx)+Math.abs(dy);
+    if(md>2) continue;
+    const cx=gx+dx, cy=gy+dy;
+    if(cx<0||cx>=GRID_W||cy<0||cy>=GRID_H) continue;
+    const i=cy*GRID_W+cx;
+    nodes.push({i, ox:posX[i]-posX[best], oy:posY[i]-posY[best], w: md===0?1:(md===1?0.55:0.3)});
+  }
+  grabs.set(key, {nodes, x:hx, y:hy, vx:0, vy:0});
+}
+function applyGrabs(){
+  for(const g of grabs.values()){
+    for(const n of g.nodes){
+      const tx=g.x+n.ox*0.65, ty=g.y+n.oy*0.65;
+      posX[n.i]+= (tx-posX[n.i])*n.w;
+      posY[n.i]+= (ty-posY[n.i])*n.w;
+      posZ[n.i]+= (0.12-posZ[n.i])*n.w*0.4;   // pinch lifts cloth toward viewer
+      preX[n.i] = posX[n.i]-g.vx*n.w;
+      preY[n.i] = posY[n.i]-g.vy*n.w;
+      heat[n.i] = Math.min(1, heat[n.i]+0.06);
+    }
+  }
+}
+
+let activeHands = [];
+function step(dt, t){
+  const p = persona;
+  const tt = t*p.windSpeed*2.0;
+  const tx = aspect*0.5 + Math.sin(t*0.13)*0.10 + Math.sin(t*0.047)*0.06;
+  const ty = 0.55 + Math.sin(t*0.17+2.0)*0.05;
+  const scx=(tx-cenX)*2.5, scy=(ty-cenY)*2.5;
+  const dt2 = dt*dt, dragK = 1-p.drag;
+  for(let i=0;i<N;i++){
+    const x=posX[i], y=posY[i], z=posZ[i];
+    let ax = scx, ay = scy + p.buoy, az = -z*1.5;
+    ax += p.wind*(Math.sin(y*2.3+tt*1.3+Math.sin(x*1.7+tt*0.8)*1.3)*0.8 + Math.sin(y*5.1-tt*2.1)*0.2);
+    ay += p.wind*(Math.cos(x*2.1+tt)*0.5 + Math.sin((x+y)*1.6-tt*1.7)*0.35);
+    az += p.wind*2.6*(Math.sin(x*1.1+y*0.5+tt*0.8)*0.5
+                    + Math.sin(x*0.6-y*1.4-tt*0.6)*0.35
+                    + Math.sin((x+y)*2.6-tt*1.4)*0.15);
+    const dxc=x-cenX, dyc=y-cenY, rc=Math.hypot(dxc,dyc);
+    if(rc>0.03){ const sw=p.swirl*Math.min(rc*3,1)*0.6/rc; ax += -dyc*sw; ay += dxc*sw; }
+    if(p.jitter>0){
+      ax += (Math.random()-0.5)*2*p.jitter;
+      ay += (Math.random()-0.5)*2*p.jitter;
+      az += (Math.random()-0.5)*p.jitter;
+    }
+    for(let h=0;h<activeHands.length;h++){
+      const hd=activeHands[h];
+      const dx=x-hd.x, dy=y-hd.y, d=Math.hypot(dx,dy);
+      if(d<HAND_R && d>1e-4){
+        const f=1-d/HAND_R, f2=f*f, ux=dx/d, uy=dy/d;
+        const rep = p.repel*(hd.pinch?0.15:1.0);
+        const push = rep*f2*(0.25+hd.speed*2.0);
+        ax += ux*push; ay += uy*push;
+        az -= f2*hd.speed*1.5;                 // fast sweeps billow the cloth away in depth
+        const fA=(d/HAND_R)*f*4;
+        ax -= ux*p.attract*fA; ay -= uy*p.attract*fA;
+        az += p.attract*fA*0.15;               // gentle approach draws cloth toward viewer
+        heat[i]=Math.min(1, heat[i]+f2*3*dt);
+      }
+    }
+    if(x<0.12) ax+=(0.12-x)*60; else if(x>aspect-0.12) ax-=(x-(aspect-0.12))*60;
+    if(y<0.12) ay+=(0.12-y)*60; else if(y>0.90) ay-=(y-0.90)*60;
+    let nx = x + (x-preX[i])*dragK + ax*dt2;
+    let ny = y + (y-preY[i])*dragK + ay*dt2;
+    let nz = z + (z-preZ[i])*dragK + az*dt2;
+    const sx=nx-x, sy=ny-y, sz=nz-z, sl=Math.hypot(sx,sy,sz);
+    if(sl>0.05){ const k=0.05/sl; nx=x+sx*k; ny=y+sy*k; nz=z+sz*k; }
+    preX[i]=x; preY[i]=y; preZ[i]=z;
+    posX[i]=nx; posY[i]=ny; posZ[i]=nz;
+  }
+  const stiff = p.stiff;
+  for(let it=0; it<p.iters; it++){
+    for(let c=0;c<CN;c++){
+      const i=CI[c*2], j=CI[c*2+1];
+      const dx=posX[j]-posX[i], dy=posY[j]-posY[i], dz=posZ[j]-posZ[i];
+      const d=Math.hypot(dx,dy,dz);
+      if(d<1e-6) continue;
+      const diff=(d-CR[c])/d*0.5*CK[c]*stiff;
+      const mx=dx*diff, my=dy*diff, mz=dz*diff;
+      posX[i]+=mx; posY[i]+=my; posZ[i]+=mz;
+      posX[j]-=mx; posY[j]-=my; posZ[j]-=mz;
+    }
+    applyGrabs();
+  }
+  let sx=0, sy=0, hs=0;
+  for(let i=0;i<N;i++){
+    const sp=Math.hypot(posX[i]-preX[i], posY[i]-preY[i], posZ[i]-preZ[i]);
+    heat[i]=Math.min(1, heat[i]*0.94 + sp*8);
+    if(posX[i]<0)posX[i]=0; else if(posX[i]>aspect)posX[i]=aspect;
+    if(posY[i]<0)posY[i]=0; else if(posY[i]>1)posY[i]=1;
+    if(posZ[i]<-0.45)posZ[i]=-0.45; else if(posZ[i]>0.45)posZ[i]=0.45;
+    sx+=posX[i]; sy+=posY[i]; hs+=heat[i];
+  }
+  cenX=sx/N; cenY=sy/N; avgHeat=hs/N;
+}
+
+function computeNormals(){
+  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+    const i=y*GRID_W+x;
+    const xl=x>0?i-1:i, xr=x<GRID_W-1?i+1:i;
+    const yd=y>0?i-GRID_W:i, yu=y<GRID_H-1?i+GRID_W:i;
+    const tux=posX[xr]-posX[xl], tuy=posY[xr]-posY[xl], tuz=posZ[xr]-posZ[xl];
+    const tvx=posX[yu]-posX[yd], tvy=posY[yu]-posY[yd], tvz=posZ[yu]-posZ[yd];
+    let nx=tuy*tvz-tuz*tvy, ny=tuz*tvx-tux*tvz, nz=tux*tvy-tuy*tvx;
+    const l=Math.hypot(nx,ny,nz)||1;
+    normals[i*3]=nx/l; normals[i*3+1]=ny/l; normals[i*3+2]=nz/l;
+  }
+}
+
+/* fold-stress: 3D deviation of structural links from rest — folds & stretch glow */
+function computeFolds(){
+  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+    const i=y*GRID_W+x;
+    let m=0, cnt=0;
+    if(x>0){ m+=Math.abs(Math.hypot(posX[i]-posX[i-1],posY[i]-posY[i-1],posZ[i]-posZ[i-1])-rx)/rx; cnt++; }
+    if(x<GRID_W-1){ m+=Math.abs(Math.hypot(posX[i+1]-posX[i],posY[i+1]-posY[i],posZ[i+1]-posZ[i])-rx)/rx; cnt++; }
+    if(y>0){ m+=Math.abs(Math.hypot(posX[i]-posX[i-GRID_W],posY[i]-posY[i-GRID_W],posZ[i]-posZ[i-GRID_W])-ry)/ry; cnt++; }
+    if(y<GRID_H-1){ m+=Math.abs(Math.hypot(posX[i+GRID_W]-posX[i],posY[i+GRID_W]-posY[i],posZ[i+GRID_W]-posZ[i])-ry)/ry; cnt++; }
+    const f = Math.min(1.2, (m/cnt)*3);
+    foldS[i] += (f-foldS[i])*0.15;
+  }
+}
+
+/* ---------------- embers ---------------- */
+const ex=new Float32Array(EMAX), ey=new Float32Array(EMAX), ez=new Float32Array(EMAX);
+const evx=new Float32Array(EMAX), evy=new Float32Array(EMAX);
+const elife=new Float32Array(EMAX), ettl=new Float32Array(EMAX), esize=new Float32Array(EMAX);
+let ecount=0, emberAcc=0;
+function spawnEmber(){
+  if(ecount>=EMAX) return;
+  const i=(Math.random()*N)|0;
+  if(heat[i]<0.2 && Math.random()>0.15) return;
+  const k=ecount++;
+  ex[k]=posX[i]+(Math.random()-0.5)*0.02;
+  ey[k]=posY[i]+(Math.random()-0.5)*0.02;
+  ez[k]=posZ[i];
+  evx[k]=(Math.random()-0.5)*0.06;
+  evy[k]=0.04+Math.random()*0.10;
+  ettl[k]=1.0+Math.random()*1.4;
+  elife[k]=1.0;
+  esize[k]=0.004+Math.random()*0.007;
+}
+function updateEmbers(dt, t){
+  emberAcc += dt*persona.ember*(2+avgHeat*35);
+  while(emberAcc>1){ emberAcc--; spawnEmber(); }
+  for(let i=0;i<ecount;i++){
+    elife[i]-=dt/ettl[i];
+    if(elife[i]<=0){
+      ecount--;
+      ex[i]=ex[ecount]; ey[i]=ey[ecount]; ez[i]=ez[ecount];
+      evx[i]=evx[ecount]; evy[i]=evy[ecount];
+      elife[i]=elife[ecount]; ettl[i]=ettl[ecount]; esize[i]=esize[ecount];
+      i--; continue;
+    }
+    evx[i]+=Math.sin(t*2.7+i*1.7)*0.15*dt;
+    evy[i]+=0.12*dt;
+    ex[i]+=evx[i]*dt; ey[i]+=evy[i]*dt;
+  }
+}
+
+/* ---------------- hand tracking ---------------- */
+let landmarker=null, tracking=false, lastLandmarks=[];
+const handSlots = [null, null];
+const mouseHand = {active:false, x:0, y:0, px:0, py:0, vx:0, vy:0, speed:0, pinch:false};
+
+function setStatus(msg){ statusEl.textContent = msg; }
+const tr = (key, fallback) => (window.PF_I18N && window.PF_I18N.t(key)) || fallback;
+
+/* normalized [0,1] device coords -> sim coords at the z=0 cloth plane */
+function ndToSim(nx, ny){
+  const cx = nx*2-1, cy = (1-ny)*2-1;
+  return { x: cx*(CAM_Z*TAN*aspect) + aspect*0.5, y: cy*(CAM_Z*TAN) + 0.5 };
+}
+
+/* ---------------- camera gate ----------------
+   Nothing in this block runs on load. enableCamera() is the only path to
+   getUserMedia and to the (multi-megabyte) hand-tracking model, and it is only
+   ever called from a user-gesture handler — see the click wiring below. The
+   cloth simulates, renders and responds to the mouse with the camera off, so a
+   denied or absent camera costs a status line, never the page. */
+let camMsg = 'camera off — click enable hand tracking';
+let camBusy = false;
+
+function showGate(key, fallback){
+  gateLabel.dataset.i18n = key;                 /* re-hydrated on language switch */
+  gateLabel.textContent = tr(key, fallback);
+  gateEl.hidden = false;
+}
+
+async function loadModel(){
+  const CDN='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+  let mp;
+  try{ mp = await import(CDN+'/vision_bundle.mjs'); }
+  catch(_){ mp = await import(CDN+'/+esm'); }
+  const fs = await mp.FilesetResolver.forVisionTasks(CDN+'/wasm');
+  const MODEL='https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+  try{
+    landmarker = await mp.HandLandmarker.createFromOptions(fs, {
+      baseOptions:{modelAssetPath:MODEL, delegate:'GPU'}, runningMode:'VIDEO', numHands:2});
+  }catch(_){
+    landmarker = await mp.HandLandmarker.createFromOptions(fs, {
+      baseOptions:{modelAssetPath:MODEL, delegate:'CPU'}, runningMode:'VIDEO', numHands:2});
+  }
+}
+async function tryCamera(){
+  camMsg = 'requesting camera…';
+  setStatus(tr('idx.status.requesting', 'requesting camera…'));
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:{width:640, height:480, facingMode:'user'}});
+    video.srcObject = stream;
+    await video.play();
+    tracking = true;
+    gateEl.hidden = true;
+    setStatus(tr('idx.status.tracking', 'hand tracking on — raise a hand · pinch (thumb+index) to grab'));
+  }catch(err){
+    console.warn(err);
+    const name = err && err.name ? err.name : String(err);
+    camMsg = name==='NotAllowedError' ? 'camera blocked — allow camera access, then click enable hand tracking again'
+           : name==='NotFoundError'   ? 'no camera found — click enable hand tracking to retry'
+           : 'camera error: '+name+' — click enable hand tracking to retry';
+    /* non-blocking on purpose: one status line, the cloth keeps animating in mouse mode */
+    setStatus(tr('idx.status.camera', 'camera unavailable ({name}) — click enable hand tracking to retry · mouse mode stays available').replace('{name}', name));
+    showGate('idx.camera.retry', 'TRY AGAIN');
+  }
+}
+/* the single camera entry point — gesture only, never called on load */
+async function enableCamera(){
+  if(camBusy || tracking) return;
+  camBusy = true;
+  gateEl.hidden = true;
+  if(!landmarker){
+    setStatus(tr('idx.status.loading', 'loading hand-tracking model…'));
+    try{ await loadModel(); }
+    catch(err){
+      console.warn(err);
+      camMsg = 'hand-tracking model failed to load (offline?) — mouse mode';
+      setStatus(tr('idx.status.modelFailed', 'model load failed ({err}) — mouse mode: move to stir, drag to grab').replace('{err}', err.message||err));
+      showGate('idx.camera.retry', 'TRY AGAIN');
+      camBusy = false;
+      return;
+    }
+  }
+  await tryCamera();
+  camBusy = false;
+}
+gateEl.addEventListener('click', ()=>{ enableCamera(); });
+preview.addEventListener('click', ()=>{ if(!tracking) enableCamera(); });
+window.addEventListener('error', e=>{ setStatus('⚠ js error: '+e.message); });
+
+function lmToSim(lm){ return ndToSim(1-lm.x, lm.y); }
+
+/* ?demo=1 — synthetic hand for headless visual testing: circles the cloth, pinch-drags in cycles */
+const DEMO = new URLSearchParams(location.search).has('demo');
+let demoWasPinch = false;
+function demoHand(){
+  const t = simT;
+  const hx = aspect*0.5 + Math.cos(t*0.9)*0.35;
+  const hy = 0.52 + Math.sin(t*1.3)*0.22;
+  const pinch = (Math.sin(t*0.7) > 0.2);
+  const speed = Math.min(3, Math.hypot(-Math.sin(t*0.9)*0.315, Math.cos(t*1.3)*0.286));
+  if(pinch && !demoWasPinch) tryGrab('demo', hx, hy);
+  if(!pinch && demoWasPinch) grabs.delete('demo');
+  demoWasPinch = pinch;
+  const g = grabs.get('demo');
+  if(g){ g.vx=hx-g.x; g.vy=hy-g.y; g.x=hx; g.y=hy; }
+  return {x:hx, y:hy, speed, pinch};
+}
+
+function updateHands(dt){
+  const found=[];
+  if(DEMO) found.push(demoHand());
+  if(tracking && video.readyState>=2){
+    let res=null;
+    try{ res = landmarker.detectForVideo(video, performance.now()); }catch(_){}
+    lastLandmarks = res ? res.landmarks : [];
+    for(let hi=0; hi<2; hi++){
+      const lm = lastLandmarks[hi];
+      if(!lm){ if(handSlots[hi]){ grabs.delete('h'+hi); handSlots[hi]=null; } continue; }
+      let px=0, py=0;
+      for(const j of [0,5,9,13,17]){ const s=lmToSim(lm[j]); px+=s.x; py+=s.y; }
+      px/=5; py/=5;
+      const scale = Math.max(1e-3, Math.hypot(lm[0].x-lm[9].x, lm[0].y-lm[9].y));
+      const pinchRatio = Math.hypot(lm[4].x-lm[8].x, lm[4].y-lm[8].y)/scale;
+      const t4=lmToSim(lm[4]), t8=lmToSim(lm[8]);
+      const pinchX=(t4.x+t8.x)/2, pinchY=(t4.y+t8.y)/2;
+      let s = handSlots[hi];
+      if(!s){ s = handSlots[hi] = {x:px, y:py, vx:0, vy:0, speed:0, pinch:false, gx:pinchX, gy:pinchY}; }
+      const nx = s.x+(px-s.x)*0.55, ny = s.y+(py-s.y)*0.55;
+      const vx=(nx-s.x)/Math.max(dt,1e-3), vy=(ny-s.y)/Math.max(dt,1e-3);
+      s.vx = s.vx*0.5+vx*0.5; s.vy = s.vy*0.5+vy*0.5;
+      s.speed = Math.min(3, Math.hypot(s.vx, s.vy));
+      s.x=nx; s.y=ny;
+      const gnx = s.gx+(pinchX-s.gx)*0.6, gny = s.gy+(pinchY-s.gy)*0.6;
+      const gvx = gnx-s.gx, gvy = gny-s.gy;
+      s.gx=gnx; s.gy=gny;
+      const wasPinch = s.pinch;
+      if(!wasPinch && pinchRatio<0.35) s.pinch=true;
+      else if(wasPinch && pinchRatio>0.45) s.pinch=false;
+      const key='h'+hi;
+      if(s.pinch && !wasPinch) tryGrab(key, s.gx, s.gy);
+      if(!s.pinch && wasPinch) grabs.delete(key);
+      const g = grabs.get(key);
+      if(g){ g.x=s.gx; g.y=s.gy; g.vx=gvx; g.vy=gvy; }
+      found.push({x:s.pinch?s.gx:s.x, y:s.pinch?s.gy:s.y, speed:s.speed, pinch:s.pinch});
+    }
+  }
+  if(mouseHand.active){
+    const vx=(mouseHand.x-mouseHand.px)/Math.max(dt,1e-3), vy=(mouseHand.y-mouseHand.py)/Math.max(dt,1e-3);
+    mouseHand.vx=mouseHand.vx*0.5+vx*0.5; mouseHand.vy=mouseHand.vy*0.5+vy*0.5;
+    mouseHand.speed=Math.min(3, Math.hypot(mouseHand.vx,mouseHand.vy));
+    const g=grabs.get('mouse');
+    if(g){ g.vx=mouseHand.x-mouseHand.px; g.vy=mouseHand.y-mouseHand.py; g.x=mouseHand.x; g.y=mouseHand.y; }
+    mouseHand.px=mouseHand.x; mouseHand.py=mouseHand.y;
+    found.push({x:mouseHand.x, y:mouseHand.y, speed:mouseHand.speed, pinch:mouseHand.pinch});
+  }
+  activeHands = found;
+}
+
+function pointerSim(e){
+  const r=canvas.getBoundingClientRect();
+  return ndToSim((e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
+}
+canvas.addEventListener('pointermove', e=>{
+  const s=pointerSim(e);
+  if(!mouseHand.active){ mouseHand.px=s.x; mouseHand.py=s.y; }
+  mouseHand.active=true;
+  mouseHand.x=s.x; mouseHand.y=s.y;
+});
+canvas.addEventListener('pointerdown', e=>{
+  const s=pointerSim(e);
+  mouseHand.active=true; mouseHand.pinch=true;
+  mouseHand.x=s.x; mouseHand.y=s.y;
+  tryGrab('mouse', s.x, s.y);
+});
+window.addEventListener('pointerup', ()=>{ mouseHand.pinch=false; grabs.delete('mouse'); });
+document.addEventListener('pointerleave', ()=>{ mouseHand.active=false; mouseHand.pinch=false; grabs.delete('mouse'); });
+
+/* ---------------- personalities UI ---------------- */
+const cur = {A:[...PERSONAS.fire.colA], B:[...PERSONAS.fire.colB], C:[...PERSONAS.fire.colC]};
+function lerpColors(){
+  for(let k=0;k<3;k++){
+    cur.A[k]+= (persona.colA[k]-cur.A[k])*0.04;
+    cur.B[k]+= (persona.colB[k]-cur.B[k])*0.04;
+    cur.C[k]+= (persona.colC[k]-cur.C[k])*0.04;
+  }
+}
+const chipsEl = $('chips');
+const names = Object.keys(PERSONAS);
+for(const name of names){
+  const el=document.createElement('div');
+  el.className='chip'+(name==='fire'?' active':'');
+  el.dataset.i18n='idx.persona.'+name; /* re-hydrated on language switch */
+  el.textContent=tr('idx.persona.'+name, PERSONAS[name].label);
+  el.addEventListener('pointerdown', e=>e.stopPropagation());
+  el.addEventListener('click', ()=>setPersona(name));
+  el.dataset.name=name;
+  chipsEl.appendChild(el);
+}
+function setPersona(name){
+  persona=PERSONAS[name];
+  for(const c of chipsEl.children) c.classList.toggle('active', c.dataset.name===name);
+}
+window.addEventListener('keydown', e=>{
+  const k=parseInt(e.key,10);
+  if(k>=1 && k<=names.length) setPersona(names[k-1]);
+  if(e.key==='v'||e.key==='V') preview.style.display = preview.style.display==='none'?'block':'none';
+  if(e.key==='b'||e.key==='B'){ bloomOn=!bloomOn; setStatus('bloom '+(bloomOn?'on':'off')); }
+  if(e.key==='t'||e.key==='T'){ persist = persist>0?0:0.88; setStatus('trails '+(persist>0?'on':'off')); }
+  if(e.key===']'){ exposure=Math.min(2.2, exposure+0.1); setStatus('exposure '+exposure.toFixed(1)); }
+  if(e.key==='['){ exposure=Math.max(0.4, exposure-0.1); setStatus('exposure '+exposure.toFixed(1)); }
+  if(e.key==='h'||e.key==='H'){
+    const hidden = $('hud').style.display==='none';
+    $('hud').style.display = hidden?'block':'none';
+    chipsEl.style.display = hidden?'flex':'none';
+    statusEl.style.display = hidden?'block':'none';
+  }
+});
+
+/* ---------------- rendering ---------------- */
+let trailFlip = false;
+function render(t){
+  for(let i=0;i<N;i++){
+    positions[i*3]=posX[i]; positions[i*3+1]=posY[i]; positions[i*3+2]=posZ[i];
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
+  gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, normals);
+  gl.bindBuffer(gl.ARRAY_BUFFER, heatBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, heat);
+  gl.bindBuffer(gl.ARRAY_BUFFER, foldBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, foldS);
+  for(let i=0;i<ecount;i++){
+    emberData[i*5]=ex[i]; emberData[i*5+1]=ey[i]; emberData[i*5+2]=ez[i];
+    emberData[i*5+3]=elife[i]; emberData[i*5+4]=esize[i];
+  }
+  if(ecount>0){ gl.bindBuffer(gl.ARRAY_BUFFER, emberBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, emberData.subarray(0, ecount*5)); }
+
+  /* 1. fresh scene (additive on black) */
+  gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fb);
+  gl.viewport(0,0,pxW,pxH);
+  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // bounded: folds saturate, never blow out
+
+  // silk surface
+  const sk=U.silk;
+  gl.useProgram(sk.p);
+  useAttribs([[sk.a_pos,posBuf,3],[sk.a_nrm,nrmBuf,3],[sk.a_uv,uvBuf,2],[sk.a_heat,heatBuf,1],[sk.a_fold,foldBuf,1]]);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triBuf);
+  setProj(sk);
+  gl.uniform1f(sk.u_time, t);
+  gl.uniform1f(sk.u_flicker, persona.flicker);
+  gl.uniform1f(sk.u_gain, persona.gain);
+  gl.uniform3fv(sk.u_colA, cur.A); gl.uniform3fv(sk.u_colB, cur.B); gl.uniform3fv(sk.u_colC, cur.C);
+  gl.drawElements(gl.TRIANGLES, triCount, gl.UNSIGNED_SHORT, 0);
+  gl.blendFunc(gl.ONE, gl.ONE); // additive for the sparkle/glow layers
+
+  // faint woven lines
+  const ln=U.line;
+  gl.useProgram(ln.p);
+  useAttribs([[ln.a_pos,posBuf,3],[ln.a_uv,uvBuf,2],[ln.a_heat,heatBuf,1],[ln.a_fold,foldBuf,1]]);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineBuf);
+  setProj(ln);
+  gl.uniform1f(ln.u_time, t);
+  gl.uniform1f(ln.u_flicker, persona.flicker);
+  gl.uniform1f(ln.u_gain, persona.gain);
+  gl.uniform1f(ln.u_alpha, 0.025);
+  gl.uniform3fv(ln.u_colA, cur.A); gl.uniform3fv(ln.u_colB, cur.B); gl.uniform3fv(ln.u_colC, cur.C);
+  gl.drawElements(gl.LINES, lineCount, gl.UNSIGNED_SHORT, 0);
+
+  // node sparkles
+  const nd=U.node;
+  gl.useProgram(nd.p);
+  useAttribs([[nd.a_pos,posBuf,3],[nd.a_heat,heatBuf,1]]);
+  setProj(nd);
+  gl.uniform1f(nd.u_scale, pxH/900);
+  gl.uniform3fv(nd.u_col, cur.C);
+  gl.drawArrays(gl.POINTS, 0, N);
+
+  // embers
+  if(ecount>0){
+    const e=U.ember;
+    gl.useProgram(e.p);
+    useAttribs([[e.a_pos, emberBuf, 3, 20, 0],[e.a_ls, emberBuf, 2, 20, 12]]);
+    setProj(e);
+    gl.uniform1f(e.u_ph, pxH*0.9);
+    gl.uniform3fv(e.u_c1, cur.B); gl.uniform3fv(e.u_c2, cur.C);
+    gl.drawArrays(gl.POINTS, 0, ecount);
+  }
+
+  // hand glow
+  const g=U.glow;
+  gl.useProgram(g.p);
+  useAttribs([[g.a_p, quadBuf, 2]]);
+  setProj(g);
+  for(const hd of activeHands){
+    gl.uniform2f(g.u_center, hd.x, hd.y);
+    gl.uniform1f(g.u_radius, hd.pinch?0.12:0.16);
+    gl.uniform1f(g.u_int, (hd.pinch?0.35:0.18)+hd.speed*0.08);
+    gl.uniform3f(g.u_color, cur.B[0]*0.7+cur.C[0]*0.3, cur.B[1]*0.7+cur.C[1]*0.3, cur.B[2]*0.7+cur.C[2]*0.3);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  gl.disable(gl.BLEND);
+
+  /* 2. feedback trail: out = max(scene, prevTrail*persist) */
+  const tOut = trailFlip ? trailA : trailB;
+  const tPrev = trailFlip ? trailB : trailA;
+  trailFlip = !trailFlip;
+  const tr=U.trail;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, tOut.fb);
+  gl.viewport(0,0,pxW,pxH);
+  gl.useProgram(tr.p);
+  useAttribs([[tr.a_p, quadBuf, 2]]);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, sceneFBO.tex);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tPrev.tex);
+  gl.uniform1i(tr.u_new, 0); gl.uniform1i(tr.u_prev, 1);
+  gl.uniform1f(tr.u_persist, persist);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.activeTexture(gl.TEXTURE0);
+
+  /* 3. bloom from trail */
+  const q=U.bright;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, bloomA.fb);
+  gl.viewport(0,0,bloomA.w,bloomA.h);
+  gl.useProgram(q.p);
+  useAttribs([[q.a_p, quadBuf, 2]]);
+  gl.bindTexture(gl.TEXTURE_2D, tOut.tex);
+  gl.uniform1i(q.u_tex, 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  const b=U.blur;
+  gl.useProgram(b.p);
+  useAttribs([[b.a_p, quadBuf, 2]]);
+  gl.uniform1i(b.u_tex, 0);
+  for(let k=0;k<2;k++){
+    gl.bindFramebuffer(gl.FRAMEBUFFER, bloomB.fb);
+    gl.bindTexture(gl.TEXTURE_2D, bloomA.tex);
+    gl.uniform2f(b.u_dir, 1/bloomA.w, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, bloomA.fb);
+    gl.bindTexture(gl.TEXTURE_2D, bloomB.tex);
+    gl.uniform2f(b.u_dir, 0, 1/bloomA.h);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  /* 4. composite */
+  const m=U.comp;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0,0,pxW,pxH);
+  gl.useProgram(m.p);
+  useAttribs([[m.a_p, quadBuf, 2]]);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tOut.tex);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bloomA.tex);
+  gl.uniform1i(m.u_scene, 0); gl.uniform1i(m.u_bloom, 1);
+  gl.uniform1f(m.u_bloomStr, bloomOn?1.1:0.0);
+  gl.uniform1f(m.u_expo, exposure);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.activeTexture(gl.TEXTURE0);
+}
+
+/* camera preview with landmarks */
+const pctx = preview.getContext('2d');
+function drawPreview(){
+  if(preview.style.display==='none') return;
+  if(!tracking || video.readyState<2){
+    pctx.fillStyle='#0a0505'; pctx.fillRect(0,0,176,132);
+    pctx.fillStyle='rgba(255,150,80,.55)'; pctx.font='10px sans-serif';
+    const words=(tracking?'starting camera…':camMsg).split(' ');
+    let line='', ln=0;
+    for(const w of words){
+      if((line+' '+w).length>28){ pctx.fillText(line, 8, 52+ln*13); line=w; ln++; }
+      else line = line ? line+' '+w : w;
+    }
+    pctx.fillText(line, 8, 52+ln*13);
+    return;
+  }
+  pctx.save();
+  pctx.scale(-1,1);
+  pctx.drawImage(video, -176, 0, 176, 132);
+  pctx.restore();
+  pctx.fillStyle='rgba(0,0,0,.25)'; pctx.fillRect(0,0,176,132);
+  for(const lm of lastLandmarks){
+    for(const j of [4,8,12,16,20,0]){
+      const x=(1-lm[j].x)*176, y=lm[j].y*132;
+      pctx.beginPath(); pctx.arc(x,y,2.2,0,7);
+      pctx.fillStyle = (j===4||j===8) ? '#ffd080' : 'rgba(255,120,50,.8)';
+      pctx.fill();
+    }
+  }
+}
+
+/* NaN watchdog: if the sim ever explodes, reset the cloth instead of going invisible */
+let watchdogTick = 0;
+function watchdog(){
+  if(++watchdogTick % 90 !== 0) return;
+  if(isFinite(posX[0]+posY[0]+posZ[0]+posX[N-1]+posY[N-1])) return;
+  const ox = aspect*0.5 - CLOTH_W/2, oy = 0.54 - CLOTH_H/2;
+  for(let y=0;y<GRID_H;y++) for(let x=0;x<GRID_W;x++){
+    const i=y*GRID_W+x;
+    posX[i]=preX[i]=ox + CLOTH_W*x/(GRID_W-1);
+    posY[i]=preY[i]=oy + CLOTH_H*y/(GRID_H-1);
+    posZ[i]=preZ[i]=0.06*Math.sin(x*0.22)*Math.sin(y*0.19);
+    heat[i]=0; foldS[i]=0;
+  }
+  grabs.clear();
+  setStatus(tr('idx.status.reset', 'sim reset (numerical blow-up caught)'));
+}
+
+/* ---------------- main loop ----------------
+   A hidden tab schedules no rAF at all: on battery that takes the WebGL passes,
+   the verlet solve and the MediaPipe inference to zero instead of leaving them
+   throttled. Resuming re-bases `last` so the first visible frame is not handed a
+   dt the size of the whole background stretch. */
+let last = performance.now()/1000, acc=0, simT=0;
+let rafId = 0;
+function frame(){
+  rafId = 0;
+  if(document.hidden) return;
+  const now = performance.now()/1000;
+  const dt = Math.min(now-last, 0.1);
+  last = now;
+  watchdog();
+  updateHands(dt);
+  acc += dt;
+  let steps=0;
+  while(acc>=DT && steps<3){ step(DT, simT); updateEmbers(DT, simT); simT+=DT; acc-=DT; steps++; }
+  if(steps===3) acc=0;
+  computeNormals();
+  computeFolds();
+  lerpColors();
+  render(simT);
+  drawPreview();
+  rafId = requestAnimationFrame(frame);
+}
+function startLoop(){
+  if(rafId || document.hidden) return;
+  last = performance.now()/1000; acc = 0;
+  rafId = requestAnimationFrame(frame);
+}
+function stopLoop(){
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = 0;
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopLoop(); else startLoop(); });
+startLoop();
+</script>
+</body>
+</html>

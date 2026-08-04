@@ -10,15 +10,15 @@ vm-codex
 
 Finish CH 03 EXPERIMENTS, CH 04 RESEARCH, and CH 05 LOG in the same console. Keep each channel distinct instead of restating the About thesis.
 
-CH 03 is the working visual laboratory and should expose six concise experiment transmissions: scope sweep, magnet breathe, lissajous morph, noise to order, grid pulse, and rgb drift. CH 04 is the research/technical channel, led by punch data, and should explain the actual pipeline from audience traces through embedding/clustering and non-linear mapping (t-SNE or UMAP) to the residual material and performer interaction. CH 05 is the dated project log, led by moon phases, and should contain only milestones or schedule information supported by committed project sources or the existing CMS experiments feed.
+CH 03 is the landing console's broader visual-language study, but its first job is to orient the reader. Open Experiments and the console shows two compact choices together: Fabric as the installation experiment, and the Broadcast microsite as the larger inquiry. Each choice expands in place for one more sentence and a direct visit link. The microsite route carries the proper visual references: CANDLE TV, slabs, Rack B / Open Frame, water, satellite dish, Cheomseongdae, data jangseung, moon jars, and stupa forms. Fabric is one interactive experiment, not a second hidden project. CH 04 is the Performing Fire corpus channel, led by punch data. It should describe the repo's source registry, bounded metadata, rights-by-operation, provenance, and held/offline/live-proven states. It should not present the proposed audience-processing pipeline as completed research. CH 05 is the dated project log, led by moon phases, and should contain only milestones or schedule information supported by committed project sources or the existing CMS experiments feed.
 
 ## Acceptance tests
 
-- CH 03 exposes exactly the six named experiment studies in its progress count and preserves the chosen `x3` magnet-breathe channel preview.
-- Experiment descriptions are one sharp line each, describing what changes visually or interactively; they do not use invented art-theory filler.
-- Where a study has a real route or CMS experiment entry, it links correctly. Concept-only studies are labeled as studies and must not lead to dead routes.
-- CH 04 uses the `r1` punch-data preview and explains the project pipeline accurately: traces → embedding/clustering → t-SNE or UMAP projection → remainder/ε → performer-mediated light/particles/sound/glitch/fire.
-- CH 04 distinguishes what currently exists from proposed/research-stage capabilities. Do not present an unimplemented model or sensor pipeline as live.
+- CH 03 exposes one console transmission containing two expandable studies: Fabric / installation experiment and Broadcast microsite / visual language. Both contain explicit links; the `x3` preview remains labeled as visual language, not as the Fabric experiment.
+- Fabric remains one experiment in the Experiments index, with `/experiments/fabric/` as its canonical interactive route; it is named Fabric everywhere and the retired `flame-cloth` label is not reintroduced.
+- Visual-language descriptions are short, concrete sentences, describing the inquiry and its objects without invented art-theory filler. The Experiments index carries the fuller artistic narrative and reference images in separate Fabric and Microsite sections.
+- CH 04 uses the `r1` punch-data preview and names the corpus repo's public source universe: Nam June Paik Art Center records, the separate Video Archive, the Video Library, the official Nam June Paik Art Center YouTube channel, and the ANTIEGG Fluxus article.
+- CH 04 distinguishes source study and rights-aware metadata work from any proposed audience-processing pipeline. Do not present an unimplemented model or sensor pipeline as live research.
 - CH 05 uses the `l1` moon-phases preview and renders a compact chronological log. Dates come only from committed sources or successful CMS responses; uncertain dates are omitted.
 - CMS-backed experiments retain static fallback behavior and locale forwarding.
 - Every new string exists in EN/KO/ZH/JA with complete meaning and layout-safe text lengths.
@@ -55,7 +55,7 @@ Use the checked-in script and existing CMS/public data. Flag unsupported dates o
 
 ## Recommended response
 
-Make Experiments visual and specific, Research technically honest, and Log chronological.
+Make the landing visual-language study specific, keep Fabric as one experiment within Experiments, make Research source-grounded, and keep Log chronological.
 
 ## Trade-offs
 

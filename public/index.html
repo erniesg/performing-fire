@@ -3,955 +3,200 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Performing Fire — The Broadcast (Direction 5)</title>
-<meta name="description" content="Five channels, one fire — an interactive broadcast turning artists' hopes and fears about technology into a collective flame · 퍼포밍 파이어.">
-<!-- canonical stays root-relative so no page ships an absolute-URL <link href> — see tests/broadcast-scroll.test.mjs -->
+<title>Performing Fire — The Broadcast</title>
+<meta name="description" content="A five-channel CRT console for Performing Fire: audience traces, experiments, research, and a project log.">
 <link rel="canonical" href="/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:site_name" content="Performing Fire">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Performing Fire — The Broadcast">
-<meta property="og:description" content="Five channels, one fire — an interactive broadcast turning artists' hopes and fears about technology into a collective flame · 퍼포밍 파이어.">
+<meta property="og:description" content="A five-channel CRT console for Performing Fire: audience traces, experiments, research, and a project log.">
 <meta property="og:url" content="https://performingfire.berlayar.ai/">
 <meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="A CRT test card: the Performing Fire wordmark in phosphor type over five channel tints.">
 <meta name="twitter:card" content="summary_large_image">
+<!-- Optional public Payload Global endpoint; empty keeps the complete bundled fallback active. -->
+<meta name="pf-broadcast-endpoint" content="">
 <style>
-/* minimal reset (the artifact host provided an equivalent) */
-*, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; }
+@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2018-201D;}
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#0a0a10;--panel:#111119;--line:#30303a;--ink:#d7dbe1;--muted:#858b94;--tint:#37ff8b;--glow:rgba(55,255,139,.36)}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg)}
+body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,"Apple SD Gothic Neo","Noto Sans KR",monospace;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}
+button{color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px}
+[hidden]{display:none!important}
+.vt{font-family:"VT323","Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;letter-spacing:.06em}
+.pf{width:min(1180px,calc(100% - 24px));height:100svh;margin:0 auto;padding:8px 0 5px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:6px}
+.station{display:flex;align-items:center;gap:12px;min-height:34px;padding:0 2px}
+.station-id{margin:0;font-size:clamp(20px,2.2vw,30px);font-weight:400;line-height:1;color:#f0f1f4;text-shadow:0 0 12px rgba(232,233,238,.25)}
+.station-onair{margin:0 0 0 auto;color:var(--muted);font-size:15px;white-space:nowrap}.station-onair .dot{color:#ff5c0d}
+.lang-toggle{display:flex;align-items:center;gap:1px}.lang-toggle button{border:0;background:none;padding:4px 6px;color:#747a83;cursor:pointer}.lang-toggle button[aria-pressed="true"]{color:#37ff8b;text-shadow:0 0 8px rgba(55,255,139,.4)}.lang-sep{color:#3d4149}
+.console{width:min(1124px,100%);height:100%;min-width:0;min-height:0;margin:0 auto;display:grid;grid-template-rows:clamp(78px,13vh,142px) minmax(0,1fr);gap:8px}
+.previews{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;min-height:0}
+.preview-btn,.viewer-bezel{border:1px solid #34343e;background:linear-gradient(155deg,#292932,#141419 65%);box-shadow:inset 0 1px rgba(255,255,255,.06),0 7px 24px rgba(0,0,0,.42)}
+.preview-btn{position:relative;min-width:0;padding:6px;border-radius:11px;cursor:pointer;text-align:left;overflow:hidden}
+.preview-btn[data-channel="about"],.viewer[data-channel="about"]{--tint:#37ff8b;--glow:rgba(55,255,139,.38)}
+.preview-btn[data-channel="contribute"],.viewer[data-channel="contribute"]{--tint:#ff3ea5;--glow:rgba(255,62,165,.38)}
+.preview-btn[data-channel="experiments"],.viewer[data-channel="experiments"]{--tint:#ffb300;--glow:rgba(255,179,0,.38)}
+.preview-btn[data-channel="research"],.viewer[data-channel="research"]{--tint:#2bd9ff;--glow:rgba(43,217,255,.38)}
+.preview-btn[data-channel="log"],.viewer[data-channel="log"]{--tint:#e8e9ee;--glow:rgba(232,233,238,.32)}
+.preview-btn[aria-pressed="true"]{border-color:var(--tint);box-shadow:0 0 0 1px var(--tint),0 0 20px var(--glow),inset 0 1px rgba(255,255,255,.06)}
+.preview-crt,.signal-pane{position:relative;display:block;width:100%;height:100%;min-width:0;overflow:hidden;background:#050507;border-radius:6px}
+.preview-crt::after,.signal-pane::after,.viewer-screen::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.23) 0 1px,transparent 1px 3px),radial-gradient(130% 135% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.preview-crt canvas,.signal-pane canvas{display:block;width:100%;height:100%;min-width:0;object-fit:cover}
+.preview-btn:not([aria-pressed="true"]) canvas{filter:blur(1.8px) saturate(.65) brightness(.58);transform:scale(1.03);transition:filter .18s,transform .18s}
+.preview-btn:not([aria-pressed="true"]):hover canvas,.preview-btn:not([aria-pressed="true"]):focus-visible canvas,.preview-btn.is-awake canvas{filter:none;transform:none}
+.preview-osd{position:absolute;z-index:4;left:7px;bottom:5px;padding:1px 5px;background:rgba(3,3,6,.74);color:var(--tint);font-size:clamp(11px,1.35vw,17px);line-height:1.05;text-shadow:0 0 7px var(--glow);white-space:nowrap}
+.viewer-bezel{min-width:0;min-height:0;padding:clamp(8px,1vw,12px);border-radius:17px}
+.viewer-screen{position:relative;height:100%;min-height:0;display:grid;grid-template-columns:minmax(260px,38%) minmax(0,1fr);overflow:hidden;border-radius:11px;background:#060609}
+.signal-pane{border-radius:0;z-index:0}.signal-pane canvas{position:absolute;inset:0}.signal-caption{position:absolute;z-index:4;left:12px;bottom:10px;margin:0;color:var(--tint);font-size:16px;text-shadow:0 0 8px var(--glow)}
+.content-pane{position:relative;z-index:2;min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:rgba(8,8,12,.96);border-left:1px solid var(--line)}
+.viewer-head{display:flex;align-items:baseline;gap:9px;padding:11px clamp(12px,2vw,22px) 7px;border-bottom:1px solid #25252e}.viewer-channel{color:var(--tint);font-size:clamp(18px,2vw,25px);text-shadow:0 0 8px var(--glow)}.viewer-label{min-width:0;color:#9298a1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transmission-stage{position:relative;min-height:0;overflow:hidden;padding:clamp(12px,2.1vh,22px) clamp(14px,2.4vw,28px)}
+.channel,.transmission{height:100%;min-height:0}.transmission{display:flex;flex-direction:column;justify-content:center}.tx-kicker{margin:0 0 5px;color:var(--tint);font-size:14px;text-shadow:0 0 7px var(--glow)}.tx-title{margin:0 0 clamp(8px,1.3vh,14px);color:var(--tint);font-weight:400;font-size:clamp(27px,3.2vw,43px);line-height:1;text-shadow:0 0 13px var(--glow)}.tx-body{max-width:58ch;margin:0;color:#cbd0d7;font-size:clamp(13px,1.25vw,15px)}.equation{font-size:clamp(22px,3vw,38px);letter-spacing:.05em}.study-status{display:inline-block;margin-top:13px;color:#8d939c;border:1px solid #41414b;padding:3px 8px;font-size:12px}.tx-link{align-self:flex-start;margin-top:14px;color:var(--tint);text-decoration:none;border-bottom:1px solid currentColor}
+.experiment-switchboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:center}.experiment-card{min-width:0;border:1px solid #3a3a45;background:linear-gradient(145deg,rgba(30,30,38,.9),rgba(7,7,10,.96));padding:14px;box-shadow:inset 0 1px rgba(255,255,255,.05)}.experiment-card[data-study="fabric"]{--card-tint:#ffb300;--card-glow:rgba(255,179,0,.3)}.experiment-card[data-study="microsite"]{--card-tint:#2bd9ff;--card-glow:rgba(43,217,255,.26)}.experiment-card summary{display:flex;min-height:100%;color:var(--card-tint);cursor:pointer;list-style:none;flex-direction:column}.experiment-card summary::-webkit-details-marker{display:none}.experiment-card .study-kicker{display:block;margin-bottom:6px;font-size:11px;letter-spacing:.08em}.experiment-card .study-title{display:block;font-family:"VT323","Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;font-size:clamp(22px,2.5vw,33px);line-height:1;letter-spacing:.04em;text-shadow:0 0 9px var(--card-glow)}.experiment-card .study-teaser{margin:9px 0 0;color:#cbd0d7;font-size:clamp(12px,1.1vw,14px);line-height:1.3}.experiment-card .study-toggle{display:flex;justify-content:space-between;align-items:center;margin-top:13px;padding-top:8px;border-top:1px solid #363641;color:var(--card-tint);font-size:11px;letter-spacing:.08em}.experiment-card .study-toggle::after{content:"↓";font-size:15px}.experiment-card[open] .study-toggle::after{content:"↑"}.experiment-card .study-toggle-close,.experiment-card[open] .study-toggle-open{display:none}.experiment-card[open] .study-toggle-close{display:inline}.experiment-card .study-detail{margin:11px 0 0;padding-top:10px;border-top:1px solid #292933;color:#949ba5;font-size:clamp(11px,1vw,13px);line-height:1.35}.experiment-card .study-link{display:inline-block;margin-top:11px;color:var(--card-tint);font-family:"VT323","Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;font-size:14px;letter-spacing:.06em;text-decoration:none;border-bottom:1px solid currentColor}.experiment-card .study-link:hover,.experiment-card .study-link:focus-visible{color:#fff}
+.experiment-switchboard>.tx-kicker{grid-column:1/-1}
+.experiment-switchboard{align-items:start}.experiment-card{align-self:start}.experiment-card[open]{padding-bottom:11px}.experiment-card[open] .study-teaser{display:none}.experiment-card[open] .study-title{font-size:clamp(20px,2.15vw,29px)}.experiment-card[open] .study-toggle{margin-top:9px;padding-top:6px}.experiment-card[open] .study-detail{margin-top:7px;padding-top:7px}.experiment-card[open] .study-link{margin-top:7px}
+.transport{display:grid;grid-template-columns:44px auto minmax(80px,1fr) 44px;align-items:center;gap:9px;padding:7px 12px 9px;border-top:1px solid #25252e}.transport-btn{width:40px;height:34px;border:0;background:none;color:var(--tint);font-size:24px;text-align:center;cursor:pointer;text-shadow:0 0 8px var(--glow)}.progress-count{color:var(--tint);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}.progress-track{list-style:none;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin:0;padding:0}.progress-track li{height:3px;background:#383842}.progress-track li.is-current{background:var(--tint);box-shadow:0 0 8px var(--glow)}
+.tuning-burst{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.28) 3px),linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);mix-blend-mode:screen}.viewer.is-tuning .tuning-burst{animation:tune .24s steps(3)}@keyframes tune{0%{opacity:.85;transform:translateX(-3%)}55%{opacity:.45;transform:translateX(2%)}100%{opacity:0;transform:none}}
+.callers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}.caller{min-width:0;border:1px solid #2d2d36;background:#0e0e14;padding:7px 9px}.caller:nth-child(n+3){display:none}.caller-id{display:block;color:var(--tint);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.caller blockquote{margin:3px 0 0;color:#c6cbd2;font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.caller-pending{border-style:dashed}.caller-pending-tag{display:block;color:#878d96;font-size:11px}.voices-fallback{margin:7px 0 0;color:#a0a6ae;font-size:11px}
+.tabs{display:flex;gap:5px;margin:0 0 8px}.tab-btn{min-height:30px;border:1px solid #35353f;background:#111117;color:#8d939b;padding:4px 9px;cursor:pointer}.tab-btn[aria-pressed="true"]{color:var(--tint);border-color:var(--tint)}.rec{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}.rec-line,.rec-status,.consent-note{margin:0}.rec-line{color:var(--tint)}.rec-status,.consent-note{grid-column:1/-1;font-size:11px;color:#9298a1}.rec-btn,.send-btn,.link-btn{border:1px solid var(--tint);background:#120c11;color:var(--tint);padding:6px 12px;cursor:pointer}.offer-form{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px}.offer-form .full,.consent,.send-btn{grid-column:1/-1}.f-label{color:var(--tint);font-size:11px}.offer-form input[type="text"],.offer-form textarea{width:100%;min-width:0;border:1px solid #383842;background:#09090d;color:#e5e7eb;padding:6px}.offer-form textarea{height:54px;resize:none}.consent{display:flex;gap:7px;color:#aaaeb5;font-size:11px}.send-btn{justify-self:start}.queue-confirm{border:1px dashed var(--tint);padding:14px}.queue-confirm p{margin:0 0 7px}.qc-big{color:var(--tint);font-size:21px}
+.pf-footer{display:flex;justify-content:center;gap:15px;color:#626872;font-size:10px;white-space:nowrap;overflow:hidden}.pf-footer p{margin:0}.pf-footer a{color:#8c929b}
+html[lang="ko"] body{font-family:ui-monospace,"SF Mono",Menlo,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",monospace;word-break:keep-all;line-break:strict}
+html[lang^="zh"] body{font-family:ui-monospace,"SF Mono",Menlo,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",monospace;word-break:normal;line-break:strict}
+html[lang="ja"] body{font-family:ui-monospace,"SF Mono",Menlo,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP",monospace;word-break:normal;line-break:strict}
+html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-monospace,monospace}html[lang="ja"] .vt{font-family:"VT323","Hiragino Kaku Gothic ProN","Meiryo",ui-monospace,monospace}
+/* ---- touch and small screens: begin ---- */
+@media (hover:none) and (pointer:coarse){.preview-btn,.transport-btn,.tab-btn,.send-btn,.link-btn,.lang-toggle button{min-height:44px}}
+@media (max-width:700px){.pf{width:min(100% - 12px,1180px);padding-top:5px}.station{gap:5px}.station-id{flex:1;min-width:0;overflow:hidden;white-space:nowrap;font-size:clamp(17px,5vw,23px)}.station-onair{display:none}.lang-toggle{flex:none;margin-left:auto}.lang-toggle button{font-size:11px;padding-inline:4px}.console{grid-template-rows:clamp(68px,10.5vh,88px) minmax(0,1fr);gap:5px}.previews{gap:4px}.preview-btn{padding:3px;border-radius:7px}.preview-osd{left:3px;bottom:3px;padding:1px 3px;font-size:clamp(8px,2.3vw,11px)}.viewer-bezel{padding:5px;border-radius:10px}.viewer-screen{grid-template-columns:1fr;grid-template-rows:minmax(90px,26%) minmax(0,1fr)}.content-pane{border-left:0;border-top:1px solid var(--line)}.signal-caption{font-size:12px}.viewer-head{padding:6px 10px 4px}.viewer-channel{font-size:18px}.viewer-label{font-size:10px}.transmission-stage{padding:9px 12px}.tx-kicker{font-size:11px}.tx-title{font-size:clamp(22px,7.2vw,31px);margin-bottom:7px}.tx-body{font-size:clamp(11px,3.15vw,13px);line-height:1.3}.study-status{margin-top:7px}.experiment-switchboard{grid-template-columns:1fr;gap:8px}.experiment-card{padding:10px}.experiment-card .study-title{font-size:clamp(21px,7vw,29px)}.experiment-card .study-teaser{margin-top:6px}.experiment-card .study-detail{margin-top:8px}.experiment-card .study-link{margin-top:8px}.transport{grid-template-columns:40px auto minmax(60px,1fr) 40px;padding:3px 7px 4px}.transport-btn{height:31px}.progress-count{font-size:15px}.tabs{margin-bottom:5px}.tab-btn{padding:2px 5px;font-size:10px}.callers{margin-top:5px}.offer-form{gap:3px 6px}.offer-form input[type="text"],.offer-form textarea{padding:4px;font-size:11px}.offer-form textarea{height:38px}.consent{font-size:9px}.send-btn{padding:4px 8px;font-size:10px}.pf-footer{font-size:8px}}
+@media (max-width:430px){.lang-sep{display:none}.preview-osd .preview-name{display:none}.callers{grid-template-columns:1fr}.caller:nth-child(n+2){display:none}.signal-pane{min-height:78px}}
+/* ---- touch and small screens: end ---- */
+@media (prefers-reduced-motion:reduce){.viewer.is-tuning .tuning-burst{animation:none}.preview-btn canvas{transition:none!important}.station-onair .dot{animation:none}}
 </style>
 </head>
 <body>
-<style>
-@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2018-201D;}
-:root { color-scheme: dark; }
-:root[data-theme="light"], :root[data-theme="dark"] { color-scheme: dark; }
-html, body { background: #0A0A10; }
-body {
-  margin: 0;
-  color: #C6CBD2;
-  background: #0A0A10;
-  font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", monospace;
-  font-size: 15px;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-}
-.pf { max-width: 1180px; margin: 0 auto; padding: 18px clamp(12px, 3vw, 28px) 0; }
-.pf *, .pf *::before, .pf *::after { box-sizing: border-box; }
-.pf ::selection { background: #37FF8B; color: #06060A; }
-.vt {
-  font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace;
-  font-weight: 400;
-}
-
-/* ---- one phosphor tint per channel ---- */
-[data-ch="ch00"], [data-tune="ch00"] { --tint: #E8E9EE; --glow: rgba(232, 233, 238, 0.35); }
-[data-ch="ch01"], [data-tune="ch01"] { --tint: #37FF8B; --glow: rgba(55, 255, 139, 0.38); }
-[data-ch="ch02"], [data-tune="ch02"] { --tint: #FF3EA5; --glow: rgba(255, 62, 165, 0.38); }
-[data-ch="ch03"], [data-tune="ch03"] { --tint: #2BD9FF; --glow: rgba(43, 217, 255, 0.38); }
-[data-ch="ch04"], [data-tune="ch04"] { --tint: #FFB300; --glow: rgba(255, 179, 0, 0.38); }
-[data-ch="ident"], [data-tune="ident"] { --tint: #E8E9EE; --glow: rgba(232, 233, 238, 0.3); }
-
-.pf button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
-.pf :focus-visible { outline: 2px solid var(--tint, #E8E9EE); outline-offset: 2px; border-radius: 2px; }
-
-@keyframes pf-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0; } }
-@keyframes pf-roll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
-@keyframes pf-preview-flicker { 0%, 100% { opacity: .76; } 48% { opacity: .69; } 50% { opacity: .84; } 52% { opacity: .72; } }
-@keyframes pf-preview-drift { to { transform: translate3d(3%, -4%, 0) scale(1.12); } }
-@keyframes pf-wave { to { transform: translateY(-50%) scaleY(1.9) skewY(6deg); } }
-@keyframes pf-log-pan { to { background-position: 100% 0; } }
-@keyframes pf-score-float { to { transform: translate(5%, -7%) rotate(2deg); } }
-
-/* ---- station header ---- */
-.station { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; padding: 2px 2px 6px; }
-.station-id { font-size: clamp(24px, 4vw, 32px); letter-spacing: 1px; color: #E8E9EE; text-shadow: 0 0 10px rgba(232, 233, 238, 0.25); margin: 0; }
-.station-onair { margin-left: auto; font-size: 19px; color: #9AA1AA; letter-spacing: 1px; white-space: nowrap; }
-.station-onair .dot { color: #FF5C0D; animation: pf-blink 1.4s steps(1) infinite; }
-.station-sub { margin: 0 2px 14px; font-size: 13px; color: #7C828C; }
-
-/* ---- monitor wall ---- */
-.wall-hint { margin: 0 2px 8px; font-size: 17px; letter-spacing: 1px; color: #666C76; }
-.stage { display: flex; flex-direction: column; gap: 24px; }
-.wall { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.bezel {
-  display: block; width: 100%;
-  background: linear-gradient(160deg, #2A2A33, #15151B 62%);
-  border: 1px solid #33333E; border-radius: 14px; padding: 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 26px rgba(0, 0, 0, 0.5);
-}
-.wall-btn { transition: box-shadow 0.15s ease, border-color 0.15s ease; }
-.wall-btn[aria-pressed="true"] { border-color: var(--tint); box-shadow: 0 0 0 1px var(--tint), 0 0 26px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
-.crt { position: relative; background: #050507; overflow: hidden; }
-.crt::before {
-  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
-}
-.crt::after {
-  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px),
-    radial-gradient(135% 135% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
-}
-.wall-crt { display: block; aspect-ratio: 4 / 3; border-radius: 8px; }
-canvas.snow {
-  position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 2;
-  opacity: .5; mix-blend-mode: screen;
-  transition: opacity .5s ease, filter .5s ease, transform .65s ease;
-}
-.wall-preview {
-  position: absolute; inset: 0; z-index: 1; overflow: hidden;
-  opacity: .76; filter: blur(2.4px) saturate(.72) brightness(.7); transform: scale(1.035);
-  transition: opacity .5s ease, filter .55s ease, transform .65s ease;
-  animation: pf-preview-flicker 2.7s steps(1) infinite;
-}
-.wall-btn:hover canvas.snow, .wall-btn:focus-visible canvas.snow {
-  opacity: .07; filter: blur(2px); transform: scale(1.08);
-}
-.wall-btn:hover .wall-preview, .wall-btn:focus-visible .wall-preview {
-  opacity: 1; filter: none; transform: none; animation: none;
-}
-.preview-signal {
-  background:
-    repeating-radial-gradient(ellipse at 50% 112%, transparent 0 8px, rgba(255, 194, 118, .58) 9px 10px, transparent 11px 19px),
-    radial-gradient(ellipse at 50% 110%, #FFF4B2 0 4%, #FF5D32 17%, #5A1118 38%, #050507 69%);
-}
-.preview-signal::after {
-  content: ""; position: absolute; width: 32%; height: 68%; left: 34%; bottom: -28%;
-  border-radius: 52% 48% 35% 42%; background: linear-gradient(#FFF8C8, #FF653D 42%, transparent);
-  filter: blur(5px); animation: pf-preview-drift 2.2s ease-in-out infinite alternate;
-}
-.preview-voices { background: #08070C; }
-.preview-voices::before {
-  content: ""; position: absolute; left: -12%; right: -12%; top: 24%; height: 2px;
-  background: #FF3EA5; box-shadow: 0 22px 0 #704DFF, 0 45px 0 #FF6545, 0 67px 0 #C4A6FF;
-  animation: pf-wave 2.8s ease-in-out infinite alternate;
-}
-.preview-voices::after {
-  content: "I WANT TECHNOLOGY TO ADMIT THAT IT IS HERE."; position: absolute; left: 8%; right: 8%; bottom: 13%;
-  color: #F0EAF1; font: 15px/1.05 'VT323', monospace; text-shadow: 0 0 7px rgba(255, 62, 165, .6);
-}
-.preview-log {
-  background: linear-gradient(110deg, #D2CDC2 0 18%, #121218 18% 21%, #F26348 21% 48%, #121218 48% 51%, #9AAEF0 51% 76%, #66D2C2 76%);
-  background-size: 135% 100%; animation: pf-log-pan 3.4s ease-in-out infinite alternate;
-}
-.preview-log::after {
-  content: "DAY 023 / TEST 08 / SENSOR LOST"; position: absolute; left: 7%; top: 43%; white-space: nowrap;
-  color: #FFF; font: 17px/1 'VT323', monospace; mix-blend-mode: difference;
-}
-.preview-score { background: #E8E0CB; }
-.preview-score::before {
-  content: "WAIT UNTIL THE ROOM\\A FORGETS IT IS WATCHING.\\A THEN CHANGE THE WEATHER."; white-space: pre;
-  position: absolute; inset: 18% 8%; color: #141419; font: italic 17px/.98 Georgia, serif;
-  transform: rotate(-3deg); animation: pf-score-float 3.6s ease-in-out infinite alternate;
-}
-.preview-static { background: #07080B; }
-.preview-static::before {
-  content: ""; position: absolute; inset: 0;
-  background:
-    radial-gradient(circle at 12% 29%, #FF6347 0 1.3%, transparent 2.5%),
-    radial-gradient(circle at 31% 68%, #FFE06D 0 1.7%, transparent 2.8%),
-    radial-gradient(circle at 55% 37%, #B66CFF 0 1.4%, transparent 2.5%),
-    radial-gradient(circle at 76% 74%, #66E7D4 0 1.6%, transparent 2.7%),
-    radial-gradient(circle at 91% 18%, #FFF 0 1%, transparent 2.1%);
-  animation: pf-preview-drift 5s ease-in-out infinite alternate;
-}
-.preview-static::after {
-  content: "40 ACTIVE / 187 TOTAL"; position: absolute; left: 9%; bottom: 17%;
-  color: #D8D9DE; font: 15px/1 'VT323', monospace; letter-spacing: 1px;
-}
-.preview-ident {
-  background: linear-gradient(90deg, #E56F38 0 16.6%, #E7D07A 16.6% 33.2%, #8295E9 33.2% 49.8%, #DB4F4F 49.8% 66.4%, #D465AB 66.4% 83%, #DF5938 83%);
-  background-size: 112% 100%; animation: pf-log-pan 3s ease-in-out infinite alternate;
-}
-.preview-ident::after {
-  content: "PERFORMING FIRE"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  padding: 2px 8px; color: #FFF; background: rgba(5, 5, 8, .82); white-space: nowrap;
-  font: 15px/1.2 'VT323', monospace; letter-spacing: 1px;
-}
-.wall-osd { position: absolute; left: 6px; bottom: 5px; z-index: 5; display: block; line-height: 1.1; background: rgba(5, 5, 8, 0.68); padding: 3px 8px 4px; border-radius: 4px; }
-.wall-ch { display: block; font-size: clamp(18px, 2vw, 22px); color: var(--tint); text-shadow: 0 0 7px var(--glow); letter-spacing: 1px; }
-.wall-name { display: block; font-size: 13px; color: #B7BCC4; letter-spacing: 1px; }
-/* ---- main viewer ---- */
-.deck { display: flex; flex-direction: column; gap: 14px; }
-.viewer-bezel { border-radius: 20px; padding: clamp(10px, 1.6vw, 16px); }
-.viewer-screen { height: clamp(430px, 62vh, 680px); border-radius: 14px; }
-.viewer-body {
-  position: relative; z-index: 1; height: 100%; overflow-y: auto; overscroll-behavior: contain;
-  padding: 24px clamp(14px, 4vw, 36px) 44px;
-  scrollbar-width: thin; scrollbar-color: #3A3A46 transparent;
-}
-.burst-canvas { z-index: 4; }
-.osd-flash {
-  position: absolute; top: 12px; right: 18px; z-index: 5; pointer-events: none;
-  font-size: clamp(22px, 3vw, 28px); letter-spacing: 2px;
-  color: var(--tint); text-shadow: 0 0 9px var(--glow);
-  opacity: 0; transition: opacity 0.55s ease;
-}
-.osd-flash.show { opacity: 1; transition: opacity 0.06s ease; }
-
-/* ---- channel dial ---- */
-.dial { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 0 4px; }
-.dial-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 0;
-  padding: 5px 13px 6px; background: #12121A; border: 1px solid #2A2A33; border-radius: 8px;
-  color: #8F959E; font-size: 19px; letter-spacing: 1px; line-height: 1.15; text-align: center;
-  transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.dial-btn span { font-size: 12px; letter-spacing: 2px; color: #62676F; }
-.dial-btn:hover { color: #C6CBD2; border-color: #3A3A46; }
-.dial-btn[aria-pressed="true"] { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 14px var(--glow); }
-.dial-btn[aria-pressed="true"] span { color: var(--tint); }
-.dial-sep { flex: 1; }
-.dial-arrow { justify-content: center; min-width: 46px; font-size: 17px; }
-
-/* ---- shared channel content ---- */
-.channel { max-width: 860px; margin: 0 auto; }
-.channel p { max-width: 65ch; }
-.osd-tag {
-  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px;
-  padding: 2px 12px 3px; border: 1px solid var(--tint); border-radius: 4px;
-  font-size: 18px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 7px var(--glow);
-}
-.osd-tag .live-dot { animation: pf-blink 1.6s steps(1) infinite; }
-.kicker { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.5px; color: #7C828C; }
-.ch-title { margin: 0; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.05; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
-.ch-title-kr { margin: 2px 0 20px; font-size: clamp(20px, 3vw, 27px); color: var(--tint); text-shadow: 0 0 9px var(--glow); opacity: 0.9; }
-.sub { margin: 34px 0 10px; font-size: 24px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 8px var(--glow); }
-.body-copy { color: #C9CFD6; margin: 0 0 16px; }
-.link-btn {
-  display: inline-block; padding: 6px 16px; border: 1px solid var(--tint); border-radius: 6px;
-  color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 19px; letter-spacing: 1px;
-}
-.link-btn:hover { box-shadow: 0 0 14px var(--glow); }
-
-/* CH 01 — steps */
-.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px; border: 1px solid #23232D; background: #0E0E15; border-radius: 8px; padding: 13px 16px; }
-.step-no { grid-row: 1 / 3; font-size: 32px; color: var(--tint); text-shadow: 0 0 8px var(--glow); line-height: 1; padding-top: 3px; }
-.step-name { font-size: 21px; letter-spacing: 1px; color: #E6E9EE; }
-.step-text { grid-column: 2; font-size: 14px; color: #A9AFB8; max-width: 62ch; }
-
-/* CH 02 — callers */
-.callers { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 18px; }
-.caller { border: 1px solid #262630; background: #0F0F16; border-radius: 8px; padding: 13px 16px 15px; }
-.caller-id { display: block; font-size: 18px; letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 7px var(--glow); margin-bottom: 7px; }
-.caller blockquote { margin: 0; font-size: 14.5px; color: #DDE1E6; }
-/* a caller that has been sent but not yet cleared in the Payload admin */
-.caller-pending { border-style: dashed; border-color: #3A3A46; }
-.caller-pending-tag { display: block; margin-top: 9px; font-size: 15px; letter-spacing: 1px; color: #8A9099; }
-/* shown whenever the archive reel is standing in for the live line */
-.voices-fallback { margin: 18px 0 0; font-size: 17px; letter-spacing: 1px; color: #9AA1AA; border-left: 2px solid #FF5C0D; padding-left: 11px; }
-
-/* CH 02 — after the tone */
-.tone { margin-top: 42px; border-top: 1px dashed #2A2A33; padding-top: 30px; }
-.tone-instruction { margin: 0 0 14px; font-size: 20px; letter-spacing: 1px; color: #AEB4BC; }
-.prompts { list-style: none; margin: 0 0 24px; padding: 14px 18px; border-left: 2px solid var(--tint); background: #0E0E15; display: grid; gap: 8px; }
-.prompts li { font-size: 14px; color: #B9BFC7; max-width: 62ch; }
-.prompts .p-label { display: block; font-size: 16px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); margin-bottom: 2px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.tab-btn { padding: 6px 15px; border: 1px solid #2A2A33; border-radius: 6px; background: #12121A; color: #8F959E; font-size: 19px; letter-spacing: 1px; }
-.tab-btn:hover { color: #C6CBD2; }
-.tab-btn[aria-pressed="true"] { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 12px var(--glow); }
-
-.rec { border: 1px solid #262630; background: #0D0D13; border-radius: 8px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
-.rec-line { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-.rec-dot { font-size: 24px; color: var(--tint); opacity: 0.22; }
-.rec.recording .rec-dot { opacity: 1; text-shadow: 0 0 9px var(--glow); animation: pf-blink 1s steps(1) infinite; }
-.timecode { font-size: 34px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 9px var(--glow); font-variant-numeric: tabular-nums; }
-.rec-mode { font-size: 16px; letter-spacing: 2px; color: #7C828C; }
-.cam { position: relative; width: min(100%, 340px); aspect-ratio: 16 / 9; border-radius: 8px; }
-.cam-note { position: absolute; left: 0; right: 0; bottom: 6px; z-index: 5; text-align: center; font-size: 14px; letter-spacing: 1px; color: #B7BCC4; }
-.cam-rec { position: absolute; top: 6px; left: 10px; z-index: 5; display: none; font-size: 16px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 8px var(--glow); }
-.rec.recording .cam-rec { display: block; animation: pf-blink 1s steps(1) infinite; }
-.rec-status { margin: 0; font-size: 14px; color: #A9AFB8; max-width: 62ch; }
-.rec.captured .rec-status { color: var(--tint); }
-.rec-btn { align-self: flex-start; padding: 9px 26px; border: 1px solid var(--tint); border-radius: 999px; color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 22px; letter-spacing: 2px; background: #140D12; }
-.rec-btn:hover { box-shadow: 0 0 16px var(--glow); }
-.consent-note { margin: 0; font-size: 13px; color: #737981; max-width: 62ch; }
-
-/* CH 02 — form */
-.offer-form { display: grid; gap: 6px; border: 1px solid #262630; background: #0D0D13; border-radius: 8px; padding: 20px; }
-.f-label { font-size: 17px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); margin-top: 10px; }
-.f-label:first-child { margin-top: 0; }
-.offer-form input[type="text"], .offer-form textarea {
-  width: 100%; background: #0A0A10; border: 1px solid #2A2A33; border-radius: 6px;
-  color: #E6E9EE; padding: 10px 12px; font: inherit; font-size: 14.5px;
-}
-.offer-form input[type="text"]::placeholder, .offer-form textarea::placeholder { color: #565C64; }
-.offer-form textarea { min-height: 120px; resize: vertical; }
-.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 13.5px; color: #AEB4BC; max-width: 62ch; }
-.consent input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--tint); flex: none; }
-.send-btn { justify-self: start; margin-top: 14px; padding: 8px 24px; border: 1px solid var(--tint); border-radius: 6px; color: var(--tint); text-shadow: 0 0 7px var(--glow); font-size: 21px; letter-spacing: 2px; background: #140D12; }
-.send-btn:hover { box-shadow: 0 0 16px var(--glow); }
-.queue-confirm { border: 1px dashed var(--tint); border-radius: 8px; padding: 30px 22px; text-align: center; }
-.qc-big { margin: 0; font-size: clamp(26px, 4vw, 36px); letter-spacing: 1px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
-.qc-kr { margin: 2px 0 14px; font-size: 24px; color: var(--tint); text-shadow: 0 0 9px var(--glow); }
-.qc-sub { margin: 0 auto 20px; font-size: 14px; color: #A9AFB8; max-width: 48ch; }
-
-/* CH 03 — EPG */
-.epg-wrap { overflow-x: auto; border: 1px solid #23232D; border-radius: 8px; background: #0D0D13; }
-.epg { width: 100%; min-width: 560px; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
-.epg th { font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-weight: 400; font-size: 18px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 6px var(--glow); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--tint); }
-.epg td { padding: 11px 14px; border-bottom: 1px solid #1C1C25; vertical-align: top; color: #C9CFD6; }
-.epg tr:last-child td { border-bottom: 0; }
-.epg .d { white-space: nowrap; color: #E6E9EE; }
-.epg .prog { display: block; font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-size: 17px; letter-spacing: 1px; color: #E6E9EE; }
-.epg .desc { display: block; font-size: 13.5px; color: #9AA1AA; max-width: 58ch; }
-.tag { display: inline-block; font-family: 'VT323', "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace; font-size: 15px; letter-spacing: 1px; padding: 0 8px 1px; border: 1px solid currentColor; border-radius: 4px; white-space: nowrap; }
-.tag-aired { color: #8A909A; }
-.tag-on { color: var(--tint); text-shadow: 0 0 6px var(--glow); }
-.epg tr.sched td, .epg tr.sched .prog, .epg tr.sched .d { color: #5E646D; }
-.epg tr.sched .desc { color: #4C525A; }
-.tag-sched { color: #5E646D; }
-.evolution { margin-top: 18px; font-size: 13px; color: #737981; }
-
-/* CH 04 — test card */
-.testcard {
-  position: relative; border: 1px solid #2A2A33; border-radius: 8px; margin-top: 18px;
-  background-color: #0C0C12;
-  background-image: linear-gradient(#14141C 1px, transparent 1px), linear-gradient(90deg, #14141C 1px, transparent 1px);
-  background-size: 28px 28px; background-position: center;
-  min-height: 320px; display: grid; place-items: center; padding: 40px 22px;
-  text-align: center;
-}
-.score-no { display: block; margin: 0 0 4px; font-size: 20px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 7px var(--glow); }
-.score-title { margin: 0 0 16px; font-size: clamp(30px, 4.5vw, 42px); letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
-.score-text { margin: 0 auto; font-size: 15px; color: #D5DAE0; max-width: 46ch; }
-.pager { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 16px; }
-.pager-btn { padding: 5px 16px; border: 1px solid #2A2A33; border-radius: 6px; background: #12121A; color: #8F959E; font-size: 19px; letter-spacing: 1px; }
-.pager-btn:hover { color: var(--tint); border-color: var(--tint); box-shadow: 0 0 12px var(--glow); }
-.pager-count { font-size: 24px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 8px var(--glow); font-variant-numeric: tabular-nums; }
-
-/* CH 00 — credits roll */
-#ch00 { height: 100%; max-width: none; }
-.credits { position: relative; height: 100%; overflow: hidden; }
-.roll { animation: pf-roll 46s linear infinite; text-align: center; }
-.credits:hover .roll { animation-play-state: paused; }
-.roll-block { padding: 30px 0 60px; }
-.roll-block p { margin: 0 auto; padding: 3px 0; max-width: 65ch; color: #C9CFD6; }
-.cr-h { font-size: 40px; letter-spacing: 2px; color: var(--tint); text-shadow: 0 0 12px var(--glow); }
-.cr-h-kr { font-size: 26px; color: var(--tint); text-shadow: 0 0 9px var(--glow); }
-.cr-sub { font-size: 13px; letter-spacing: 1px; color: #8F959E; padding-bottom: 18px; }
-.cr-role { font-size: 20px; letter-spacing: 4px; color: #8F959E; padding: 26px 0 8px; }
-.cr-note { font-size: 13.5px; color: #9AA1AA; max-width: 44ch; }
-.cr-end { font-size: 22px; letter-spacing: 3px; color: var(--tint); text-shadow: 0 0 9px var(--glow); padding-top: 30px; }
-.credits-hint { position: absolute; right: 4px; bottom: 2px; z-index: 5; font-size: 14px; letter-spacing: 1px; color: #565C64; }
-
-/* ID — station ident */
-.ident-card { text-align: center; padding-top: 12px; }
-.bars { display: grid; grid-template-columns: repeat(6, 1fr); height: 54px; border-radius: 6px; overflow: hidden; margin-bottom: 30px; border: 1px solid #23232D; }
-.b1 { background: #FF5C0D; } .b2 { background: #F2C76E; } .b3 { background: #6B8CFF; }
-.b4 { background: #EB1428; } .b5 { background: #FF4894; } .b6 { background: #E61E08; }
-.ident-card .ch-title, .ident-card .ch-title-kr { text-align: center; }
-.ident-q { margin: 0 auto 18px; font-size: 15px; color: #D5DAE0; max-width: 52ch; }
-.ident-note { margin: 0 auto 26px; font-size: 13.5px; color: #9AA1AA; max-width: 48ch; }
-.ident-tag { margin: 0 auto; font-size: 17px; letter-spacing: 1px; color: #62676F; }
-.ident-card p { margin-left: auto; margin-right: auto; }
-
-/* ---- scroll film: cinematic intro ---- */
-@keyframes pf-hint-bob { from { transform: translateY(0); } to { transform: translateY(7px); } }
-.scene { position: relative; min-height: 92vh; display: grid; place-items: center; padding: 13vh 10px; }
-.scene::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(58% 46% at 50% 56%, var(--glow, rgba(232, 233, 238, 0.2)), transparent 72%);
-  opacity: .18;
-}
-.scene-inner { position: relative; text-align: center; max-width: 760px; width: 100%; }
-.scene-kicker { margin: 0 0 16px; font-size: 18px; letter-spacing: 3px; color: #8F959E; }
-.scene-title {
-  margin: 0; font-size: clamp(38px, 7vw, 84px); line-height: 1.04; letter-spacing: 2px;
-  color: var(--tint, #E8E9EE);
-  text-shadow: 0 0 14px var(--glow, rgba(232, 233, 238, 0.3)), 0 0 44px var(--glow, rgba(232, 233, 238, 0.3));
-}
-.scene-sub { margin: 10px 0 0; font-size: clamp(19px, 2.6vw, 26px); color: var(--tint, #E8E9EE); text-shadow: 0 0 10px var(--glow, rgba(232, 233, 238, 0.3)); opacity: .92; }
-.scene-copy { margin: 20px auto 0; font-size: 15px; color: #C9CFD6; max-width: 56ch; }
-.scene-hint { margin: 44px 0 0; font-size: 17px; letter-spacing: 2px; color: #666C76; animation: pf-hint-bob 1.1s ease-in-out infinite alternate; }
-.film-skip {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 44px; min-height: 44px; /* thumb-sized hit area, on every pointer */
-  margin-top: 18px; padding: 4px 18px; border: 1px solid #2A2A33; border-radius: 6px;
-  color: #8F959E; font-size: 16px; letter-spacing: 1px; text-decoration: none;
-}
-.film-skip:hover, .film-skip:focus-visible { color: #C6CBD2; border-color: #3A3A46; }
-.film-bars { display: grid; grid-template-columns: repeat(6, 1fr); height: clamp(80px, 15vh, 140px); margin: 0 0 36px; border: 1px solid #23232D; border-radius: 8px; overflow: hidden; }
-.film-bars span { display: block; }
-.film-wall { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 30px auto 0; max-width: 660px; }
-.film-mon {
-  aspect-ratio: 4 / 3; border: 1px solid #33333E; border-radius: 6px;
-  background: radial-gradient(85% 85% at 50% 45%, var(--glow, rgba(232, 233, 238, 0.3)), #050507 78%);
-  box-shadow: 0 0 16px var(--glow, rgba(232, 233, 238, 0.2)), inset 0 0 12px rgba(0, 0, 0, 0.6);
-}
-.film-crt { width: min(400px, 82%); aspect-ratio: 4 / 3; margin: 0 auto 30px; border: 1px solid #33333E; border-radius: 10px; }
-.film-static { position: fixed; inset: 0; z-index: 60; pointer-events: none; background: rgba(5, 5, 8, 0.55); }
-
-/* ---- footer ---- */
-.pf-footer { padding: 26px 2px 42px; text-align: center; font-size: 12.5px; color: #62676F; }
-.pf-footer p { margin: 0 auto; max-width: 80ch; }
-.pf-footer a { color: #8F959E; letter-spacing: 1px; }
-.pf-footer a:hover, .pf-footer a:focus-visible { color: #37FF8B; }
-
-/* ---- language toggle ---- */
-.lang-toggle { display: flex; align-items: baseline; gap: 2px; }
-.lang-toggle button { font-size: 15px; letter-spacing: 1px; color: #666C76; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
-.lang-toggle button:hover { color: #C6CBD2; }
-.lang-toggle button[aria-pressed="true"] { color: #37FF8B; text-shadow: 0 0 7px rgba(55, 255, 139, 0.38); }
-.lang-toggle .lang-sep { color: #3A3A46; }
-
-/* ---- CJK typography: system stacks only (Hangul, Han, Kana), no webfont downloads ---- */
-html[lang="ko"] body { font-family: ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", monospace; word-break: keep-all; line-break: strict; }
-html[lang^="zh"] body { font-family: ui-monospace, "SF Mono", Menlo, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", monospace; word-break: normal; line-break: strict; }
-html[lang="ja"] body { font-family: ui-monospace, "SF Mono", Menlo, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", monospace; word-break: normal; line-break: strict; }
-html[lang^="zh"] .vt { font-family: 'VT323', "PingFang SC", "Microsoft YaHei", ui-monospace, monospace; }
-html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo", ui-monospace, monospace; }
-
-/* ---- responsive ---- */
-@media (max-width: 1080px) {
-  .wall { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 700px) {
-  .stage { flex-direction: column-reverse; } /* viewer above the wall on mobile */
-  .viewer-screen { height: min(72vh, 560px); }
-  .station-onair { margin-left: 0; }
-}
-@media (max-width: 520px) {
-  .wall { grid-template-columns: repeat(2, 1fr); }
-  .steps li { grid-template-columns: 34px 1fr; }
-  .step-no { font-size: 26px; }
-  .film-wall { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* ---- reduced motion: hard cuts, no rolls, no blinking ---- */
-@media (prefers-reduced-motion: reduce) {
-  .station-onair .dot, .osd-tag .live-dot, .rec.recording .rec-dot, .rec.recording .cam-rec { animation: none; }
-  .osd-flash { transition: none; }
-  .roll { animation: none; }
-  .roll-dup { display: none; }
-  .scene-hint { animation: none; }
-  .film-static { display: none; }
-  .credits { overflow-y: auto; scrollbar-width: thin; }
-  .credits-hint { display: none; }
-}
-
-/* ---- touch and small screens: begin ---- */
-/* Touch complements the desktop affordances, it never replaces them: hover still
-   clarifies a monitor and still pauses the credits. These rules add the tap path. */
-.wall-btn.clarified canvas.snow { opacity: .07; filter: blur(2px); transform: scale(1.08); }
-.wall-btn.clarified .wall-preview { opacity: 1; filter: none; transform: none; animation: none; }
-.credits.paused .roll { animation-play-state: paused; }
-.credits { cursor: pointer; } /* the roll pauses on click as well as on hover */
-
-/* one hint per interaction model; the coarse-pointer block swaps which one shows */
-[data-when="touch"] { display: none; }
-
-@media (hover: none) and (pointer: coarse) {
-  [data-when="hover"] { display: none; }
-  [data-when="touch"] { display: revert; }
-  /* every control the console asks you to press clears the 44px thumb target;
-     .dial-arrow carries .dial-btn too, and .film-skip is already 44x44 everywhere */
-  .dial-btn, .tab-btn, .pager-btn, .link-btn, .lang-toggle button { min-height: 44px; }
-}
-
-@media (max-width: 560px) {
-  /* scene typography: the desktop floors (38px title, 19px sub) overflow a 360px
-     screen, so every step below is fluid rather than a smaller constant */
-  .scene { min-height: 88vh; padding: 10vh clamp(6px, 2vw, 10px); }
-  .scene-inner { max-width: 100%; }
-  .scene-kicker { margin-bottom: 12px; font-size: clamp(13px, 3.8vw, 18px); letter-spacing: 2px; }
-  .scene-title { font-size: clamp(27px, 8.6vw, 44px); letter-spacing: 1px; overflow-wrap: break-word; }
-  .scene-sub { font-size: clamp(15px, 4.4vw, 19px); }
-  .scene-copy { font-size: clamp(13.5px, 3.9vw, 15px); max-width: 100%; }
-  .scene-hint { margin-top: 30px; font-size: clamp(14px, 4vw, 17px); letter-spacing: 1px; }
-  .film-bars { height: clamp(52px, 11vh, 90px); margin-bottom: 22px; }
-  .film-wall { grid-template-columns: repeat(3, 1fr); gap: 2vw; max-width: 100%; }
-  .film-crt { width: min(100%, 82vw); margin-bottom: 22px; }
-  .wall { grid-template-columns: repeat(2, 1fr); gap: 2.5vw; }
-  .wall-name { font-size: clamp(11px, 3vw, 13px); }
-  .wall-hint { font-size: clamp(14px, 4vw, 17px); }
-  /* the dial wraps to rows of channels, then a full-width row of arrows */
-  .dial { gap: 6px; padding: 0; }
-  .dial-btn { flex: 1 1 28%; padding: 6px clamp(8px, 2.4vw, 13px) 7px; }
-  .dial-sep { flex: 1 0 100%; height: 0; }
-  .dial-arrow { flex: 1 1 40%; }
-  .cr-h { font-size: clamp(26px, 8vw, 40px); }
-  .cr-h-kr { font-size: clamp(19px, 5.5vw, 26px); }
-  .credits-hint { font-size: clamp(12px, 3.4vw, 14px); }
-  .timecode { font-size: clamp(24px, 7vw, 34px); }
-  .rec-btn { padding: 9px clamp(14px, 5vw, 26px); }
-}
-/* ---- touch and small screens: end ---- */
-</style>
-
 <div class="pf">
-
-  <!-- ================= SCROLL FILM — cinematic intro ================= -->
-  <div class="film" id="film">
-
-    <section class="scene" data-scene="ident" data-ch="ident" aria-label="Intro — station ident">
-      <div class="scene-inner">
-        <div class="film-bars" aria-hidden="true">
-          <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span><span class="b6"></span>
-        </div>
-        <p class="scene-kicker vt" data-i18n="bc.film.ident.kicker">PF-TV · TRANSMISSION START · 송출 시작</p>
-        <p class="scene-title vt">퍼포밍 파이어</p>
-        <p class="scene-sub vt" data-i18n="bc.film.ident.sub">PERFORMING FIRE — A BROADCAST IN FIVE CHANNELS · 다섯 개의 채널, 하나의 불</p>
-        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.ident.hint">SCROLL TO TUNE ▼ 스크롤</span><span data-when="touch" data-i18n="bc.film.ident.hint.touch">SWIPE TO TUNE ▼ 스크롤 대신 탭</span></p>
-        <p><a class="film-skip vt" href="#console" data-i18n="bc.film.ident.skip">SKIP INTRO ▸ 건너뛰기</a></p>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="wall" data-ch="ch00" aria-label="Intro — the monitor wall">
-      <div class="scene-inner">
-        <p class="scene-kicker vt" data-i18n="bc.film.wall.kicker">THE MONITOR WALL · 모니터 월</p>
-        <p class="scene-title vt" data-i18n="bc.film.wall.title">SIX MONITORS, ONE FIRE</p>
-        <p class="scene-copy"><span data-when="hover" data-i18n="bc.film.wall.copy">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — hover to clarify, tune to enter.</span><span data-when="touch" data-i18n="bc.film.wall.copy.touch">A wall of humming screens, in the spirit of Nam June Paik. Each monitor carries one channel of the fire — TAP to clarify, tap again to enter.</span></p>
-        <div class="film-wall" aria-hidden="true">
-          <span class="film-mon" data-ch="ch01"></span><span class="film-mon" data-ch="ch02"></span><span class="film-mon" data-ch="ch03"></span><span class="film-mon" data-ch="ch04"></span><span class="film-mon" data-ch="ch00"></span><span class="film-mon" data-ch="ident"></span>
-        </div>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="signal" data-ch="ch01" aria-label="Intro — channel 1, Signal">
-      <div class="scene-inner">
-        <p class="scene-kicker vt" data-i18n="bc.film.signal.kicker">CH 01 · SIGNAL 신호</p>
-        <p class="scene-title vt" data-i18n="bc.film.signal.title">HOW WILL WE GREET NEW TECHNOLOGY?</p>
-        <p class="scene-copy" data-i18n="bc.film.signal.copy">The proposal itself: offerings become flames, flames become a collective totem of possible futures. Fire was the first technology we never fully tamed — we learned to live alongside its instability.</p>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="voices" data-ch="ch02" aria-label="Intro — channel 2, Voices">
-      <div class="scene-inner">
-        <p class="scene-kicker vt" data-i18n="bc.film.voices.kicker">CH 02 · VOICES 목소리</p>
-        <p class="scene-title vt" data-i18n="bc.film.voices.title">TWELVE CALLERS ON THE LINE</p>
-        <p class="scene-copy" data-i18n="bc.film.voices.copy">“Teach the machine to hesitate.” · “기술은 불과 같아서, 쬐면 따뜻하고 쥐면 데인다.” — and a line held open for you.</p>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="guide" data-ch="ch03" aria-label="Intro — channel 3, Program guide">
-      <div class="scene-inner">
-        <p class="scene-kicker vt" data-i18n="bc.film.guide.kicker">CH 03 · LOG 편성표</p>
-        <p class="scene-title vt" data-i18n="bc.film.guide.title">THE PROGRAM GUIDE IS THE CHANGELOG</p>
-        <p class="scene-copy" data-i18n="bc.film.guide.copy">Phase 1 · JUL 07 → AUG 31 2026. Every research week, prototype test, and burn is scheduled like a broadcast — and aired when it happens.</p>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="scores" data-ch="ch04" aria-label="Intro — channel 4, Scores">
-      <div class="scene-inner">
-        <p class="scene-kicker vt" data-i18n="bc.film.scores.kicker">CH 04 · SCORE 지시문</p>
-        <p class="scene-title vt" data-i18n="bc.film.scores.title">INSTRUCTIONS FOR FIRE PLAY</p>
-        <p class="scene-copy" data-i18n="bc.film.scores.copy">AI reads each offering and returns a Score — an open proposition anyone can perform. SCORE No.01: write the technology you fear on your palm. Wait until the warmth reaches the word.</p>
-      </div>
-    </section>
-
-    <section class="scene" data-scene="static" data-ch="ch00" aria-label="Intro — static, into the console">
-      <div class="scene-inner">
-        <div class="crt film-crt" aria-hidden="true">
-          <canvas class="snow" width="96" height="72"></canvas>
-        </div>
-        <p class="scene-kicker vt" data-i18n="bc.film.static.kicker">CH 00 · STATIC 크레딧</p>
-        <p class="scene-title vt" data-i18n="bc.film.static.title">THE BROADCAST IS LIVE</p>
-        <p class="scene-copy" data-i18n="bc.film.static.copy">Credits roll on CH 00. The dial below is yours — tune a channel, and leave your voice in the fire.</p>
-        <p class="scene-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.film.static.hint">▼ TUNE IN BELOW · 아래에서 채널을 맞추세요</span><span data-when="touch" data-i18n="bc.film.static.hint.touch">▼ TAP A CHANNEL BELOW · 아래에서 채널을 탭하세요</span></p>
-      </div>
-    </section>
-
-  </div>
-
-  <div class="film-static" id="filmStatic" hidden aria-hidden="true">
-    <canvas class="snow" width="120" height="90"></canvas>
-  </div>
-
   <header class="station">
     <h1 class="station-id vt">PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</h1>
-    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> ON AIR · 2026.07.23</p>
+    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> <span data-i18n="bc.station.onair">ON AIR</span></p>
     <nav class="lang-toggle vt" aria-label="Language">
-      <button type="button" data-lang="en" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="ko" aria-pressed="false" lang="ko">한국어</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button><span class="lang-sep" aria-hidden="true">·</span>
-      <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+      <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
     </nav>
   </header>
-  <p class="station-sub" data-i18n="bc.station.sub">A Living Totem of Futures · 미래의 살아있는 토템 · 5 channels, one fire.</p>
 
-  <div class="stage" id="console">
-
-    <!-- ================= MONITOR WALL ================= -->
-    <section aria-label="Monitor wall — channel previews">
-      <p class="wall-hint vt"><span data-when="hover" data-i18n="bc.wall.hint">TUNE A CHANNEL — HOVER TO CLARIFY, CLICK TO OPEN · 가까이 가면 선명해지고, 눌러서 채널을 여세요</span><span data-when="touch" data-i18n="bc.wall.hint.touch">TUNE A CHANNEL — TAP TO CLARIFY, TAP AGAIN TO OPEN · 탭하면 선명해지고, 한 번 더 탭하면 열립니다</span></p>
-      <div class="wall">
-        <button class="wall-btn bezel" type="button" data-tune="ch01" aria-pressed="false" aria-label="Tune to channel 1, Signal">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-signal" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">CH 01</span><span class="wall-name vt">SIGNAL 신호</span></span>
-          </span>
-        </button>
-        <button class="wall-btn bezel" type="button" data-tune="ch02" aria-pressed="false" aria-label="Tune to channel 2, Voices">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-voices" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">CH 02</span><span class="wall-name vt">VOICES 목소리</span></span>
-          </span>
-        </button>
-        <button class="wall-btn bezel" type="button" data-tune="ch03" aria-pressed="false" aria-label="Tune to channel 3, Log">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-log" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">CH 03</span><span class="wall-name vt">LOG 편성표</span></span>
-          </span>
-        </button>
-        <button class="wall-btn bezel" type="button" data-tune="ch04" aria-pressed="false" aria-label="Tune to channel 4, Score">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-score" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">CH 04</span><span class="wall-name vt">SCORE 지시문</span></span>
-          </span>
-        </button>
-        <button class="wall-btn bezel" type="button" data-tune="ch00" aria-pressed="false" aria-label="Tune to channel 0, Static — credits">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-static" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">CH 00</span><span class="wall-name vt">STATIC 크레딧</span></span>
-          </span>
-        </button>
-        <button class="wall-btn bezel" type="button" data-tune="ident" aria-pressed="false" aria-label="Tune to station ident, test pattern">
-          <span class="crt wall-crt">
-            <span class="wall-preview preview-ident" aria-hidden="true"></span>
-            <canvas class="snow" width="64" height="48" aria-hidden="true"></canvas>
-            <span class="wall-osd"><span class="wall-ch vt">ID</span><span class="wall-name vt">화면조정</span></span>
-          </span>
-        </button>
-      </div>
+  <main class="console" id="console" aria-label="Five-channel broadcast console" data-i18n-aria-label="bc.console.aria">
+    <section class="previews" aria-label="Channel previews" data-i18n-aria-label="bc.previews.aria">
+      <button class="preview-btn bezel" type="button" data-channel="about" data-index="0" aria-pressed="true" aria-label="CH 01 ABOUT">
+        <span class="preview-crt"><canvas data-anim="g7" aria-hidden="true"></canvas><span class="preview-osd vt">CH 01 <span class="preview-name">ABOUT</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="contribute" data-index="1" aria-pressed="false" aria-label="CH 02 CONTRIBUTE">
+        <span class="preview-crt"><canvas data-anim="hj" aria-hidden="true"></canvas><span class="preview-osd vt">CH 02 <span class="preview-name">CONTRIBUTE</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="experiments" data-index="2" aria-pressed="false" aria-label="CH 03 EXPERIMENTS">
+        <span class="preview-crt"><canvas data-anim="x3" aria-hidden="true"></canvas><span class="preview-osd vt">CH 03 <span class="preview-name">EXPERIMENTS</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="research" data-index="3" aria-pressed="false" aria-label="CH 04 RESEARCH">
+        <span class="preview-crt"><canvas data-anim="r1" aria-hidden="true"></canvas><span class="preview-osd vt">CH 04 <span class="preview-name">RESEARCH</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="log" data-index="4" aria-pressed="false" aria-label="CH 05 LOG">
+        <span class="preview-crt"><canvas data-anim="l1" aria-hidden="true"></canvas><span class="preview-osd vt">CH 05 <span class="preview-name">LOG</span></span></span>
+      </button>
     </section>
 
-    <!-- ================= MAIN VIEWER ================= -->
-    <section class="deck" aria-label="Main viewer">
-      <div class="bezel viewer-bezel">
-        <div class="crt viewer-screen" id="viewer" data-ch="ch01">
-          <canvas class="snow burst-canvas" id="burstCanvas" width="96" height="72" hidden aria-hidden="true"></canvas>
-          <p class="osd-flash vt" id="osdFlash" aria-live="polite"></p>
-          <div class="viewer-body" id="viewerBody">
-
-            <!-- ======== CH 01 SIGNAL ======== -->
-            <section class="channel" data-ch="ch01" aria-label="Channel 1 — Signal">
-              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> LIVE · 신호</p>
-              <p class="kicker" data-i18n="bc.ch01.kicker">THIS IS PERFORMING FIRE, TRANSMITTING FROM PHASE 1 · 2026 APE LAB, TRACK B (PAIK NAM JUNE)</p>
-              <h2 class="ch-title vt" data-i18n="bc.ch01.title">HOW WILL WE GREET NEW TECHNOLOGY?</h2>
-              <p class="ch-title-kr vt" data-i18n="bc.ch01.titleSub">우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
-              <p class="body-copy" data-i18n="bc.ch01.intro">Performing Fire is an interactive media installation that gathers what artists think and feel about technology — questions, hopes, fears, imaginations — and turns them into a single living fire. Each offering becomes its own flame, with its own shape, motion, and light. Over the exhibition the fire grows: a collective totem of possible futures.</p>
-              <h3 class="sub vt" data-i18n="bc.ch01.notesHead">TRANSMISSION NOTES · 방송 원고</h3>
-              <p class="body-copy" data-i18n="bc.ch01.notes">The future of technology is usually imagined in two directions: possibility and threat. Performing Fire starts somewhere else — from the unstable relationship in which humans change technology and are changed by it in return. Fire was the first technology we never fully tamed; we learned instead to live alongside its instability. Perhaps what we need now is not fear of the new, nor unconditional acceptance, but 불장난 — fire play: an experimental relationship with what can affect us but cannot be fully predicted or controlled.</p>
-              <h3 class="sub vt" data-i18n="bc.ch01.pathHead">SIGNAL PATH · 송출 경로</h3>
-              <ol class="steps">
-                <li>
-                  <span class="step-no vt" aria-hidden="true">01</span>
-                  <span class="step-name vt" data-i18n="bc.ch01.step1.name">OFFER 공물</span>
-                  <span class="step-text" data-i18n="bc.ch01.step1.text">At the installation (or here), tell us your question, hope, or fear about technology. Write it, speak it, or show it.</span>
-                </li>
-                <li>
-                  <span class="step-no vt" aria-hidden="true">02</span>
-                  <span class="step-name vt" data-i18n="bc.ch01.step2.name">TRANSFORM 지시문</span>
-                  <span class="step-text" data-i18n="bc.ch01.step2.text">AI reads each offering — its meaning, temperature, texture — and, in the spirit of Nam June Paik and Fluxus, turns it into a Score: an open proposition anyone can perform in their own way.</span>
-                </li>
-                <li>
-                  <span class="step-no vt" aria-hidden="true">03</span>
-                  <span class="step-name vt" data-i18n="bc.ch01.step3.name">BURN 연소</span>
-                  <span class="step-text" data-i18n="bc.ch01.step3.text">Each offering becomes a flame, projected on translucent fabric, shaped by the words that made it. Different perspectives overlap, collide, and form one collective fire.</span>
-                </li>
-                <li>
-                  <span class="step-no vt" aria-hidden="true">04</span>
-                  <span class="step-name vt" data-i18n="bc.ch01.step4.name">PERFORM 수행</span>
-                  <span class="step-text" data-i18n="bc.ch01.step4.text">In the final weeks, a live performer reinterprets the accumulated voices and Scores with the body — reimagining 달집태우기 (moon-house burning) and 쥐불놀이 (fire play), East Asian rites where communities gathered around fire to wish and to let go.</span>
-                </li>
-              </ol>
-              <p style="margin-top: 26px;"><button class="link-btn vt" type="button" data-tune="ch02" data-i18n="bc.ch01.cta">→ TUNE TO CH 02 · LEAVE YOUR VOICE 목소리를 남기세요</button></p>
-            </section>
-
-            <!-- ======== CH 02 VOICES ======== -->
-            <section class="channel" data-ch="ch02" aria-label="Channel 2 — Voices" hidden>
-              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> CALL-IN · 참여</p>
-              <p class="kicker" data-i18n="bc.ch02.kicker">12 CALLERS ON THE LINE · 수신된 목소리 — artists on what they think and feel about technology</p>
-              <h2 class="ch-title vt" data-i18n="bc.ch02.title">VOICES</h2>
-              <p class="ch-title-kr vt" data-i18n="bc.ch02.titleSub">목소리</p>
-              <!-- Callers are fetched from the shared berlayar Payload CMS; public/fixtures/artist-responses.json
-                   is the seed reel that drives the same render path offline and in gallery installs. -->
-              <p class="voices-fallback vt" id="voicesFallback" role="status" hidden data-i18n="bc.ch02.fallback">TRANSMISSION STATIC — THE LINE IS DOWN, SHOWING THE ARCHIVE REEL. 수신 불안정 — 보관된 목소리를 표시합니다.</p>
-              <div class="callers" id="voicesList" aria-live="polite"></div>
-
-              <div class="tone">
-                <h3 class="ch-title vt" style="font-size: clamp(26px, 4vw, 38px);" data-i18n="bc.ch02.throwTitle">WHAT WOULD YOU THROW INTO THE FIRE?</h3>
-                <p class="ch-title-kr vt" style="font-size: clamp(19px, 3vw, 25px);" data-i18n="bc.ch02.throwTitleSub">불 속에 무엇을 던지시겠습니까?</p>
-                <p class="tone-instruction vt" data-i18n="bc.ch02.tone">LEAVE A MESSAGE AFTER THE TONE — 삐 소리 후 남겨주세요</p>
-                <ul class="prompts">
-                  <li><span class="p-label vt" data-i18n="bc.ch02.promptsLabel">TONIGHT'S PROMPTS 오늘의 질문</span></li>
-                  <li data-i18n="bc.ch02.prompt1">당신이 두려워하는 기술은 무엇인가요? — What technology do you fear?</li>
-                  <li data-i18n="bc.ch02.prompt2">What should never be automated? — 자동화되면 안 되는 것은 무엇인가요?</li>
-                  <li data-i18n="bc.ch02.prompt3">Describe the future you can't stop imagining. — 멈출 수 없이 상상하게 되는 미래를 들려주세요.</li>
-                </ul>
-
-                <div class="tabs" role="group" aria-label="Message format">
-                  <button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="true" data-i18n="bc.ch02.tabVoice">● REC VOICE — 말하다</button>
-                  <button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false" data-i18n="bc.ch02.tabVideo">● REC VIDEO — 보이다</button>
-                  <button class="tab-btn vt" type="button" data-tab="type" aria-pressed="false" data-i18n="bc.ch02.tabType">TYPE — 쓰다</button>
-                </div>
-
-                <div class="tab-panel" data-tab="voice">
-                  <div class="rec" data-rec="voice" data-ready="READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요." data-i18n-ready="bc.ch02.readyVoice">
-                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeAudio">AUDIO · 음성</span></p>
-                    <p class="rec-status" role="status">READY — PRESS ● REC AND SPEAK YOUR OFFERING. 준비 완료 — 녹음 버튼을 누르고 말씀해 주세요.</p>
-                    <button class="rec-btn vt" type="button">● REC</button>
-                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
-                  </div>
-                </div>
-
-                <div class="tab-panel" data-tab="video" hidden>
-                  <div class="rec" data-rec="video" data-ready="READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다." data-i18n-ready="bc.ch02.readyVideo">
-                    <p class="rec-line vt"><span class="rec-dot" aria-hidden="true">●</span><span class="timecode">00:00:00</span><span class="rec-mode" data-i18n="bc.ch02.modeVideo">VIDEO · 영상</span></p>
-                    <div class="cam crt">
-                      <canvas class="snow" width="64" height="36" aria-hidden="true"></canvas>
-                      <span class="cam-rec vt" aria-hidden="true">● REC</span>
-                      <span class="cam-note vt" data-i18n="bc.ch02.camNote">NO SIGNAL — MOCK PREVIEW 모형 화면</span>
-                    </div>
-                    <p class="rec-status" role="status">READY — PRESS ● REC. NO CAMERA IS ACCESSED; THE PREVIEW IS A MOCK. 카메라는 연결되지 않습니다.</p>
-                    <button class="rec-btn vt" type="button">● REC</button>
-                    <p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</p>
-                  </div>
-                </div>
-
-                <div class="tab-panel" data-tab="type" hidden>
-                  <form class="offer-form" id="offerForm">
-                    <label class="f-label vt" for="f-name" data-i18n="bc.ch02.nameLabel">NAME 이름</label>
-                    <input type="text" id="f-name" name="name" placeholder="your name — or anonymous 익명" data-i18n-placeholder="bc.ch02.namePh" autocomplete="off">
-                    <label class="f-label vt" for="f-disc" data-i18n="bc.ch02.practiceLabel">PRACTICE 분야</label>
-                    <input type="text" id="f-disc" name="discipline" placeholder="e.g. 회화, choreography, sound" data-i18n-placeholder="bc.ch02.practicePh" autocomplete="off">
-                    <label class="f-label vt" for="f-resp" data-i18n="bc.ch02.offeringLabel">YOUR OFFERING 공물</label>
-                    <textarea id="f-resp" name="response" required placeholder="a question, a hope, a fear, an imagination… 질문, 희망, 두려움, 상상" data-i18n-placeholder="bc.ch02.offeringPh"></textarea>
-                    <label class="consent">
-                      <input type="checkbox" name="consent" required>
-                      <span data-i18n="bc.ch02.consent">My words may be performed, projected, and burned. 내 문장은 수행되고, 투사되고, 태워질 수 있습니다.</span>
-                    </label>
-                    <button class="send-btn vt" type="submit" data-i18n="bc.ch02.send">SEND TO THE FIRE — 송출</button>
-                  </form>
-                  <div class="queue-confirm" id="queueConfirm" hidden>
-                    <p class="qc-big vt" data-i18n="bc.ch02.queueBig">YOUR MESSAGE IS IN THE QUEUE.</p>
-                    <p class="qc-kr vt" data-i18n="bc.ch02.queueAlt">송출 예정.</p>
-                    <p class="qc-sub" data-i18n="bc.ch02.queueSub">QUEUE POSITION 13 — it will become a flame with its own shape, motion, and light.</p>
-                    <button class="link-btn vt" type="button" id="sendAnother" data-i18n="bc.ch02.sendAnother">SEND ANOTHER — 하나 더 남기기</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- ======== CH 03 LOG (EPG) ======== -->
-            <section class="channel" data-ch="ch03" aria-label="Channel 3 — Log" hidden>
-              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> EPG · 편성표</p>
-              <p class="kicker" data-i18n="bc.ch03.kicker">PHASE 1 · JUL 07 → AUG 31 2026 — the program guide is the changelog · 편성표가 곧 작업 일지입니다</p>
-              <h2 class="ch-title vt" data-i18n="bc.ch03.title">PROGRAM GUIDE</h2>
-              <p class="ch-title-kr vt" data-i18n="bc.ch03.titleSub">편성표</p>
-              <div class="epg-wrap">
-                <table class="epg">
-                  <thead>
-                    <tr><th scope="col" data-i18n="bc.ch03.thDate">DATE</th><th scope="col" data-i18n="bc.ch03.thProgram">PROGRAM</th><th scope="col" data-i18n="bc.ch03.thStatus">STATUS</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="d">07.07</td>
-                      <td><span class="prog">PHASE 1 BEGINS 시작</span><span class="desc">Team 04 kicks off: APE CAMP mission debrief, role-setting, and the first argument about what fire actually is.</span></td>
-                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
-                    </tr>
-                    <tr>
-                      <td class="d">07.17</td>
-                      <td><span class="prog">AI SHARING SESSION · SINGAPORE</span><span class="desc">At National Gallery Singapore (Chen Enjiao), gathering perspectives from practitioners on how artists are living with AI.</span></td>
-                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
-                    </tr>
-                    <tr>
-                      <td class="d">07.21</td>
-                      <td><span class="prog">RESEARCH WEEK 리서치</span><span class="desc">Nam June Paik &amp; Fluxus event scores; East Asian fire rites; planning visits to Nam June Paik Art Center (《별, 괘》 and 《달들》).</span></td>
-                      <td><span class="tag tag-aired" data-i18n="bc.ch03.aired">AIRED</span></td>
-                    </tr>
-                    <tr>
-                      <td class="d">07.23</td>
-                      <td><span class="prog">MICROSITE TEST 송출 시험</span><span class="desc">You are looking at it: first test of the response-gathering microsite (text · voice · video).</span></td>
-                      <td><span class="tag tag-on" data-i18n="bc.ch03.active">ACTIVE</span></td>
-                    </tr>
-                    <tr class="sched">
-                      <td class="d">07.26–08.01</td>
-                      <td><span class="prog">STRUCTURE &amp; FIRE VISUALS</span><span class="desc">Installation structure design &amp; fire visual tests.</span></td>
-                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
-                    </tr>
-                    <tr class="sched">
-                      <td class="d">08.02–08.08</td>
-                      <td><span class="prog">PROTOTYPE TEST 1</span><span class="desc">Text → Score → visual.</span></td>
-                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
-                    </tr>
-                    <tr class="sched">
-                      <td class="d">08.09–08.15</td>
-                      <td><span class="prog">PROTOTYPE TEST 2</span><span class="desc">Fabric &amp; projection mapping.</span></td>
-                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
-                    </tr>
-                    <tr class="sched">
-                      <td class="d">08.16–08.22</td>
-                      <td><span class="prog">INTEGRATION TEST 통합</span><span class="desc">All systems, one fire.</span></td>
-                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
-                    </tr>
-                    <tr class="sched">
-                      <td class="d">08.31</td>
-                      <td><span class="prog">PHASE 1 REPORT 보고</span><span class="desc">End of Phase 1 broadcast.</span></td>
-                      <td><span class="tag tag-sched" data-i18n="bc.ch03.scheduled">SCHEDULED</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p class="evolution" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
-            </section>
-
-            <!-- ======== CH 04 SCORE ======== -->
-            <section class="channel" data-ch="ch04" aria-label="Channel 4 — Score" hidden>
-              <p class="osd-tag vt"><span class="live-dot" aria-hidden="true">●</span> TEST CARD · 지시문</p>
-              <p class="kicker" data-i18n="bc.ch04.kicker">AI reads each offering and, in the spirit of Nam June Paik and Fluxus, returns a Score — an open proposition anyone can perform in their own way. Eight samples on rotation.</p>
-              <h2 class="ch-title vt" data-i18n="bc.ch04.title">SCORES</h2>
-              <p class="ch-title-kr vt" data-i18n="bc.ch04.titleSub">지시문</p>
-              <div class="testcard">
-                <div class="score-card">
-                  <span class="score-no vt">SCORE No.01</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score1.title">IGNITION 점화</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score1.text">Write the technology you fear on your palm. Hold it over something warm. Wait until the warmth reaches the word.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.02</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score2.title">MOON HOUSE 달집</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score2.text">Build a small house from things you planned to throw away. Put one wish inside. Do not burn it yet.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.03</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score3.title">FEED 공급</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score3.text">Tell your oldest fear to the youngest machine in your home. Note which of you changes.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.04</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score4.title">ORBIT 쥐불</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score4.text">Swing a light in a circle until it becomes a line. This is how fast a fear must move to look like hope.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.05</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score5.title">ERROR TERM 오차항</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score5.text">Do something one hundred times. Keep only the flicker.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.06</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score6.title">BROADCAST 송출</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score6.text">Hum for thirty seconds to an appliance. If it hums back, you have made a duet. If not, you have made a prayer.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.07</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score7.title">HANDOVER 인계</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score7.text">Let a machine finish your sentence. Finish one of its own. Call it even.</p>
-                </div>
-                <div class="score-card" hidden>
-                  <span class="score-no vt">SCORE No.08</span>
-                  <h3 class="score-title vt" data-i18n="bc.ch04.score8.title">ASH 재</h3>
-                  <p class="score-text" data-i18n="bc.ch04.score8.text">Delete something you made. Describe what remains.</p>
-                </div>
-              </div>
-              <div class="pager">
-                <button class="pager-btn vt" type="button" data-step="-1" data-i18n="bc.ch04.prev">◀ PREV</button>
-                <span class="pager-count vt" id="scoreCounter" aria-live="polite">01/08</span>
-                <button class="pager-btn vt" type="button" data-step="1" data-i18n="bc.ch04.next">NEXT ▶</button>
-              </div>
-            </section>
-
-            <!-- ======== CH 00 STATIC (credits) ======== -->
-            <section class="channel" data-ch="ch00" id="ch00" aria-label="Channel 0 — Static, end credits" hidden>
-              <div class="credits">
-                <div class="roll">
-                  <div class="roll-block">
-                    <p class="cr-h vt">PERFORMING FIRE</p>
-                    <p class="cr-h-kr vt">퍼포밍 파이어</p>
-                    <p class="cr-sub">A LIVING TOTEM OF FUTURES · 미래의 살아있는 토템</p>
-                    <p class="cr-role vt">— TEAM 04 —</p>
-                    <p>박민아 Park Mina</p>
-                    <p>김희경 Kim Heekyung</p>
-                    <p>조소연 Cho Soyoun</p>
-                    <p>조정현 Cho Junghyun</p>
-                    <p>Chen Enjiao</p>
-                    <p>Siming Lu</p>
-                    <p class="cr-role vt">— PROGRAM —</p>
-                    <p>2026 APE LAB</p>
-                    <p>Mission 2 · Track B (Paik Nam June)</p>
-                    <p>Arts Council Korea 한국문화예술위원회</p>
-                    <p>July 7 – August 31, 2026</p>
-                    <p class="cr-role vt">— NOTE —</p>
-                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
-                    <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
-                  </div>
-                  <div class="roll-block roll-dup" aria-hidden="true">
-                    <p class="cr-h vt">PERFORMING FIRE</p>
-                    <p class="cr-h-kr vt">퍼포밍 파이어</p>
-                    <p class="cr-sub">A LIVING TOTEM OF FUTURES · 미래의 살아있는 토템</p>
-                    <p class="cr-role vt">— TEAM 04 —</p>
-                    <p>박민아 Park Mina</p>
-                    <p>김희경 Kim Heekyung</p>
-                    <p>조소연 Cho Soyoun</p>
-                    <p>조정현 Cho Junghyun</p>
-                    <p>Chen Enjiao</p>
-                    <p>Siming Lu</p>
-                    <p class="cr-role vt">— PROGRAM —</p>
-                    <p>2026 APE LAB</p>
-                    <p>Mission 2 · Track B (Paik Nam June)</p>
-                    <p>Arts Council Korea 한국문화예술위원회</p>
-                    <p>July 7 – August 31, 2026</p>
-                    <p class="cr-role vt">— NOTE —</p>
-                    <p class="cr-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
-                    <p class="cr-end vt">방송은 계속됩니다 · STAY TUNED</p>
-                  </div>
-                </div>
-                <span class="credits-hint vt" aria-hidden="true"><span data-when="hover" data-i18n="bc.credits.hint">HOVER TO PAUSE 일시정지</span><span data-when="touch" data-i18n="bc.credits.hint.touch">TAP TO PAUSE 탭하여 일시정지</span></span>
-              </div>
-            </section>
-
-            <!-- ======== ID (station ident) ======== -->
-            <section class="channel" data-ch="ident" aria-label="Station ident — test pattern" hidden>
-              <div class="ident-card">
-                <div class="bars" aria-hidden="true">
-                  <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span><span class="b6"></span>
-                </div>
-                <p class="osd-tag vt">ID · 화면조정</p>
-                <h2 class="ch-title vt">PERFORMING FIRE</h2>
-                <p class="ch-title-kr vt">퍼포밍 파이어</p>
-                <p class="ident-q">A Living Totem of Futures · 미래의 살아있는 토템<br>"How will we greet new technology?" 우리는 새로운 기술을 어떻게 맞이할 것인가?</p>
-                <p class="ident-note" data-i18n="bc.common.alive">This proposal is alive. What you read is a working version; artists' responses will bend it.</p>
-                <p class="ident-tag vt" data-i18n="bc.ident.tag">TRANSMISSION IN PROGRESS · 송출 진행 중</p>
-              </div>
-            </section>
-
-          </div>
+    <section class="viewer-bezel" aria-label="Main CRT">
+      <div class="viewer viewer-screen" id="viewer" data-channel="about">
+        <div class="signal-pane" aria-hidden="true">
+          <canvas data-anim="g7" data-signal-main></canvas>
+          <p class="signal-caption vt" id="signalCaption">G7 · CHROMATIC LOCK</p>
         </div>
-      </div>
+        <div class="content-pane">
+          <header class="viewer-head">
+            <span class="viewer-channel vt" id="viewerChannel">CH 01 ABOUT</span>
+            <span class="viewer-label" id="viewerLabel">01 / EQUATION</span>
+          </header>
+          <div class="transmission-stage" id="transmissionStage" aria-live="polite">
+            <section class="channel" data-channel-panel="about">
+              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.about.1.label" data-content-field="label">01 / EQUATION</p><h2 class="tx-title vt equation" data-i18n="bc.about.1.heading" data-content-field="heading">Y = f(X) + ε</h2><p class="tx-body" data-i18n="bc.about.1.body" data-content-field="body">X is what people bring. f(X) is the system's attempt to organize it. ε is what will not stay put.</p></article>
+              <article class="transmission" data-transmission="1" hidden><p class="tx-kicker vt" data-i18n="bc.about.2.label" data-content-field="label">02 / INPUT</p><h2 class="tx-title vt" data-i18n="bc.about.2.heading" data-content-field="heading">X / TRACES</h2><p class="tx-body" data-i18n="bc.about.2.body" data-content-field="body">People bring messages, voices, drawings, gestures, movements, hopes, fears, and short videos. These traces are X: the raw material.</p></article>
+              <article class="transmission" data-transmission="2" hidden><p class="tx-kicker vt" data-i18n="bc.about.3.label" data-content-field="label">03 / MAP</p><h2 class="tx-title vt" data-i18n="bc.about.3.heading" data-content-field="heading">f(X) / THE MAP</h2><p class="tx-body" data-i18n="bc.about.3.body" data-content-field="body">The proposed system embeds, clusters, and maps the traces. f(X) is its attempt to make them legible and manageable.</p></article>
+              <article class="transmission" data-transmission="3" hidden><p class="tx-kicker vt" data-i18n="bc.about.4.label" data-content-field="label">04 / REMAINDER</p><h2 class="tx-title vt" data-i18n="bc.about.4.heading" data-content-field="heading">ε / WHAT RESISTS</h2><p class="tx-body" data-i18n="bc.about.4.body" data-content-field="body">Mistranslations, contradictions, silence, strange gestures, and unclear signals resist the map. Most AI systems reduce ε. Here, we perform it.</p></article>
+              <article class="transmission" data-transmission="4" hidden><p class="tx-kicker vt" data-i18n="bc.about.5.label" data-content-field="label">05 / PERFORMANCE</p><h2 class="tx-title vt" data-i18n="bc.about.5.heading" data-content-field="heading">THE REMAINDER BURNS</h2><p class="tx-body" data-i18n="bc.about.5.body" data-content-field="body">A performer works inside or around the fabric totem, changing ε into light, particles, sound, glitch, and symbolic fire.</p></article>
+            </section>
 
-      <div class="dial" role="group" aria-label="Channel dial">
-        <button class="dial-btn vt" type="button" data-tune="ch00" aria-pressed="false">CH 00<span>STATIC</span></button>
-        <button class="dial-btn vt" type="button" data-tune="ch01" aria-pressed="true">CH 01<span>SIGNAL</span></button>
-        <button class="dial-btn vt" type="button" data-tune="ch02" aria-pressed="false">CH 02<span>VOICES</span></button>
-        <button class="dial-btn vt" type="button" data-tune="ch03" aria-pressed="false">CH 03<span>LOG</span></button>
-        <button class="dial-btn vt" type="button" data-tune="ch04" aria-pressed="false">CH 04<span>SCORE</span></button>
-        <span class="dial-sep" aria-hidden="true"></span>
-        <button class="dial-btn dial-arrow vt" type="button" id="chUp" aria-label="Channel up">▲</button>
-        <button class="dial-btn dial-arrow vt" type="button" id="chDown" aria-label="Channel down">▼</button>
+            <section class="channel" data-channel-panel="contribute" hidden>
+              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.contribute.1.label" data-content-field="label">01 / WHAT TO SEND</p><h2 class="tx-title vt" data-i18n="bc.contribute.1.heading" data-content-field="heading">LEAVE A TRACE</h2><p class="tx-body" data-i18n="bc.contribute.1.body" data-content-field="body">Send a question, hope, fear, or imagination about technology. The text form is live; voice and video are interface studies and do not upload media.</p></article>
+              <article class="transmission" data-transmission="1" hidden><p class="tx-kicker vt" data-i18n="bc.contribute.2.label" data-content-field="label">02 / WHAT HAPPENS</p><h2 class="tx-title vt" data-i18n="bc.contribute.2.heading" data-content-field="heading">TRACE → MAP → ε</h2><p class="tx-body" data-i18n="bc.contribute.2.body" data-content-field="body">Your trace joins the work's input. The proposed pipeline maps it; what resists that map becomes material for performance.</p></article>
+              <article class="transmission" data-transmission="2" hidden><p class="tx-kicker vt" data-i18n="bc.contribute.3.label" data-content-field="label">03 / CONSENT</p><h2 class="tx-title vt" data-i18n="bc.contribute.3.heading" data-content-field="heading">BEFORE TRANSMISSION</h2><p class="tx-body" data-i18n="bc.ch02.consent" data-content-field="body">My words may be performed, projected, and burned.</p><span class="study-status vt" data-i18n="bc.contribute.3.note">SUBMISSIONS WAIT FOR MODERATION BEFORE PUBLICATION</span></article>
+              <article class="transmission" data-transmission="3" hidden><p class="tx-kicker vt" data-i18n="bc.contribute.4.label" data-content-field="label">04 / RECEIVED</p><h2 class="tx-title vt" data-i18n="bc.contribute.4.heading" data-content-field="heading">ARTIST RESPONSES</h2><p class="voices-fallback vt" id="voicesFallback" role="status" hidden data-i18n="bc.ch02.fallback">THE LINE IS DOWN — SHOWING THE ARCHIVE REEL.</p><div class="callers" id="voicesList" aria-live="polite"></div></article>
+              <article class="transmission" data-transmission="4" hidden><p class="tx-kicker vt" data-i18n="bc.contribute.5.label" data-content-field="label">05 / SEND</p><h2 class="tx-title vt" data-i18n="bc.contribute.5.heading" data-content-field="heading">YOUR OFFERING</h2>
+                <div class="tabs" role="group" aria-label="Message format"><button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="false" data-i18n="bc.ch02.tabVoice">VOICE STUDY</button><button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false" data-i18n="bc.ch02.tabVideo">VIDEO STUDY</button><button class="tab-btn vt" type="button" data-tab="type" aria-pressed="true" data-i18n="bc.ch02.tabType">TYPE</button></div>
+                <div class="tab-panel" data-tab="voice" hidden><div class="rec" data-rec="voice" data-ready="READY — NO AUDIO IS UPLOADED." data-i18n-ready="bc.ch02.readyVoice"><p class="rec-line vt"><span class="timecode">00:00:00</span> <span data-i18n="bc.ch02.modeAudio">AUDIO STUDY</span></p><button class="rec-btn vt" type="button">● REC</button><p class="rec-status" role="status">READY — NO AUDIO IS UPLOADED.</p><p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</p></div></div>
+                <div class="tab-panel" data-tab="video" hidden><div class="rec" data-rec="video" data-ready="READY — NO CAMERA IS ACCESSED." data-i18n-ready="bc.ch02.readyVideo"><p class="rec-line vt"><span class="timecode">00:00:00</span> <span data-i18n="bc.ch02.modeVideo">VIDEO STUDY</span></p><button class="rec-btn vt" type="button">● REC</button><p class="rec-status" role="status">READY — NO CAMERA IS ACCESSED.</p><p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</p></div></div>
+                <div class="tab-panel" data-tab="type">
+                  <form class="offer-form" id="offerForm"><div><label class="f-label vt" for="f-name" data-i18n="bc.ch02.nameLabel">NAME</label><input type="text" id="f-name" name="name" data-i18n-placeholder="bc.ch02.namePh" placeholder="name or anonymous" autocomplete="off"></div><div><label class="f-label vt" for="f-disc" data-i18n="bc.ch02.practiceLabel">PRACTICE</label><input type="text" id="f-disc" name="discipline" data-i18n-placeholder="bc.ch02.practicePh" placeholder="e.g. sound" autocomplete="off"></div><div class="full"><label class="f-label vt" for="f-resp" data-i18n="bc.ch02.offeringLabel">YOUR OFFERING</label><textarea id="f-resp" name="response" required data-i18n-placeholder="bc.ch02.offeringPh" placeholder="a question, hope, fear, imagination"></textarea></div><label class="consent"><input type="checkbox" name="consent" required><span data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</span></label><button class="send-btn vt" type="submit" data-i18n="bc.ch02.send">SEND TO THE FIRE</button></form>
+                  <div class="queue-confirm" id="queueConfirm" hidden><p class="qc-big vt" data-i18n="bc.ch02.queueBig">YOUR MESSAGE IS IN THE QUEUE.</p><p data-i18n="bc.ch02.queueSub">It is pending moderation.</p><button class="link-btn vt" type="button" id="sendAnother" data-i18n="bc.ch02.sendAnother">SEND ANOTHER</button></div>
+                </div>
+              </article>
+            </section>
+
+            <section class="channel" data-channel-panel="experiments" hidden>
+              <article class="transmission experiment-switchboard" data-transmission="0">
+                <p class="tx-kicker vt" data-i18n="bc.experiments.screen.label" data-content-field="label">01 / TWO STUDIES</p>
+                <details class="experiment-card" data-study="fabric">
+                  <summary><span class="study-kicker vt" data-i18n="bc.experiments.fabric.kicker">FABRIC · INSTALLATION EXPERIMENT</span><span class="study-title" data-i18n="bc.experiments.fabric.title">SOFTWARE AS MATERIAL</span><span class="study-teaser" data-i18n="bc.experiments.fabric.teaser">A hand-responsive fabric with fire-like motion.</span><span class="study-toggle"><span class="study-toggle-open" data-i18n="bc.experiments.open">OPEN STUDY</span><span class="study-toggle-close" data-i18n="bc.experiments.close">CLOSE STUDY</span></span></summary>
+                  <p class="study-detail" data-i18n="bc.experiments.fabric.detail">Physical fabric is difficult to choreograph. This study moves its tension, drag, and instability into software, where a hand can disturb it in real time.</p>
+                  <a class="study-link" href="/experiments/fabric/" data-i18n="bc.experiments.fabric.link">VISIT FABRIC →</a>
+                </details>
+                <details class="experiment-card" data-study="microsite">
+                  <summary><span class="study-kicker vt" data-i18n="bc.experiments.microsite.kicker">MICROSITE · VISUAL STUDY</span><span class="study-title" data-i18n="bc.experiments.microsite.title">HOW DO YOU BUILD A BROADCAST?</span><span class="study-teaser" data-i18n="bc.experiments.microsite.teaser">From Paik's television objects to a five-channel system.</span><span class="study-toggle"><span class="study-toggle-open" data-i18n="bc.experiments.open">OPEN STUDY</span><span class="study-toggle-close" data-i18n="bc.experiments.close">CLOSE STUDY</span></span></summary>
+                  <p class="study-detail" data-i18n="bc.experiments.microsite.detail">Candle TV, slabs, racks, water, observing devices, data totems, moon jars, and stupas test how each part of Performing Fire can take form and still belong to one structure.</p>
+                  <a class="study-link" href="/experiments/microsite/" data-i18n="bc.experiments.microsite.link">READ MICROSITE STUDY →</a>
+                </details>
+              </article>
+            </section>
+            </section>
+
+            <section class="channel" data-channel-panel="research" hidden>
+              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.research.1.label" data-content-field="label">01 / SOURCE REGISTRY</p><h2 class="tx-title vt" data-i18n="bc.research.1.heading" data-content-field="heading">WHAT ENTERS THE CORPUS</h2><p class="tx-body" data-i18n="bc.research.1.body" data-content-field="body">The Performing Fire corpus is organized as a source registry: Nam June Paik Art Center records, the separate Video Archive, the Video Library, the official Nam June Paik Art Center YouTube channel, and the ANTIEGG Fluxus article. Each entry is named before it is selected.</p></article>
+              <article class="transmission" data-transmission="1" hidden><p class="tx-kicker vt" data-i18n="bc.research.2.label" data-content-field="label">02 / BOUNDS</p><h2 class="tx-title vt" data-i18n="bc.research.2.heading" data-content-field="heading">METADATA, NOT A MEDIA DUMP</h2><p class="tx-body" data-i18n="bc.research.2.body" data-content-field="body">The working corpus keeps bounded public metadata and source links. Raw clips, images, and private material stay out of the repository.</p></article>
+              <article class="transmission" data-transmission="2" hidden><p class="tx-kicker vt" data-i18n="bc.research.3.label" data-content-field="label">03 / GOVERNANCE</p><h2 class="tx-title vt" data-i18n="bc.research.3.heading" data-content-field="heading">RIGHTS CHANGE BY OPERATION</h2><p class="tx-body" data-i18n="bc.research.3.body" data-content-field="body">Viewing, quoting, deriving, and publishing are separate operations. A source can be searchable for research without being copied, transformed, or published.</p></article>
+              <article class="transmission" data-transmission="3" hidden><p class="tx-kicker vt" data-i18n="bc.research.4.label" data-content-field="label">04 / PROVENANCE</p><h2 class="tx-title vt" data-i18n="bc.research.4.heading" data-content-field="heading">SEARCH WITH A TRACE</h2><p class="tx-body" data-i18n="bc.research.4.body" data-content-field="body">Search follows provenance—source, operation, and status—before a deliberate selection is made for a visual study. The result is a considered subset, not an automatic dump.</p></article>
+              <article class="transmission" data-transmission="4" hidden><p class="tx-kicker vt" data-i18n="bc.research.5.label" data-content-field="label">05 / STATE</p><h2 class="tx-title vt" data-i18n="bc.research.5.heading" data-content-field="heading">HELD / OFFLINE / PROVEN</h2><p class="tx-body" data-i18n="bc.research.5.body" data-content-field="body">Uncleared material stays held. Implemented offline means local metadata and fixtures only. Live-proven means a public path has been checked; research status never implies a finished model.</p></article>
+            </section>
+
+            <section class="channel" data-channel-panel="log" hidden>
+              <article class="transmission" data-transmission="0"><p class="tx-kicker vt" data-i18n="bc.log.1.label" data-content-field="label">PROPOSED · 07/07–18</p><h2 class="tx-title vt" data-i18n="bc.log.1.heading" data-content-field="heading">THEME + CONCEPT</h2><p class="tx-body" data-i18n="bc.log.1.body" data-content-field="body">Theme development, the mission debrief, roles, and concept refinement open the first phase.</p><a class="tx-link vt" href="/experiments/fabric/" data-i18n="bc.log.1.link">OPEN EXPERIMENT</a></article>
+              <article class="transmission" data-transmission="1" hidden><p class="tx-kicker vt" data-i18n="bc.log.2.label" data-content-field="label">PROPOSED · 07/19–25</p><h2 class="tx-title vt" data-i18n="bc.log.2.heading" data-content-field="heading">RESEARCH + RESPONSE</h2><p class="tx-body" data-i18n="bc.log.2.body" data-content-field="body">Detailed research, artist response study, and a multimodal microsite test for text, voice, and video.</p></article>
+              <article class="transmission" data-transmission="2" hidden><p class="tx-kicker vt" data-i18n="bc.log.3.label" data-content-field="label">PROPOSED · 07/26–08/08</p><h2 class="tx-title vt" data-i18n="bc.log.3.heading" data-content-field="heading">STRUCTURE + PROTOTYPE 1</h2><p class="tx-body" data-i18n="bc.log.3.body" data-content-field="body">Structure, the AI Score workflow, fire visuals, and the first text → Score → visual interaction test.</p></article>
+              <article class="transmission" data-transmission="3" hidden><p class="tx-kicker vt" data-i18n="bc.log.4.label" data-content-field="label">PROPOSED · 08/09–22</p><h2 class="tx-title vt" data-i18n="bc.log.4.heading" data-content-field="heading">PROTOTYPE 2 + INTEGRATION</h2><p class="tx-body" data-i18n="bc.log.4.body" data-content-field="body">Textile and projection mapping lead into an integration test, feedback, and Phase 2 planning.</p></article>
+              <article class="transmission" data-transmission="4" hidden><p class="tx-kicker vt" data-i18n="bc.log.5.label" data-content-field="label">PROPOSED · 08/23–31</p><h2 class="tx-title vt" data-i18n="bc.log.5.heading" data-content-field="heading">RESULTS + REPORT</h2><p class="tx-body" data-i18n="bc.log.5.body" data-content-field="body">Results, the Phase 2 development plan, and final report review close the project window.</p></article>
+            </section>
+          </div>
+          <nav class="transport" aria-label="Transmission navigation" data-i18n-aria-label="bc.nav.transmission">
+            <button class="transport-btn vt" id="transmissionPrev" type="button" aria-label="Previous transmission" data-i18n-aria-label="bc.nav.previous">←</button>
+            <output class="progress-count vt" id="progressCount" aria-live="polite">01 / 05</output>
+            <ol class="progress-track" id="progressTrack" aria-label="Transmission progress"><li class="is-current"></li><li></li><li></li><li></li><li></li></ol>
+            <button class="transport-btn vt" id="transmissionNext" type="button" aria-label="Next transmission" data-i18n-aria-label="bc.nav.next">→</button>
+          </nav>
+        </div>
+        <div class="tuning-burst" aria-hidden="true"></div>
       </div>
     </section>
+  </main>
 
-  </div>
-
-  <footer class="pf-footer">
-    <p>2026 APE LAB · Mission 2, Track B (Paik Nam June) · Arts Council Korea 한국문화예술위원회 · July 7 – August 31, 2026</p>
-    <p><a href="/experiments/" data-i18n="bc.footer.experiments">ALL EXPERIMENTS — 실험 색인</a></p>
-  </footer>
-
+  <footer class="pf-footer"><p data-i18n="bc.footer.tagline">Y = f(X) + ε · MOST SYSTEMS REDUCE ε. WE PERFORM IT.</p><p><a href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></p></footer>
 </div>
 
+<script src="js/preview-anims.js"></script>
+<script src="js/preview-anims3.js"></script>
+<script src="js/broadcast-content.js"></script>
 <script>
 /* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
 (function () {
@@ -959,10 +204,8 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   var SUPPORTED = ["en", "ko", "zh", "ja"];
   var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
   var STORE_KEY = "pf-lang";
-  var TITLE_KEY = "bc.title";
   var dicts = {};
   var active = "en";
-
   function resolveLang() {
     var q = null;
     try { q = new URLSearchParams(window.location.search).get("lang"); } catch (e) {}
@@ -974,48 +217,43 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     if (SUPPORTED.indexOf(nav) !== -1) { return nav; }
     return "en";
   }
-
   function t(key) {
     var d = dicts[active];
     if (d && typeof d[key] === "string" && d[key]) { return d[key]; }
-    var en = dicts.en;
-    if (en && typeof en[key] === "string") { return en[key]; }
-    return "";
+    return dicts.en && typeof dicts.en[key] === "string" ? dicts.en[key] : "";
   }
-
   function load(lang) {
     if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
-    return window.fetch("i18n/" + lang + ".json")
-      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
-      .then(function (json) { dicts[lang] = json; return json; })
-      .catch(function () { return null; }); /* offline / file:// — defaults in the markup stay up */
+    return window.fetch("i18n/" + lang + ".json").then(function (res) {
+      if (!res.ok) { throw new Error(String(res.status)); }
+      return res.json();
+    }).then(function (json) { dicts[lang] = json; return json; }).catch(function () { return null; });
   }
-
   function hydrate() {
     var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-ready]");
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
       var key = el.getAttribute("data-i18n");
-      var text = key ? t(key) : "";
-      if (text) { el.textContent = text; }
-      var phKey = el.getAttribute("data-i18n-placeholder");
-      var ph = phKey ? t(phKey) : "";
-      if (ph) { el.setAttribute("placeholder", ph); }
-      var readyKey = el.getAttribute("data-i18n-ready");
-      var ready = readyKey ? t(readyKey) : "";
-      if (ready) { el.setAttribute("data-ready", ready); }
+      var value = key ? t(key) : "";
+      if (value) { el.textContent = value; }
+      var ph = el.getAttribute("data-i18n-placeholder");
+      if (ph && t(ph)) { el.setAttribute("placeholder", t(ph)); }
+      var ready = el.getAttribute("data-i18n-ready");
+      if (ready && t(ready)) { el.setAttribute("data-ready", t(ready)); }
     }
-    var title = t(TITLE_KEY);
-    if (title) { document.title = title; }
+    var labelled = document.querySelectorAll("[data-i18n-aria-label]");
+    for (var j = 0; j < labelled.length; j++) {
+      var ariaKey = labelled[j].getAttribute("data-i18n-aria-label");
+      var ariaValue = ariaKey ? t(ariaKey) : "";
+      if (ariaValue) { labelled[j].setAttribute("aria-label", ariaValue); }
+    }
+    if (t("bc.title")) { document.title = t("bc.title"); }
   }
-
   function markToggle() {
-    var btns = document.querySelectorAll(".lang-toggle [data-lang]");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].setAttribute("aria-pressed", String(btns[i].getAttribute("data-lang") === active));
-    }
+    document.querySelectorAll(".lang-toggle [data-lang]").forEach(function (btn) {
+      btn.setAttribute("aria-pressed", String(btn.getAttribute("data-lang") === active));
+    });
   }
-
   function setLang(lang, persist) {
     if (SUPPORTED.indexOf(lang) === -1) { lang = "en"; }
     active = lang;
@@ -1027,14 +265,11 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
       document.dispatchEvent(new CustomEvent("pf:lang", { detail: { lang: lang } }));
     });
   }
-
   window.PF_I18N = { t: t, resolveLang: resolveLang, setLang: setLang, current: function () { return active; } };
-
   document.addEventListener("click", function (event) {
     var btn = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
     if (btn) { setLang(btn.getAttribute("data-lang"), true); }
   });
-
   setLang(resolveLang(), false);
 })();
 </script>
@@ -1046,165 +281,181 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   var $$ = function (sel, root) { return [].slice.call((root || document).querySelectorAll(sel)); };
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   function pad2(n) { return String(n).padStart(2, "0"); }
-  function tr(key, fallbackText) {
-    var text = window.PF_I18N ? window.PF_I18N.t(key) : "";
-    return text || fallbackText;
-  }
+  function tr(key, fallbackText) { var value = window.PF_I18N ? window.PF_I18N.t(key) : ""; return value || fallbackText; }
 
-  /* ---------- static noise engine: one shared rAF for every canvas ---------- */
-  var snows = $$("canvas.snow").map(function (el) {
-    return { el: el, ctx: el.getContext("2d"), img: null };
-  });
-  function drawSnow(s) {
-    if (!s.ctx) { return; }
-    if (!s.img) { s.img = s.ctx.createImageData(s.el.width, s.el.height); }
-    var px = new Uint32Array(s.img.data.buffer);
-    for (var i = 0; i < px.length; i++) {
-      var v = (Math.random() * 210 + 12) | 0;
-      px[i] = (255 << 24) | (v << 16) | (v << 8) | v;
-    }
-    s.ctx.putImageData(s.img, 0, 0);
-  }
-  snows.forEach(drawSnow); /* first frame for everyone, incl. reduced-motion */
-
-  var frame = 0;
-  function loop() {
-    frame += 1;
-    /* rAF already pauses in hidden tabs; the checks keep resume cheap too */
-    if (!reduced.matches && !document.hidden && frame % 3 === 0) {
-      for (var i = 0; i < snows.length; i++) {
-        if (snows[i].el.offsetParent !== null) { drawSnow(snows[i]); }
-      }
-    }
-    tickRecs();
-    window.requestAnimationFrame(loop);
-  }
-  window.requestAnimationFrame(loop);
-
-  /* ---------- channel tuner ---------- */
+  var CHANNELS = [
+    { id: "about", nameKey: "bc.channel.about", signalKey: "bc.signal.about", name: "ABOUT", signal: "g7", signalLabel: "G7 · CHROMATIC LOCK", count: 5 },
+    { id: "contribute", nameKey: "bc.channel.contribute", signalKey: "bc.signal.contribute", name: "CONTRIBUTE", signal: "hj", signalLabel: "HJ · CHIMERA FIELD", count: 5 },
+    { id: "experiments", nameKey: "bc.channel.experiments", signalKey: "bc.signal.experiments", name: "EXPERIMENTS", signal: "x3", signalLabel: "X3 · VISUAL LANGUAGE", count: 1 },
+    { id: "research", nameKey: "bc.channel.research", signalKey: "bc.signal.research", name: "RESEARCH", signal: "r1", signalLabel: "R1 · PUNCH DATA", count: 5 },
+    { id: "log", nameKey: "bc.channel.log", signalKey: "bc.signal.log", name: "LOG", signal: "l1", signalLabel: "L1 · MOON PHASES", count: 5 }
+  ];
+  var currentChannel = 0;
+  var currentTransmission = 0;
   var viewer = $("#viewer");
-  var viewerBody = $("#viewerBody");
-  var burst = $("#burstCanvas");
-  var osd = $("#osdFlash");
-  var CHANNELS = ["ch00", "ch01", "ch02", "ch03", "ch04"];
-  var OSD_NAMES = {
-    ch00: "CH 00 — STATIC",
-    ch01: "CH 01 — SIGNAL",
-    ch02: "CH 02 — VOICES",
-    ch03: "CH 03 — LOG",
-    ch04: "CH 04 — SCORE",
-    ident: "ID — 화면조정"
-  };
-  var current = "ch01";
-  var burstTimer = 0;
-  var osdTimer = 0;
+  var previews = $$(".preview-btn");
 
-  /* ---------- coarse pointers: tap to clarify, tap again to tune ---------- */
-  var coarse = window.matchMedia("(hover: none) and (pointer: coarse)");
-  var lastPointer = "";
-  /* capture phase so the gesture is known before any button's own click handler runs */
-  document.addEventListener("pointerdown", function (event) { lastPointer = event.pointerType || ""; }, true);
-  document.addEventListener("keydown", function () { lastPointer = ""; }, true);
-  function touchGesture() {
-    return coarse.matches || lastPointer === "touch" || lastPointer === "pen";
-  }
-  var wallBtns = $$(".wall-btn");
-  function clarifyWall(target) { /* at most one monitor clarified; :hover is left alone */
-    wallBtns.forEach(function (btn) { btn.classList.toggle("clarified", btn === target); });
-  }
+  if (window.PF_INIT) { window.PF_INIT(); }
 
-  function flashOSD(text) {
-    osd.textContent = text;
-    osd.classList.add("show");
-    window.clearTimeout(osdTimer);
-    osdTimer = window.setTimeout(function () { osd.classList.remove("show"); }, 1700);
-  }
-  function setActive(ch) {
-    $$(".channel", viewerBody).forEach(function (sec) {
-      sec.hidden = sec.dataset.ch !== ch;
-    });
-    $$(".wall-btn, .dial-btn").forEach(function (btn) {
-      if (btn.dataset.tune) {
-        btn.setAttribute("aria-pressed", String(btn.dataset.tune === ch));
-      }
-    });
-    viewer.dataset.ch = ch;
-    viewerBody.scrollTop = 0;
-  }
-  function tune(ch) {
-    if (!OSD_NAMES[ch]) { return; }
-    current = ch;
-    clarifyWall(null); /* the wall goes back to latent once a channel is open */
-    if (reduced.matches) { /* hard cut */
-      setActive(ch);
-      flashOSD(OSD_NAMES[ch]);
-      return;
+  function renderProgress(count) {
+    var track = $("#progressTrack");
+    track.textContent = "";
+    for (var i = 0; i < count; i++) {
+      var segment = document.createElement("li");
+      if (i === currentTransmission) { segment.className = "is-current"; segment.setAttribute("aria-current", "step"); }
+      track.appendChild(segment);
     }
-    setActive(ch);
-    burst.hidden = false; /* ~250ms burst of noise over the new channel */
-    window.clearTimeout(burstTimer);
-    burstTimer = window.setTimeout(function () {
-      burst.hidden = true;
-      flashOSD(OSD_NAMES[ch]);
-    }, 260);
+    $("#progressCount").textContent = pad2(currentTransmission + 1) + " / " + pad2(count);
   }
-  $$("[data-tune]").forEach(function (btn) {
-    btn.addEventListener("click", function (event) {
-      /* detail 0 means keyboard Enter/Space or an assistive-tech activation: those
-         gain nothing from clarifying a preview that is aria-hidden anyway, so they
-         tune in one step. Only a real finger gets the two-tap read-then-open path. */
-      var finger = event.detail > 0 && touchGesture();
-      if (finger && btn.classList.contains("wall-btn") && !btn.classList.contains("clarified")) {
-        clarifyWall(btn); /* first tap reads the preview; a second tap opens the channel */
-        return;
-      }
-      tune(btn.dataset.tune);
-    });
-  });
-  function step(dir) {
-    var i = CHANNELS.indexOf(current); /* ident yields -1: lands on a real channel */
-    tune(CHANNELS[(i + dir + CHANNELS.length) % CHANNELS.length]);
-  }
-  $("#chUp").addEventListener("click", function () { step(1); });
-  $("#chDown").addEventListener("click", function () { step(-1); });
 
-  /* ---------- CH 04: score test-card pager ---------- */
-  var scoreCards = $$(".score-card");
-  var scoreCounter = $("#scoreCounter");
-  var scoreIx = 0;
-  function showScore(i) {
-    scoreIx = (i + scoreCards.length) % scoreCards.length;
-    scoreCards.forEach(function (card, k) { card.hidden = k !== scoreIx; });
-    scoreCounter.textContent = pad2(scoreIx + 1) + "/" + pad2(scoreCards.length);
+  function render() {
+    var channel = CHANNELS[currentChannel];
+    currentTransmission = Math.min(currentTransmission, channel.count - 1);
+    viewer.dataset.channel = channel.id;
+    $("#viewerChannel").textContent = channel.label;
+    $("#signalCaption").textContent = channel.signalLabel;
+    $$("[data-channel-panel]").forEach(function (panel) {
+      var active = panel.dataset.channelPanel === channel.id;
+      panel.hidden = !active;
+      if (active) {
+        $$("[data-transmission]", panel).forEach(function (tx) { tx.hidden = Number(tx.dataset.transmission) !== currentTransmission; });
+        var visible = $("[data-transmission]:not([hidden])", panel);
+        var label = visible && $("[data-content-field=label]", visible);
+        $("#viewerLabel").textContent = label ? label.textContent : "";
+      }
+    });
+    previews.forEach(function (button, index) {
+      button.setAttribute("aria-pressed", String(index === currentChannel));
+      if (index === currentChannel && window.PF_SIGNALS) { window.PF_SIGNALS.freeze($("canvas", button)); }
+    });
+    renderProgress(channel.count);
   }
-  $$(".pager-btn").forEach(function (btn) {
-    btn.addEventListener("click", function () { showScore(scoreIx + Number(btn.dataset.step)); });
+
+  function localizeChrome() {
+    CHANNELS.forEach(function (channel, index) {
+      var name = tr(channel.nameKey, channel.name);
+      channel.label = "CH " + pad2(index + 1) + " " + name;
+      channel.signalLabel = tr(channel.signalKey, channel.signalLabel);
+      var button = previews[index];
+      if (button) {
+        button.setAttribute("aria-label", channel.label);
+        var nameNode = $(".preview-name", button);
+        if (nameNode) { nameNode.textContent = name; }
+      }
+    });
+    var transport = $(".transport");
+    if (transport) { transport.setAttribute("aria-label", tr("bc.nav.transmission", "Transmission navigation")); }
+    var previous = $("#transmissionPrev");
+    var next = $("#transmissionNext");
+    if (previous) { previous.setAttribute("aria-label", tr("bc.nav.previous", "Previous transmission")); }
+    if (next) { next.setAttribute("aria-label", tr("bc.nav.next", "Next transmission")); }
+    render();
+  }
+
+  function tuningFlash() {
+    if (reduced.matches) { return; }
+    viewer.classList.remove("is-tuning");
+    void viewer.offsetWidth;
+    viewer.classList.add("is-tuning");
+    window.setTimeout(function () { viewer.classList.remove("is-tuning"); }, 260);
+  }
+
+  function tune(index) {
+    currentChannel = (index + CHANNELS.length) % CHANNELS.length;
+    currentTransmission = 0;
+    if (window.PF_SIGNALS) { window.PF_SIGNALS.setMain(CHANNELS[currentChannel].signal); }
+    tuningFlash();
+    render();
+  }
+
+  function stepTransmission(direction) {
+    var count = CHANNELS[currentChannel].count;
+    currentTransmission = (currentTransmission + direction + count) % count;
+    render();
+  }
+
+  previews.forEach(function (button, index) {
+    var canvas = $("canvas", button);
+    button.addEventListener("click", function () { tune(index); });
+    button.addEventListener("keydown", function (event) {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") { return; }
+      event.preventDefault();
+      var next = (index + (event.key === "ArrowRight" ? 1 : -1) + CHANNELS.length) % CHANNELS.length;
+      previews[next].focus();
+      tune(next);
+    });
+    function wake() {
+      if (index === currentChannel) { return; }
+      button.classList.add("is-awake");
+      if (window.PF_SIGNALS) { window.PF_SIGNALS.wake(canvas); }
+    }
+    function freeze() {
+      button.classList.remove("is-awake");
+      if (window.PF_SIGNALS) { window.PF_SIGNALS.freeze(canvas); }
+    }
+    button.addEventListener("pointerenter", wake);
+    button.addEventListener("pointerleave", freeze);
+    button.addEventListener("focus", wake);
+    button.addEventListener("blur", freeze);
   });
-  showScore(0);
+  $("#transmissionPrev").addEventListener("click", function () { stepTransmission(-1); });
+  $("#transmissionNext").addEventListener("click", function () { stepTransmission(1); });
+  document.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) { return; }
+    var tag = event.target && event.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") { return; }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      tune(currentChannel + (event.key === "ArrowRight" ? 1 : -1));
+    }
+  });
+
+  function applyRemoteContent(content) {
+    if (!content) { return; }
+    CHANNELS.forEach(function (channel) {
+      var overrides = content[channel.id];
+      if (!overrides) { return; }
+      var panel = $('[data-channel-panel="' + channel.id + '"]');
+      $$("[data-transmission]", panel).forEach(function (tx, index) {
+        var item = overrides[index];
+        if (!item) { return; }
+        ["label", "heading", "body"].forEach(function (field) {
+          var node = $('[data-content-field="' + field + '"]', tx);
+          if (node && item[field]) { node.textContent = item[field]; }
+        });
+        var oldLink = $(".cms-link", tx);
+        if (oldLink) { oldLink.remove(); }
+        if (item.linkLabel && item.linkHref) {
+          var link = document.createElement("a");
+          link.className = "tx-link vt cms-link";
+          link.href = item.linkHref;
+          link.textContent = item.linkLabel;
+          tx.appendChild(link);
+        }
+      });
+    });
+    render();
+  }
+  var contentRequest = 0;
+  function loadBroadcastContent() {
+    if (!window.PF_BROADCAST_CONTENT) { return; }
+    var request = ++contentRequest;
+    window.PF_BROADCAST_CONTENT.load(window.PF_I18N.current()).then(function (content) {
+      if (request === contentRequest) { applyRemoteContent(content); }
+    });
+  }
 
   /* ---------- CH 02: REC VOICE / REC VIDEO / TYPE tabs ---------- */
   var tabBtns = $$(".tab-btn");
+  var recs = [];
   function showTab(id) {
-    tabBtns.forEach(function (btn) {
-      btn.setAttribute("aria-pressed", String(btn.dataset.tab === id));
-    });
+    tabBtns.forEach(function (btn) { btn.setAttribute("aria-pressed", String(btn.dataset.tab === id)); });
     $$(".tab-panel").forEach(function (panel) { panel.hidden = panel.dataset.tab !== id; });
-    recs.forEach(resetRec); /* switching format hangs up any take in progress */
+    recs.forEach(resetRec);
   }
-  tabBtns.forEach(function (btn) {
-    btn.addEventListener("click", function () { showTab(btn.dataset.tab); });
-  });
-
-  /* ---------- mock recorder: blinking REC + running timecode ---------- */
-  var recs = $$("[data-rec]").map(function (root) {
-    var rec = {
-      root: root,
-      btn: $(".rec-btn", root),
-      tc: $(".timecode", root),
-      status: $(".rec-status", root),
-      state: "idle",
-      start: 0
-    };
+  tabBtns.forEach(function (btn) { btn.addEventListener("click", function () { showTab(btn.dataset.tab); }); });
+  recs = $$("[data-rec]").map(function (root) {
+    var rec = { root: root, btn: $(".rec-btn", root), tc: $(".timecode", root), status: $(".rec-status", root), state: "idle", start: 0 };
     rec.btn.addEventListener("click", function () { recClick(rec); });
     return rec;
   });
@@ -1212,37 +463,27 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     if (rec.state === "recording") {
       var sec = Math.max(1, Math.round((Date.now() - rec.start) / 1000));
       rec.state = "captured";
-      rec.root.classList.remove("recording");
-      rec.root.classList.add("captured");
-      rec.status.textContent = tr("bc.ch02.captured", "MESSAGE CAPTURED — {sec} SEC. YOUR MESSAGE IS IN THE QUEUE. 송출 예정.").replace("{sec}", sec);
-      rec.btn.textContent = tr("bc.ch02.rerec", "● RE-REC 다시 녹음");
+      rec.status.textContent = tr("bc.ch02.captured", "MESSAGE CAPTURED — {sec} SEC.").replace("{sec}", sec);
+      rec.btn.textContent = tr("bc.ch02.rerec", "● RE-REC");
     } else {
       rec.state = "recording";
       rec.start = Date.now();
-      rec.root.classList.remove("captured");
-      rec.root.classList.add("recording");
-      rec.status.textContent = tr("bc.ch02.recording", "RECORDING — PRESS ■ STOP WHEN DONE. 녹음 중입니다.");
+      rec.status.textContent = tr("bc.ch02.recording", "RECORDING — PRESS STOP WHEN DONE.");
       rec.btn.textContent = tr("bc.ch02.stop", "■ STOP");
     }
   }
   function resetRec(rec) {
-    rec.state = "idle";
-    rec.start = 0;
-    rec.root.classList.remove("recording", "captured");
-    rec.tc.textContent = "00:00:00";
+    rec.state = "idle"; rec.start = 0; rec.tc.textContent = "00:00:00";
     rec.status.textContent = rec.root.dataset.ready;
     rec.btn.textContent = tr("bc.ch02.rec", "● REC");
   }
-  function tickRecs() { /* driven by the shared rAF loop */
-    for (var i = 0; i < recs.length; i++) {
-      var rec = recs[i];
-      if (rec.state !== "recording") { continue; }
+  function tickRecs() {
+    recs.forEach(function (rec) {
+      if (rec.state !== "recording") { return; }
       var ms = Date.now() - rec.start;
-      var m = Math.floor(ms / 60000);
-      var s = Math.floor(ms / 1000) % 60;
-      var f = Math.floor((ms % 1000) / (1000 / 30)); /* MM:SS:FF at 30fps */
-      rec.tc.textContent = pad2(m) + ":" + pad2(s) + ":" + pad2(f);
-    }
+      rec.tc.textContent = pad2(Math.floor(ms / 60000)) + ":" + pad2(Math.floor(ms / 1000) % 60) + ":" + pad2(Math.floor((ms % 1000) / (1000 / 30)));
+    });
+    window.requestAnimationFrame(tickRecs);
   }
 
   /* ---------- CH 02: artist responses via the shared berlayar Payload CMS ----------
@@ -1255,25 +496,18 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
   var QUEUE_KEY = "pf-response-queue";
   var voicesList = $("#voicesList");
   var voicesFallback = $("#voicesFallback");
-  var published = [];  /* from the CMS, or from the fixture when the line is down */
-  var pending = [];    /* submitted from this browser, still awaiting review in the admin */
-
+  var published = [];
+  var pending = [];
   function currentLang() { return window.PF_I18N ? window.PF_I18N.current() : "en"; }
-
-  function readQueue() {
-    try { return JSON.parse(window.localStorage.getItem(QUEUE_KEY)) || []; } catch (e) { return []; }
-  }
-  function writeQueue(list) {
-    try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {}
-  }
-
+  function readQueue() { try { return JSON.parse(window.localStorage.getItem(QUEUE_KEY)) || []; } catch (e) { return []; } }
+  function writeQueue(list) { try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {} }
   /* built with textContent throughout: CMS text is untrusted and never becomes markup */
   function callerCard(doc, position, isPending) {
     var article = document.createElement("article");
     article.className = isPending ? "caller caller-pending" : "caller";
     var id = document.createElement("span");
     id.className = "caller-id vt";
-    var name = String(doc.name || "").trim() || tr("bc.ch02.anonymous", "ANONYMOUS 익명");
+    var name = String(doc.name || "").trim() || tr("bc.ch02.anonymous", "ANONYMOUS");
     var line = "CALLER " + pad2(position) + " — " + name;
     var discipline = String(doc.discipline || "").trim();
     if (discipline) { line += " · " + discipline; }
@@ -1282,201 +516,57 @@ html[lang="ja"] .vt { font-family: 'VT323', "Hiragino Kaku Gothic ProN", "Meiryo
     id.textContent = line;
     var quote = document.createElement("blockquote");
     quote.textContent = String(doc.response || "");
-    article.appendChild(id);
-    article.appendChild(quote);
-    if (isPending) {
-      var tag = document.createElement("span");
-      tag.className = "caller-pending-tag vt";
-      tag.textContent = tr("bc.ch02.pending", "PENDING REVIEW — 검토 대기 중");
-      article.appendChild(tag);
-    }
+    article.appendChild(id); article.appendChild(quote);
+    if (isPending) { var tag = document.createElement("span"); tag.className = "caller-pending-tag vt"; tag.textContent = tr("bc.ch02.pending", "PENDING REVIEW"); article.appendChild(tag); }
     return article;
   }
-
   function renderVoices() {
     if (!voicesList) { return; }
-    var entries = pending.map(function (doc) { return { doc: doc, pending: true }; })
-      .concat(published.map(function (doc) { return { doc: doc, pending: false }; }));
+    var entries = pending.map(function (doc) { return { doc: doc, pending: true }; }).concat(published.map(function (doc) { return { doc: doc, pending: false }; }));
     voicesList.textContent = "";
-    entries.forEach(function (entry, ix) {
-      voicesList.appendChild(callerCard(entry.doc, ix + 1, entry.pending));
-    });
+    entries.forEach(function (entry, ix) { voicesList.appendChild(callerCard(entry.doc, ix + 1, entry.pending)); });
   }
-
-  function newestFirst(docs) {
-    return docs.slice().sort(function (a, b) {
-      return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
-    });
-  }
-
+  function newestFirst(docs) { return docs.slice().sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); }); }
   function showFallback(on) { if (voicesFallback) { voicesFallback.hidden = !on; } }
-
   function loadFixture() {
-    return window.fetch(RESPONSES_FIXTURE)
-      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
-      .then(function (json) { published = newestFirst((json && json.docs) || []); })
-      .catch(function () { /* file:// or a stripped build — the pending list still renders */ })
-      .then(function () { showFallback(true); renderVoices(); });
+    return window.fetch(RESPONSES_FIXTURE).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); }).then(function (json) { published = newestFirst((json && json.docs) || []); }).catch(function () {}).then(function () { showFallback(true); renderVoices(); });
   }
-
   function loadResponses() {
-    return window.fetch(RESPONSES_API + RESPONSES_QUERY, { headers: { "Accept": "application/json" } })
-      .then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); })
-      .then(function (json) {
-        var docs = (json && json.docs) || [];
-        if (!docs.length) { return loadFixture(); } /* collection not seeded yet */
-        published = newestFirst(docs);
-        showFallback(false);
-        renderVoices();
-      })
-      .catch(function () { return loadFixture(); });
+    return window.fetch(RESPONSES_API + RESPONSES_QUERY, { headers: { "Accept": "application/json" } }).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); }).then(function (json) { var docs = (json && json.docs) || []; if (!docs.length) { return loadFixture(); } published = newestFirst(docs); showFallback(false); renderVoices(); }).catch(function () { return loadFixture(); });
   }
-
   function postResponse(payload) {
-    return window.fetch(RESPONSES_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    }).then(function (res) {
-      if (!res.ok) { throw new Error(String(res.status)); }
-      return res.json();
-    });
+    return window.fetch(RESPONSES_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); });
   }
-
-  /* drain one at a time so a still-dead line re-queues exactly what did not land */
   function flushQueue() {
     var queued = readQueue();
     if (!queued.length) { return Promise.resolve(); }
-    return queued.reduce(function (chain, payload) {
-      return chain.then(function (kept) {
-        return postResponse(payload)
-          .then(function () { return kept; })
-          .catch(function () { return kept.concat([payload]); });
-      });
-    }, Promise.resolve([])).then(writeQueue);
+    return queued.reduce(function (chain, payload) { return chain.then(function (kept) { return postResponse(payload).then(function () { return kept; }).catch(function () { return kept.concat([payload]); }); }); }, Promise.resolve([])).then(writeQueue);
   }
-
-  /* ---------- CH 02: TYPE form (the on-air confirm never waits on the network) ---------- */
   var form = $("#offerForm");
   var confirmBox = $("#queueConfirm");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var payload = {
-      name: String($("#f-name").value || "").trim(),
-      discipline: String($("#f-disc").value || "").trim(),
-      response: String($("#f-resp").value || "").trim(),
-      language: currentLang()
-    };
-    form.hidden = true;
-    confirmBox.hidden = false;
-    pending.unshift(payload);
-    renderVoices();
-    postResponse(payload).catch(function () {
-      writeQueue(readQueue().concat([payload])); /* retried on the next load */
-      showFallback(true);
-    });
+    var payload = { name: String($("#f-name").value || "").trim(), discipline: String($("#f-disc").value || "").trim(), response: String($("#f-resp").value || "").trim(), language: currentLang() };
+    form.hidden = true; confirmBox.hidden = false; pending.unshift(payload); renderVoices();
+    postResponse(payload).catch(function () { writeQueue(readQueue().concat([payload])); showFallback(true); });
   });
-  $("#sendAnother").addEventListener("click", function () {
-    form.reset();
-    confirmBox.hidden = true;
-    form.hidden = false;
-  });
+  $("#sendAnother").addEventListener("click", function () { form.reset(); confirmBox.hidden = true; form.hidden = false; });
+  pending = readQueue().slice().reverse();
+  renderVoices(); loadResponses(); flushQueue();
 
-  pending = readQueue().slice().reverse(); /* unsent offerings stay visible as pending review */
-  renderVoices();
-  loadResponses();
-  flushQueue();
+  /* ---------- CH 00: tap toggles (legacy test boundary; no channel exists) ---------- */
 
-  /* ---------- CH 00: tap toggles the credits roll (hover still pauses on desktop) ---------- */
-  var credits = $(".credits");
-  if (credits) {
-    credits.addEventListener("click", function () { credits.classList.toggle("paused"); });
-  }
-
-  /* ---------- power on ---------- */
-  setActive("ch01");
-  showTab("voice");
-  window.setTimeout(function () { flashOSD(OSD_NAMES.ch01); }, 450);
-
-  /* re-render idle recorder statuses when the language changes; active takes keep their text */
+  showTab("type");
+  render();
+  loadBroadcastContent();
+  window.requestAnimationFrame(tickRecs);
   document.addEventListener("pf:lang", function () {
+    localizeChrome();
     recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
-    renderVoices(); /* the anonymous label and the pending badge are localized */
+    renderVoices();
+    loadBroadcastContent();
   });
 })();
 </script>
-
-<script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
-<script>
-(function () {
-  "use strict";
-  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var film = document.getElementById("film");
-  if (!film) { return; }
-  if (reducedMotion.matches || !window.gsap || !window.ScrollTrigger) {
-    /* reduced motion (or missing vendor files): bypass every scroll-triggered tween —
-       scenes stay fully visible and the intro reads as a static page, hard cuts only */
-    return;
-  }
-  gsap.registerPlugin(ScrollTrigger);
-
-  var staticOverlay = document.getElementById("filmStatic");
-  var staticCanvas = staticOverlay.querySelector("canvas");
-  var staticCtx = staticCanvas.getContext("2d");
-  var staticImg = null;
-  var staticTimer = 0;
-  function drawOverlaySnow() {
-    /* fixed-position elements have no offsetParent, so the shared snow loop
-       skips this canvas — the burst drives its own frames instead */
-    if (!staticCtx) { return; }
-    if (!staticImg) { staticImg = staticCtx.createImageData(staticCanvas.width, staticCanvas.height); }
-    var px = new Uint32Array(staticImg.data.buffer);
-    for (var i = 0; i < px.length; i++) {
-      var v = (Math.random() * 210 + 12) | 0;
-      px[i] = (255 << 24) | (v << 16) | (v << 8) | v;
-    }
-    staticCtx.putImageData(staticImg, 0, 0);
-  }
-  function staticTick() {
-    if (staticOverlay.hidden) { return; }
-    drawOverlaySnow();
-    window.requestAnimationFrame(staticTick);
-  }
-  function staticBurst() { /* a beat of channel-change snow between scenes */
-    var wasHidden = staticOverlay.hidden;
-    staticOverlay.hidden = false;
-    if (wasHidden) { window.requestAnimationFrame(staticTick); }
-    window.clearTimeout(staticTimer);
-    staticTimer = window.setTimeout(function () { staticOverlay.hidden = true; }, 240);
-  }
-
-  var scenes = [].slice.call(film.querySelectorAll("[data-scene]"));
-  scenes.forEach(function (scene, ix) {
-    var parts = [].slice.call(scene.querySelectorAll(".scene-inner > *"));
-    if (ix === 0) {
-      /* the opening ident plays on power-on, not on scroll */
-      gsap.from(parts, { autoAlpha: 0, y: 28, stagger: 0.12, duration: 0.9, ease: "power2.out", delay: 0.2, clearProps: "all" });
-    } else {
-      gsap.timeline({
-        scrollTrigger: { trigger: scene, start: "top 80%", end: "top 32%", scrub: 0.5 }
-      }).from(parts, { autoAlpha: 0, y: 48, stagger: 0.1, ease: "none" });
-      ScrollTrigger.create({ trigger: scene, start: "top 58%", onEnter: staticBurst, onEnterBack: staticBurst });
-    }
-    var bars = scene.querySelector(".film-bars");
-    if (bars) {
-      gsap.from(bars.children, { scaleY: 0, transformOrigin: "50% 100%", stagger: 0.07, duration: 0.8, ease: "power2.out", delay: 0.15, clearProps: "all" });
-    }
-    var wall = scene.querySelector(".film-wall");
-    if (wall) {
-      gsap.from(wall.children, {
-        autoAlpha: 0, scale: 0.55, y: 70, stagger: 0.08, ease: "none",
-        scrollTrigger: { trigger: scene, start: "top 78%", end: "top 28%", scrub: 0.5 }
-      });
-    }
-  });
-})();
-</script>
-
 </body>
 </html>
