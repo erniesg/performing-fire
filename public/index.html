@@ -2162,11 +2162,9 @@
 
   function updateFireflies(t, p, dt) {
     const sync = sm(0.02, 0.30, p);
-    /* The fire is a destination, not a vacuum: keep a visible halo of
-       independent particles around the assembled bench after reveal. */
-    const conv = sm(0.20, 0.42, p) * 0.74;
-    const condense = sm(0.34, 0.44, p) * 0.74;
-    const absorbed = sm(0.42, 0.47, p) * 0.28;
+    const conv = sm(0.20, 0.42, p);
+    const condense = sm(0.34, 0.44, p);
+    const absorbed = sm(0.42, 0.47, p);
     const banded = sm(0.42, 0.72, p);                         // ambient flies retreat to their depth layers
     master.screenMesh.updateWorldMatrix(true, false);
     const m = master.screenMesh.matrixWorld;
