@@ -2161,11 +2161,12 @@
   const AUTO_REVEAL_DELAY_MS = 8000;
   const AUTO_REVEAL_DURATION = 14;
   let autoAdvanceTimer = 0;
-  function cancelAutoAdvance() {
+  function clearAutoAdvanceTimer() {
     if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = 0; }
   }
   function scheduleAutoAdvance() {
-    if (reduced || hashCh || lockP !== null || new URLSearchParams(location.search).has("ch")) return;
+    clearAutoAdvanceTimer();
+    if (reduced || hashCh || lockP !== null || mode !== "orbit" || new URLSearchParams(location.search).has("ch")) return;
     autoAdvanceTimer = setTimeout(() => {
       autoAdvanceTimer = 0;
       if (mode !== "orbit" || scrollY > 2) return;
@@ -2175,9 +2176,18 @@
       });
     }, AUTO_REVEAL_DELAY_MS);
   }
-  addEventListener("wheel", cancelAutoAdvance, { once: true, passive: true });
-  addEventListener("touchstart", cancelAutoAdvance, { once: true, passive: true });
-  addEventListener("keydown", cancelAutoAdvance, { once: true });
+  function deferAutoAdvance() {
+    clearAutoAdvanceTimer();
+    /* Input can postpone the opening, but a stray wheel tick or key press must not
+       disable it for the rest of the visit. Check after the browser applies any
+       native scrolling, then restart the full breathing pause only at the opening. */
+    requestAnimationFrame(() => {
+      if (mode === "orbit" && scrollY <= 2) scheduleAutoAdvance();
+    });
+  }
+  addEventListener("wheel", deferAutoAdvance, { passive: true });
+  addEventListener("touchstart", deferAutoAdvance, { passive: true });
+  addEventListener("keydown", deferAutoAdvance);
 
   /* ================= per-frame update ================= */
   const clockStart = performance.now() / 1000;
