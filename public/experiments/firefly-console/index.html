@@ -100,7 +100,9 @@
     clip-path: var(--screen-clip, inset(0)); overflow: hidden;
     background:
       repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 1px, transparent 1px 3px),
-      radial-gradient(120% 90% at 50% 45%, rgba(2,4,3,.82) 35%, rgba(1,2,2,.98) 100%);
+      radial-gradient(120% 90% at 50% 45%, rgba(2,4,3,.74) 35%, rgba(1,2,2,.94) 100%);
+    -webkit-backdrop-filter: blur(14px) saturate(.62);
+    backdrop-filter: blur(14px) saturate(.62);
     opacity: var(--page-presence, 0);
     filter: brightness(calc(.72 + var(--page-presence, 0) * .28));
     box-shadow: inset 0 0 48px rgba(0,0,0,.78);
@@ -109,24 +111,39 @@
   .page.visible .page-screen { pointer-events: auto; }
   .page .col {
     width: 100%; height: 100%; overflow: auto; max-width: none;
-    padding: clamp(22px, 4.5vmin, 54px);
+    padding: clamp(1.5rem, 4.5vmin, 3.75rem);
     display: flex; flex-direction: column; justify-content: center;
   }
-  .page .kicker { font-size: 11px; letter-spacing: .3em; color: var(--tint); margin-bottom: 18px; }
-  .page h2 {
-    font-size: clamp(26px, 4.2vw, 44px); line-height: 1.15; color: var(--w);
-    text-shadow: 0 0 26px color-mix(in srgb, var(--tint) 45%, transparent); margin-bottom: 22px;
+  .page .kicker {
+    font-size: clamp(.9rem, 1.25vw, 1.125rem); letter-spacing: .24em;
+    color: var(--tint); margin-bottom: 1.25rem;
   }
-  .page p { font-size: 14px; line-height: 1.8; margin-bottom: 14px; text-shadow: 0 1px 8px rgba(0,0,0,.85); }
+  .page h2 {
+    max-width: 30ch; font-size: clamp(2.25rem, 4.2vw, 4rem); line-height: 1.08; color: var(--w);
+    text-shadow: 0 0 26px color-mix(in srgb, var(--tint) 45%, transparent); margin-bottom: 1.5rem;
+  }
+  .page .body { max-width: 70ch; }
+  .page p {
+    font-size: 1.25rem; line-height: 1.58; margin-bottom: .9rem;
+    text-shadow: 0 1px 8px rgba(0,0,0,.85);
+  }
   .page .back {
-    margin-top: 30px; font: inherit; font-size: 12px; letter-spacing: .2em; cursor: pointer;
+    margin-top: 1.75rem; font: inherit; font-size: 1rem; letter-spacing: .18em; cursor: pointer;
     color: var(--tint); background: none; border: 1px solid var(--tint);
-    padding: 10px 16px; border-radius: 3px;
+    padding: .875rem 1.25rem; border-radius: 3px;
   }
   .page .back:hover { box-shadow: 0 0 18px color-mix(in srgb, var(--tint) 40%, transparent); }
 
   .fail { position: fixed; inset: 0; display: grid; place-items: center; z-index: 30; padding: 30px; text-align: center; font-size: 14px; line-height: 1.7; }
-  @media (max-width: 640px) { .hud { padding: 18px 18px 0; } .idx button { padding: 6px 9px; font-size: 11px; } }
+  @media (max-width: 640px) {
+    .hud { padding: 18px 18px 0; }
+    .idx button { padding: 6px 9px; font-size: 11px; }
+    .page .col { padding: 1.25rem; justify-content: flex-start; }
+    .page .kicker { font-size: .75rem; letter-spacing: .18em; margin-bottom: .75rem; }
+    .page h2 { font-size: clamp(1.75rem, 8vw, 2.5rem); margin-bottom: 1rem; }
+    .page p { font-size: 1.0625rem; line-height: 1.5; }
+    .page .back { margin-top: 1rem; font-size: .875rem; }
+  }
 </style>
 </head>
 <body>

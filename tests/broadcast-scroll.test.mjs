@@ -77,6 +77,10 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
 
 test('channel pages remain framed by the main CRT throughout entry and exit', () => {
   assert.match(television, /<div class="page-screen">/)
+  assert.match(television, /backdrop-filter: blur\(14px\) saturate\(\.62\)/)
+  assert.match(television, /\.page p \{[\s\S]*font-size: 1\.25rem; line-height: 1\.58/)
+  assert.match(television, /\.page h2 \{[\s\S]*font-size: clamp\(2\.25rem, 4\.2vw, 4rem\)/)
+  assert.match(television, /\.page \.body \{ max-width: 70ch; \}/)
   assert.match(television, /function syncPageToMaster\(\)/)
   assert.match(television, /master\.screenMesh\.localToWorld\(pageCorners\[i\]\)/)
   assert.match(television, /--screen-clip["'], `polygon\(\$\{polygon\}\)`/)
