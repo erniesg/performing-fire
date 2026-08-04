@@ -50,6 +50,7 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
   assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*2000/)
   assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*3/)
   assert.match(television, /duration: AUTO_REVEAL_DURATION, ease: "none"/)
+  assert.match(television, /baseZ = lerp\(10\.6, 8\.05, sm\(0\.06, 0\.55, p\)\) \* layoutZ/)
   assert.match(television, /function deferAutoAdvance\(\)/)
   assert.match(television, /requestAnimationFrame\(\(\) => \{[\s\S]*scrollY <= 2\) scheduleAutoAdvance\(\)/)
   assert.match(television, /addEventListener\("wheel", deferAutoAdvance, \{ passive: true \}\)/)

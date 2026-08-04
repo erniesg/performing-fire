@@ -2674,7 +2674,7 @@
 
     /* The whole bench must remain composed after the automatic reveal; the
        previous close end-stop cropped the upper/right televisions. */
-    const baseZ = lerp(10.6, 8.8, sm(0.06, 0.55, p)) * layoutZ;
+    const baseZ = lerp(10.6, 8.05, sm(0.06, 0.55, p)) * layoutZ;
     const baseY = lerp(2.75, 2.15, sm(0.28, 0.75, p)) + layoutY;
     flyFrom.set(pointer.sx * 0.45, baseY + pointer.sy * -0.2 + dragPitch, baseZ);
     lookTo.set(0, lerp(2.35, 1.95, sm(0.3, 0.8, p)) + layoutY, 0);
