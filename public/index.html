@@ -2146,8 +2146,9 @@
   /* debug scrub: ?p=0.44 locks the scroll progress (also used by headless QA captures) */
   let lockP = (() => { const v = parseFloat(new URLSearchParams(location.search).get("p")); return isFinite(v) ? Math.min(1, Math.max(0, v)) : null; })();
 
-  /* Auto-reveal the assembled bench once, unless the visitor has already
-     chosen a scroll/deep-link state. Manual input cancels the timer. */
+  /* Auto-reveal the assembled bench straight away, unless the visitor has
+     chosen a scroll/deep-link state. The firefly field is only the opening
+     beat; it must not strand the visitor before the television set arrives. */
   let autoAdvanceTimer = 0;
   function cancelAutoAdvance() {
     if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = 0; }
@@ -2158,11 +2159,11 @@
       autoAdvanceTimer = 0;
       if (mode !== "orbit" || scrollY > 2) return;
       gsap.to({ y: scrollY }, {
-        y: maxScroll(), duration: 3.6, ease: "power2.inOut",
+        y: maxScroll(), duration: 2.8, ease: "power2.inOut",
         onUpdate() { scrollTo(0, this.targets()[0].y); },
         onComplete() { scheduleProgrammeAdvance(); },
       });
-    }, 3600);
+    }, 180);
   }
   addEventListener("wheel", cancelAutoAdvance, { once: true, passive: true });
   addEventListener("touchstart", cancelAutoAdvance, { once: true, passive: true });
@@ -2384,33 +2385,30 @@
       d.group.rotation.z = (1 - fi) * 0.35 * (di % 2 ? 1 : -1);
 
       const s = d.screen, x = s.ctx, W = s.cv.width, H = s.cv.height;
-      if (fi < 0.9) {
+      /* A secondary tube comes alive while its cabinet is travelling in. Once
+         it has landed, leave the final painted canvas untouched: this is the
+         "broadcast bench" behaviour from the reference, rather than five
+         permanently moving screens. */
+      if (fi < 0.035) {
         if (s.phase !== "off") { drawGlassOff(s); s.phase = "off"; s.frameReady = false; s.bootAt = -1; }
         d.light.intensity = 0; return;
       }
-      if (fi < 0.985) {
-        if (s.phase !== "static") { drawStatic(s); s.phase = "static"; s.frameReady = true; s.bootAt = -1; }
-        d.light.intensity = 0.5; return;
-      }
       const live = hoverDev === d && !reduced;
-      /* Let every secondary tube breathe after the bench lands, then hold its
-         exact last frame. It wakes again only under the pointer; the master
-         CRT is the only display that keeps broadcasting by itself. */
-      if (s.bootAt < 0 && p >= 0.985) {
+      const arriving = fi < 0.995;
+      if (s.bootAt < 0) {
         s.bootAt = t;
-        s.phase = "boot";
         primeDeviceSignal(d);
       }
-      const booting = s.phase === "boot" && t - s.bootAt < 2.1;
-      if (live || booting) {
-        if (s.phase !== "live") s.phase = "live";
+      if (arriving || live) {
+        s.phase = arriving ? "arrival" : "live";
         paintDeviceSignal(d, t);
-        if (booting && !live) s.phase = "boot";
       } else if (s.phase !== "still") {
+        /* No redraw here. Holding the canvas preserves the precise last
+           moving frame from the moment the set settles. */
         s.phase = "still";
       }
       const [r, g, b] = TINT3[d.chan.ch];
-      d.light.intensity = 0.38 * (live ? 1.8 : booting ? 1.18 : 1);
+      d.light.intensity = 0.38 * (live ? 1.8 : arriving ? 1.18 : 1);
       d.light.color.setRGB(r / 255, g / 255, b / 255);
     });
   }
