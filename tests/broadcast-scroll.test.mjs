@@ -66,6 +66,18 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
   assert.doesNotMatch(television, /PROGRAM_ADVANCE_MS|scheduleProgrammeAdvance/)
 })
 
+test('channel pages remain framed by the main CRT throughout entry and exit', () => {
+  assert.match(television, /<div class="page-screen">/)
+  assert.match(television, /function syncPageToMaster\(\)/)
+  assert.match(television, /master\.screenMesh\.localToWorld\(pageCorners\[i\]\)/)
+  assert.match(television, /--screen-clip["'], `polygon\(\$\{polygon\}\)`/)
+  assert.match(television, /--page-presence["'], sm\(0\.54, 0\.9, flyT\)/)
+  assert.match(television, /flyTo\.addScaledVector\(_v, 3\.25\)/)
+  assert.match(television, /preparePage\(ch\);[\s\S]*gsap\.to\(\{ t: 0 \}/)
+  assert.match(television, /onComplete\(\) \{[\s\S]*page\.classList\.remove\("show"\);[\s\S]*mode = "orbit"/)
+  assert.doesNotMatch(television, /setTimeout\(\(\) => page\.classList\.remove\("show"\), 460\)/)
+})
+
 test('reduced motion uses stable frames and hard state changes', () => {
   assert.match(runtime, /prefers-reduced-motion: reduce/)
   assert.match(runtime, /if \(cv\.hasAttribute\("data-signal-main"\) && !reduced\)/)
