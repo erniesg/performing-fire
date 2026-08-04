@@ -47,8 +47,8 @@ test('the Broadcast remains manual while preserving transmission controls', () =
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
   assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
-  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*2000/)
-  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*3/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*1500/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*2\.5/)
   assert.match(television, /duration: AUTO_REVEAL_DURATION, ease: "none"/)
   assert.match(television, /baseZ = lerp\(10\.6, 8\.05, sm\(0\.06, 0\.55, p\)\) \* layoutZ/)
   assert.match(television, /function deferAutoAdvance\(\)/)
@@ -71,6 +71,9 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
   assert.match(television, /function signalAt\(s, now\)/)
   assert.match(television, /function playChannel\(ch, now = sceneTime\(\)\)/)
   assert.match(television, /function pauseChannel\(ch, now = sceneTime\(\)\)/)
+  assert.match(television, /if \(arriving\) \{[\s\S]*s\.signalT = t;[\s\S]*paintDeviceSignal\(d, s\.signalT\)/)
+  assert.match(television, /if \(s\.phase === "arrival" && s\.frameReady\) \{[\s\S]*s\.phase = "still"/)
+  assert.doesNotMatch(television, /s\.phase === "arrival" \|\| s\.phase === "off"/)
   assert.match(television, /mode === "orbit" && hoverDev === d/)
   assert.match(television, /mode !== "orbit" && currentCh === d\.chan\.ch/)
   assert.match(television, /const signalT = source \? signalAt\(source\.screen, now\) : SIDE_STILL_T/)

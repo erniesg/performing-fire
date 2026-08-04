@@ -2235,10 +2235,9 @@
   /* debug scrub: ?p=0.44 locks the scroll progress (also used by headless QA captures) */
   let lockP = (() => { const v = parseFloat(new URLSearchParams(location.search).get("p")); return isFinite(v) ? Math.min(1, Math.max(0, v)) : null; })();
 
-  /* Let the swarm exist as its own scene before the bench begins to assemble.
-     The reveal is intentionally long: this is an opening sequence, not UI latency. */
-  const AUTO_REVEAL_DELAY_MS = 2000;
-  const AUTO_REVEAL_DURATION = 3;
+  /* Let the swarm register as its own scene, then assemble at a brisk pace. */
+  const AUTO_REVEAL_DELAY_MS = 1500;
+  const AUTO_REVEAL_DURATION = 2.5;
   let autoAdvanceTimer = 0;
   function clearAutoAdvanceTimer() {
     if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = 0; }
@@ -2545,14 +2544,20 @@
         primeDeviceSignal(d);
       }
       if (arriving) {
+        s.signalT = t;
+        s.liveAt = -1; s.liveFrom = s.signalT;
         s.phase = "arrival";
-        paintDeviceSignal(d, t);
+        paintDeviceSignal(d, s.signalT);
       } else {
-        if (s.phase === "arrival" || s.phase === "off" || !s.frameReady) {
-          /* Every tube lands on the canonical Broadcast still. That exact
-             frame also seeds its private playhead for future hover resumes. */
-          primeDeviceSignal(d);
+        if (s.phase === "arrival" && s.frameReady) {
+          /* Landing is a freeze, not a repaint: the last moving frame becomes
+             the still and seeds hover / zoom continuation without a jump. */
+          s.liveAt = -1; s.liveFrom = s.signalT;
+          s.phase = "still";
+        } else if (s.phase === "off" || !s.frameReady) {
+          /* Direct-entry and reduced-motion paths have no arrival frames. */
           s.signalT = SIDE_STILL_T;
+          s.liveAt = -1; s.liveFrom = s.signalT;
           paintDeviceSignal(d, s.signalT);
           s.phase = "still";
         }
