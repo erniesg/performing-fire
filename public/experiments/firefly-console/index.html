@@ -93,16 +93,44 @@
     text-align: left; pointer-events: none;
   }
   .page.show { display: block; }
+  .focus-blur {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: var(--focus-presence, 0); transition: opacity .08s linear;
+  }
+  .focus-blur i {
+    position: fixed; display: block;
+    background: rgba(3,4,4,.08);
+    -webkit-backdrop-filter: blur(18px) saturate(.72) brightness(.88);
+    backdrop-filter: blur(18px) saturate(.72) brightness(.88);
+  }
+  .focus-blur .top {
+    left: 0; right: 0; top: 0; height: var(--focus-top, 0px);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 52px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 52px), transparent 100%);
+  }
+  .focus-blur .bottom {
+    left: 0; right: 0; top: var(--focus-bottom, 100vh); bottom: 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 52px, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 52px, #000 100%);
+  }
+  .focus-blur .left {
+    left: 0; top: var(--focus-top, 0px); width: var(--focus-left, 0px); height: var(--focus-height, 100vh);
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 52px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 52px), transparent 100%);
+  }
+  .focus-blur .right {
+    left: var(--focus-right, 100vw); right: 0; top: var(--focus-top, 0px); height: var(--focus-height, 100vh);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 52px, #000 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 52px, #000 100%);
+  }
   .page-screen {
-    position: fixed;
+    position: fixed; z-index: 1;
     left: var(--screen-left, 25vw); top: var(--screen-top, 15vh);
     width: var(--screen-width, 50vw); height: var(--screen-height, 70vh);
     clip-path: var(--screen-clip, inset(0)); overflow: hidden;
     background:
       repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 1px, transparent 1px 3px),
       radial-gradient(120% 90% at 50% 45%, rgba(2,4,3,.74) 35%, rgba(1,2,2,.94) 100%);
-    -webkit-backdrop-filter: blur(14px) saturate(.62);
-    backdrop-filter: blur(14px) saturate(.62);
     opacity: var(--page-presence, 0);
     filter: brightness(calc(.72 + var(--page-presence, 0) * .28));
     box-shadow: inset 0 0 48px rgba(0,0,0,.78);
@@ -161,6 +189,9 @@
 <div class="space"></div>
 
 <section class="page" id="page" role="dialog" aria-modal="true">
+  <div class="focus-blur" aria-hidden="true">
+    <i class="top"></i><i class="right"></i><i class="bottom"></i><i class="left"></i>
+  </div>
   <div class="page-screen">
     <div class="col">
       <div class="kicker"></div>
@@ -2206,8 +2237,8 @@
 
   /* Let the swarm exist as its own scene before the bench begins to assemble.
      The reveal is intentionally long: this is an opening sequence, not UI latency. */
-  const AUTO_REVEAL_DELAY_MS = 3000;
-  const AUTO_REVEAL_DURATION = 5;
+  const AUTO_REVEAL_DELAY_MS = 2000;
+  const AUTO_REVEAL_DURATION = 3;
   let autoAdvanceTimer = 0;
   function clearAutoAdvanceTimer() {
     if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = 0; }
@@ -2614,6 +2645,20 @@
     page.style.setProperty("--screen-height", `${heightPx.toFixed(2)}px`);
     page.style.setProperty("--screen-clip", `polygon(${polygon})`);
     page.style.setProperty("--page-presence", sm(0.54, 0.9, flyT).toFixed(3));
+
+    /* Approximate the projected outer cabinet from the tube opening. Four
+       feathered panes blur everything beyond it without softening the TV. */
+    const focusWidth = widthPx * 1.52, focusHeight = heightPx * 1.32;
+    const focusLeft = Math.max(0, (left + right - focusWidth) / 2);
+    const focusRight = Math.min(innerWidth, (left + right + focusWidth) / 2);
+    const focusTop = Math.max(0, (top + bottom - focusHeight) / 2);
+    const focusBottom = Math.min(innerHeight, (top + bottom + focusHeight) / 2);
+    page.style.setProperty("--focus-left", `${focusLeft.toFixed(2)}px`);
+    page.style.setProperty("--focus-right", `${focusRight.toFixed(2)}px`);
+    page.style.setProperty("--focus-top", `${focusTop.toFixed(2)}px`);
+    page.style.setProperty("--focus-bottom", `${focusBottom.toFixed(2)}px`);
+    page.style.setProperty("--focus-height", `${Math.max(1, focusBottom - focusTop).toFixed(2)}px`);
+    page.style.setProperty("--focus-presence", sm(0.32, 0.82, flyT).toFixed(3));
   }
 
   function updateCamera(t, p) {

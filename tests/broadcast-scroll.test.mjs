@@ -47,8 +47,8 @@ test('the Broadcast remains manual while preserving transmission controls', () =
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
   assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
-  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*3000/)
-  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*5/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*2000/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*3/)
   assert.match(television, /duration: AUTO_REVEAL_DURATION, ease: "none"/)
   assert.match(television, /function deferAutoAdvance\(\)/)
   assert.match(television, /requestAnimationFrame\(\(\) => \{[\s\S]*scrollY <= 2\) scheduleAutoAdvance\(\)/)
@@ -82,7 +82,9 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
 
 test('channel pages remain framed by the main CRT throughout entry and exit', () => {
   assert.match(television, /<div class="page-screen">/)
-  assert.match(television, /backdrop-filter: blur\(14px\) saturate\(\.62\)/)
+  assert.match(television, /<div class="focus-blur" aria-hidden="true">/)
+  assert.match(television, /backdrop-filter: blur\(18px\) saturate\(\.72\) brightness\(\.88\)/)
+  assert.doesNotMatch(television, /\.page-screen \{[\s\S]{0,700}backdrop-filter/)
   assert.match(television, /\.page p \{[\s\S]*font-size: 1\.25rem; line-height: 1\.58/)
   assert.match(television, /\.page h2 \{[\s\S]*font-size: clamp\(2\.25rem, 4\.2vw, 4rem\)/)
   assert.match(television, /\.page \.body \{ max-width: 70ch; \}/)
@@ -90,6 +92,8 @@ test('channel pages remain framed by the main CRT throughout entry and exit', ()
   assert.match(television, /master\.screenMesh\.localToWorld\(pageCorners\[i\]\)/)
   assert.match(television, /--screen-clip["'], `polygon\(\$\{polygon\}\)`/)
   assert.match(television, /--page-presence["'], sm\(0\.54, 0\.9, flyT\)/)
+  assert.match(television, /focusWidth = widthPx \* 1\.52, focusHeight = heightPx \* 1\.32/)
+  assert.match(television, /--focus-presence["'], sm\(0\.32, 0\.82, flyT\)/)
   assert.match(television, /flyTo\.addScaledVector\(_v, 3\.25\)/)
   assert.match(television, /preparePage\(ch\);[\s\S]*gsap\.to\(\{ t: 0 \}/)
   assert.match(television, /onComplete\(\) \{[\s\S]*page\.classList\.remove\("show"\);[\s\S]*mode = "orbit"/)
