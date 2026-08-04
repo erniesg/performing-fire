@@ -1276,11 +1276,36 @@
   const page = document.getElementById("page");
   let mode = "orbit";               // orbit | flying | paged
   let flyT = 0, currentCh = 0;
-  const masterFx = { state: "idle", t0: 0, pending: 0 };   // idle | collapse | static | chan
+  const masterFx = { state: "idle", t0: 0, pending: 0, renderCh: 0 };   // idle | collapse | static | chan
+  function channelDevice(ch) { return devices.find(d => d.chan && d.chan.ch === ch); }
+  function sceneTime() { return performance.now() / 1000 - clockStart; }
+  function signalAt(s, now) {
+    return s.liveAt >= 0 ? s.liveFrom + (now - s.liveAt) : s.signalT;
+  }
+  function playChannel(ch, now = sceneTime()) {
+    if (reduced) return;
+    const d = channelDevice(ch);
+    if (!d || d.screen.liveAt >= 0) return;
+    d.screen.liveFrom = d.screen.signalT;
+    d.screen.liveAt = now;
+  }
+  function pauseChannel(ch, now = sceneTime()) {
+    const d = channelDevice(ch);
+    if (!d) return;
+    const s = d.screen;
+    s.signalT = signalAt(s, now);
+    s.liveAt = -1; s.liveFrom = s.signalT;
+    if (s.frameReady) {
+      paintDeviceSignal(d, s.signalT);
+      s.phase = "still";
+    }
+  }
   function tuneTo(ch) {
     if (mode === "flying") return;
     if (mode === "paged") { swapPage(ch); return; }
     mode = "flying"; currentCh = ch;
+    playChannel(ch);
+    masterFx.renderCh = 0;
     document.body.classList.add("docked");
     const distance = 1 - sprog;
     const scrollDur = reduced ? 0 : Math.max(0.35, distance * 1.4);
@@ -1289,7 +1314,7 @@
       y: maxScroll(), duration: scrollDur, ease: "power2.inOut",
       onUpdate() { scrollTo(0, this.targets()[0].y); },
       onComplete() {
-        masterFx.state = "collapse"; masterFx.t0 = performance.now() / 1000; masterFx.pending = ch;
+        masterFx.state = "collapse"; masterFx.t0 = sceneTime(); masterFx.pending = ch;
         preparePage(ch);
         gsap.to({ t: 0 }, {
           t: 1, duration: reduced ? 0.01 : 1.5, ease: "power3.inOut",
@@ -1313,30 +1338,36 @@
   }
   function enterPage(ch) {
     if (!page.classList.contains("show")) preparePage(ch);
+    playChannel(ch);
     mode = "paged";
     document.body.classList.add("locked", "paged");
     page.setAttribute("aria-hidden", "false");
     page.classList.add("visible");
   }
   function swapPage(ch) {
+    pauseChannel(currentCh);
     currentCh = ch;
-    masterFx.state = "collapse"; masterFx.t0 = performance.now() / 1000; masterFx.pending = ch;
+    playChannel(ch);
+    masterFx.renderCh = 0;
+    masterFx.state = "collapse"; masterFx.t0 = sceneTime(); masterFx.pending = ch;
     page.classList.remove("visible");
     setTimeout(() => { fillPage(ch); page.classList.add("visible"); }, reduced ? 0 : 420);
   }
   let lockFromJump = false;
   function exitPage() {
     if (mode !== "paged") return;
+    const leavingCh = currentCh;
     if (lockFromJump) { scrollTo(0, maxScroll()); lockP = null; lockFromJump = false; }
     mode = "flying";
     page.classList.remove("visible");
     page.setAttribute("aria-hidden", "true");
     document.body.classList.remove("locked", "paged");
-    masterFx.state = "collapse"; masterFx.t0 = performance.now() / 1000; masterFx.pending = 0;
+    masterFx.state = "collapse"; masterFx.t0 = sceneTime(); masterFx.pending = 0;
     gsap.to({ t: flyT }, {
       t: 0, duration: reduced ? 0.01 : 1.2, ease: "power3.inOut",
       onUpdate() { flyT = this.targets()[0].t; },
       onComplete() {
+        pauseChannel(leavingCh);
         page.classList.remove("show");
         mode = "orbit"; currentCh = 0; chase = 0.085;
       },
@@ -2384,13 +2415,20 @@
     }
     if (masterFx.state === "chan") {
       const c = CHAN[masterFx.pending - 1], spec = specFor(c.key);
+      const source = channelDevice(c.ch);
+      const signalT = source ? signalAt(source.screen, now) : SIDE_STILL_T;
       masterFk = 0.15;                                        // embers bank down while a channel is tuned
       if (spec) {
-        if (c.ch === 2 && !s.chanWarm) {                      // chimera raster fills bottom-up — pre-run its history
-          s.chanWarm = true;
-          for (let k = 84; k > 0; k--) spec.draw(x, W, H, t - k / 15, mkRnd(c.ch * 7), s.st);
+        if (masterFx.renderCh !== c.ch) {
+          masterFx.renderCh = c.ch;
+          s.st = {};
+          /* Stateful signals get a short history ending at the shared channel
+             playhead, so the main tube opens on the side TV's current frame. */
+          if (c.ch === 2) {
+            for (let k = 84; k > 0; k--) spec.draw(x, W, H, signalT - k / 15, mkRnd(c.ch * 7), s.st);
+          }
         }
-        spec.draw(x, W, H, t, mkRnd(c.ch * 7), s.st);
+        spec.draw(x, W, H, signalT, mkRnd(c.ch * 7), s.st);
       }
       overlayCRT(s, TINT[c.ch], `CH 0${c.ch} · ${c.name}`, 1, "top");
       return;
@@ -2466,7 +2504,10 @@
         }
         d.light.intensity = 0; return;
       }
-      const live = hoverDev === d && !reduced;
+      const live = !reduced && (
+        (mode === "orbit" && hoverDev === d) ||
+        (mode !== "orbit" && currentCh === d.chan.ch)
+      );
       const arriving = fi < 0.995;
       if (s.bootAt < 0) {
         s.bootAt = t;
@@ -2485,18 +2526,14 @@
           s.phase = "still";
         }
         if (live) {
-          if (s.phase !== "live") {
-            s.liveAt = t;
-            s.liveFrom = s.signalT;
-            s.phase = "live";
-          }
-          s.signalT = s.liveFrom + (t - s.liveAt);
+          playChannel(d.chan.ch, t);
+          s.signalT = signalAt(s, t);
+          s.phase = "live";
           paintDeviceSignal(d, s.signalT);
-        } else if (s.phase === "live") {
+        } else if (s.liveAt >= 0) {
           /* Pause on the frame that was actually visible. Re-entering hover
              resumes from this playhead instead of jumping back or forward. */
-          s.phase = "still";
-          s.liveAt = -1;
+          pauseChannel(d.chan.ch, t);
         }
       }
       const [r, g, b] = TINT3[d.chan.ch];
