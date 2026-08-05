@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises'
 import vm from 'node:vm'
 
 const source = await readFile(new URL('../public/js/broadcast-content.js', import.meta.url), 'utf8')
-const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/broadcast/index.html', import.meta.url), 'utf8')
 
 function loadAdapter ({ endpoint = '', href = 'https://performingfire.berlayar.ai/', response } = {}) {
   const calls = []

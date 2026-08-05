@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/broadcast/index.html', import.meta.url), 'utf8')
 const experiment = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 
 test('broadcast status appears once', () => {
@@ -38,7 +38,7 @@ test('navigation and progress controls live inside the CRT', () => {
   assert.match(broadcast, /event\.key !== "ArrowLeft" && event\.key !== "ArrowRight"/)
 })
 
-test('the Broadcast is the root index and the fabric study is its own experiment page', () => {
+test('the Broadcast remains its own site and the fabric study is its own experiment page', () => {
   assert.match(broadcast, /THE BROADCAST/)
   assert.match(experiment, /FABRIC/)
   assert.doesNotMatch(experiment, /THE BROADCAST/)

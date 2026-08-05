@@ -5,7 +5,7 @@ import vm from 'node:vm'
 
 const rawJson = await readFile(new URL('../public/experiments/experiments.json', import.meta.url), 'utf8')
 const index = await readFile(new URL('../public/experiments/index.html', import.meta.url), 'utf8')
-const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/broadcast/index.html', import.meta.url), 'utf8')
 const fabric = await readFile(new URL('../public/experiments/fabric/index.html', import.meta.url), 'utf8')
 const microsite = await readFile(new URL('../public/experiments/microsite/index.html', import.meta.url), 'utf8')
 const legacyFabric = await readFile(new URL('../public/experiments/flame-cloth/index.html', import.meta.url), 'utf8')
@@ -212,9 +212,10 @@ test('the legacy flame-cloth route redirects to canonical Fabric', () => {
   assert.match(redirects, /\/experiments\/flame-cloth\/ \/experiments\/fabric\/ 301/)
 })
 
-test('the TV route serves the firefly console without replacing Broadcast', () => {
-  assert.match(redirects, /^\/tv \/tv\/ 301$/m)
-  assert.match(redirects, /^\/tv\/ \/experiments\/firefly-console\/index\.html 200$/m)
+test('legacy TV routes resolve to the root experience', () => {
+  assert.match(redirects, /^\/tv \/ 301$/m)
+  assert.match(redirects, /^\/tv\/ \/ 301$/m)
+  assert.match(redirects, /^\/experiments\/firefly-console\/ \/ 301$/m)
 })
 
 // ---- CMS-first wiring -------------------------------------------------------

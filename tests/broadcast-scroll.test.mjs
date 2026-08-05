@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import { readFile, stat } from 'node:fs/promises'
 
 const publicDir = new URL('../public/', import.meta.url)
-const broadcast = await readFile(new URL('index.html', publicDir), 'utf8')
-const television = await readFile(new URL('experiments/firefly-console/index.html', publicDir), 'utf8')
+const broadcast = await readFile(new URL('broadcast/index.html', publicDir), 'utf8')
+const television = await readFile(new URL('index.html', publicDir), 'utf8')
 const runtime = await readFile(new URL('js/preview-anims.js', publicDir), 'utf8')
 
 test('the scroll film is gone and the console owns exactly one viewport', () => {
@@ -47,8 +47,10 @@ test('the Broadcast remains manual while preserving transmission controls', () =
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
   assert.match(television, /<title>Pεrforming Fire — An APE Camp 2026 Project<\/title>/)
-  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*1000/)
-  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*2/)
+  assert.match(television, /<div class="loading" id="loading" role="status" aria-live="polite">LOADING…<\/div>/)
+  assert.match(television, /requestAnimationFrame\(\(\) => document\.body\.classList\.add\("ready"\)\)/)
+  assert.match(television, /AUTO_REVEAL_DELAY_MS\s*=\s*800/)
+  assert.match(television, /AUTO_REVEAL_DURATION\s*=\s*2\.5/)
   assert.match(television, /duration: AUTO_REVEAL_DURATION, ease: "none"/)
   assert.match(television, /baseZ = lerp\(10\.6, 8\.05, sm\(0\.06, 0\.55, p\)\) \* layoutZ/)
   assert.match(television, /function deferAutoAdvance\(\)/)
@@ -86,8 +88,10 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
 
 test('channel pages remain framed by the main CRT throughout entry and exit', () => {
   assert.match(television, /<div class="page-screen">/)
-  assert.match(television, /<div class="focus-blur" aria-hidden="true">/)
-  assert.match(television, /backdrop-filter: blur\(18px\) saturate\(\.72\) brightness\(\.88\)/)
+  assert.doesNotMatch(television, /focus-blur|backdrop-filter: blur/)
+  assert.match(television, /uFocusRect: \{ value: new THREE\.Vector4\(0, 0, 1, 1\) \}/)
+  assert.match(television, /uFocusAmount: \{ value: 0 \}/)
+  assert.match(television, /single Poisson disc stays seamless/)
   assert.doesNotMatch(television, /\.page-screen \{[\s\S]{0,700}backdrop-filter/)
   assert.match(television, /body\.docked \.hud h1 \{ font-size: clamp\(2rem, 3\.2vw, 3rem\)/)
   assert.match(television, /\.page p \{[\s\S]*font-size: clamp\(1\.25rem, 1\.35vw, 1\.5rem\); line-height: 1\.55/)
@@ -98,7 +102,8 @@ test('channel pages remain framed by the main CRT throughout entry and exit', ()
   assert.match(television, /--screen-clip["'], `polygon\(\$\{polygon\}\)`/)
   assert.match(television, /--page-presence["'], sm\(0\.54, 0\.9, flyT\)/)
   assert.match(television, /focusWidth = widthPx \* 1\.52, focusHeight = heightPx \* 1\.32/)
-  assert.match(television, /--focus-presence["'], sm\(0\.32, 0\.82, flyT\)/)
+  assert.match(television, /postMat\.uniforms\.uFocusRect\.value\.set/)
+  assert.match(television, /postMat\.uniforms\.uFocusAmount\.value = sm\(0\.32, 0\.82, flyT\)/)
   assert.match(television, /flyTo\.addScaledVector\(_v, 3\.25\)/)
   assert.match(television, /distance < 0\.01 \? 0 : Math\.max\(0\.22, distance \* 0\.85\)/)
   assert.match(television, /duration: reduced \? 0\.01 : 0\.85, ease: "power3\.out"/)
