@@ -138,10 +138,10 @@
     color: var(--tint); margin-bottom: 1.25rem;
   }
   .page h2 {
-    max-width: 30ch; font-size: clamp(2.5rem, 4vw, 4.5rem); line-height: 1.08; color: var(--w);
+    max-width: none; font-size: clamp(2.5rem, 4vw, 4.5rem); line-height: 1.08; color: var(--w);
     text-shadow: 0 0 26px color-mix(in srgb, var(--tint) 45%, transparent); margin-bottom: 1.5rem;
   }
-  .page .body { max-width: 70ch; }
+  .page .body { max-width: none; }
   .page p {
     font-size: clamp(1.25rem, 1.35vw, 1.5rem); line-height: 1.55; margin-bottom: .9rem;
     text-shadow: 0 1px 8px rgba(0,0,0,.85);
@@ -2477,7 +2477,9 @@
         }
         spec.draw(x, W, H, signalT, mkRnd(c.ch * 7), s.st);
       }
-      overlayCRT(s, TINT[c.ch], `CH 0${c.ch} · ${c.name}`, 1, "top");
+      /* The page overlay owns the readable channel title. Keep the master
+         tube's signal clean so the background does not repeat it. */
+      overlayCRT(s, TINT[c.ch], "", 0, "top");
       return;
     }
     if (mflyCyc0 < 0) mflyCyc0 = t;                           // reveal epoch: open on the burning phase
