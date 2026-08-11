@@ -116,6 +116,38 @@ test('channel pages remain framed by the main CRT throughout entry and exit', ()
   assert.doesNotMatch(television, /setTimeout\(\(\) => page\.classList\.remove\("show"\), 460\)/)
 })
 
+test('master tuning uses the original CRT collapse and short static burst', () => {
+  assert.match(television, /idle \| collapse \| static \| chan/)
+  assert.match(television, /const u = Math\.min\(1, \(now - masterFx\.t0\) \/ 0\.22\)/)
+  assert.match(television, /const hh = Math\.max\(2, \(1 - u\) \* H \* 0\.5\)/)
+  assert.match(television, /if \(u >= 1\) \{ masterFx\.state = "static"; masterFx\.t0 = now; \}/)
+  assert.match(television, /if \(masterFx\.state === "static"\) \{[\s\S]*drawStatic\(s\);[\s\S]*now - masterFx\.t0 > 0\.3/)
+  assert.doesNotMatch(television, /drawTuningBurst|transitionBuffer|Math\.min\(6, W \* 0\.006\)/)
+})
+
+test('channel focus hides the station wordmark from selection until the exit completes', () => {
+  assert.match(television, /body\.channel-focus \.hud h1 \{[^}]*opacity: 0;[^}]*visibility: hidden;/)
+  assert.match(television, /function tuneTo\(ch\) \{[\s\S]*document\.body\.classList\.add\("channel-focus"\)/)
+  assert.match(television, /function enterPage\(ch\) \{[\s\S]*document\.body\.classList\.add\("channel-focus"\)/)
+  assert.match(television, /onComplete\(\) \{[\s\S]*document\.body\.classList\.remove\("channel-focus"\);[\s\S]*mode = "orbit"/)
+})
+
+test('zoomed channel copy dims the entire signal without a local text plate', () => {
+  const pageScreen = television.match(/\.page-screen \{([\s\S]*?)\n  \}/)?.[1] || ''
+  assert.match(pageScreen, /background: rgba\(4,8,6,\.62\);/)
+  assert.match(pageScreen, /filter: none;/)
+  assert.match(pageScreen, /box-shadow: none;/)
+  assert.doesNotMatch(pageScreen, /repeating-linear-gradient|radial-gradient/)
+  assert.doesNotMatch(television, /\.page (?:h2|p)[^{]*\{[^}]*background:/)
+})
+
+test('the station wordmark carries the master TV fire colour without a green halo', () => {
+  const wordmark = television.match(/\.hud h1 \{([\s\S]*?)\n  \}/)?.[1] || ''
+  assert.match(wordmark, /text-shadow: 0 2px 22px rgba\(255,140,60,\.34\), 0 0 2px rgba\(255,214,164,\.62\);/)
+  assert.doesNotMatch(wordmark, /55,255,139/)
+  assert.match(television, /\.hud h1 \.eps \{ color: #ff8c3c; \}/)
+})
+
 test('reduced motion uses stable frames and hard state changes', () => {
   assert.match(runtime, /prefers-reduced-motion: reduce/)
   assert.match(runtime, /if \(cv\.hasAttribute\("data-signal-main"\) && !reduced\)/)
