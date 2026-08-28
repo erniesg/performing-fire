@@ -92,12 +92,23 @@ test('the TV flame bookends a stable per-cycle shuffle of 火, ひ, and 불', ()
   assert.match(middleGlyphs, /key: "\u3072", glyph: 4/)
   assert.match(middleGlyphs, /key: "\ubd88", glyph: 3/)
   assert.match(television, /const hi = \[/)
+  const hiSource = television.match(/const hi = (\[[\s\S]*?\n    \]);/)?.[1] || '[]'
+  const hiStrokes = JSON.parse(hiSource.replace(/,\s*]/g, ']'))
+  assert.equal(hiStrokes.length, 1, 'ひ must keep its one sweeping loop instead of reading as two-stroke う')
+  const hiStroke = hiStrokes[0]
+  const bowlIndex = hiStroke.findIndex(([, y]) => y === Math.max(...hiStroke.map(point => point[1])))
+  const returnIndex = hiStroke.findIndex(([x, y], index) => index > bowlIndex && x >= 0.57 && y <= 0.18)
+  assert.ok(bowlIndex > 4, 'ひ must descend into a deep bowl after its top-left crown')
+  assert.ok(returnIndex > bowlIndex, 'ひ must rise back to its upper-right crown after the bowl')
+  assert.ok(hiStroke.at(-1)[0] >= 0.78 && hiStroke.at(-1)[1] >= 0.35, 'ひ must finish with its rightward flick')
   assert.match(television, /return \[build\(jiaguwen\), build\(zhuan\), build\(huo\), build\(bul\), build\(hi\)\]/)
-  const permutationSource = television.match(/const IDLE_MIDDLE_PERMUTATIONS = (\[[\s\S]*?\n  \]);/)?.[1] || '[]'
-  const permutations = JSON.parse(permutationSource)
+  assert.match(television, /const \[huoGlyph, hiGlyph, bulGlyph\] = IDLE_MIDDLE_GLYPHS\.map\(\(\{ glyph \}\) => glyph\);/)
+  const permutationSource = television.match(/const IDLE_MIDDLE_PERMUTATIONS = \[([\s\S]*?)\n  \];/)?.[1] || ''
+  const permutations = [...permutationSource.matchAll(/\[(huoGlyph|hiGlyph|bulGlyph), (huoGlyph|hiGlyph|bulGlyph), (huoGlyph|hiGlyph|bulGlyph)\]/g)]
+    .map(match => match.slice(1))
   assert.equal(permutations.length, 6)
   assert.equal(new Set(permutations.map(order => order.join(','))).size, 6)
-  for (const order of permutations) assert.deepEqual([...order].sort(), [2, 3, 4])
+  for (const order of permutations) assert.deepEqual([...order].sort(), ['bulGlyph', 'hiGlyph', 'huoGlyph'])
   assert.match(television, /function idleMiddleOrder\(cycleNo\)/)
   assert.match(television, /if \(cycleNo === idleMiddleCycle\) return idleMiddleGlyphs;/)
   assert.match(television, /const pick = idleCycleHash\(cycleNo\) % IDLE_MIDDLE_PERMUTATIONS\.length;/)
