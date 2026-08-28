@@ -21,12 +21,25 @@ test('the page loads no scripts or stylesheets over http(s)', () => {
   assert.doesNotMatch(broadcast, /@import\s+(?:url\(\s*)?["']?https?:/i)
 })
 
+test('the nested broadcast route resolves every local runtime asset from the public root', async () => {
+  const scriptSources = [...broadcast.matchAll(/<script src="([^"]+)"><\/script>/g)].map(match => match[1])
+  const i18nPrefix = broadcast.match(/window\.fetch\("([^"]*i18n\/)" \+ lang \+ "\.json"\)/)?.[1]
+  const fixture = broadcast.match(/var RESPONSES_FIXTURE = "([^"]+)"/)?.[1]
+  assert.ok(i18nPrefix, 'the locale dictionary request must be discoverable')
+  assert.ok(fixture, 'the response fixture request must be discoverable')
+
+  for (const reference of [...scriptSources, `${i18nPrefix}en.json`, fixture]) {
+    const pathname = new URL(reference, 'https://performingfire.example/broadcast/').pathname.slice(1)
+    await assert.doesNotReject(stat(new URL(pathname, publicDir)), `${reference} must resolve to public/${pathname}`)
+  }
+})
+
 test('five preview canvases use the approved signal catalog keys', () => {
   const previews = [...broadcast.matchAll(/<button class="preview-btn bezel"[\s\S]*?<canvas data-anim="([^"]+)"/g)]
   assert.deepEqual(previews.map(match => match[1]), ['g7', 'hj', 'x3', 'r1', 'l1'])
   assert.match(broadcast, /<canvas data-anim="g7" data-signal-main>/)
-  assert.match(broadcast, /<script src="js\/preview-anims\.js"><\/script>/)
-  assert.match(broadcast, /<script src="js\/preview-anims3\.js"><\/script>/)
+  assert.match(broadcast, /<script src="\/js\/preview-anims\.js"><\/script>/)
+  assert.match(broadcast, /<script src="\/js\/preview-anims3\.js"><\/script>/)
 })
 
 test('the main signal is live while previews start frozen and wake individually', () => {

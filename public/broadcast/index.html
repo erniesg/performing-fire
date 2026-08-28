@@ -207,9 +207,9 @@ html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-mono
   <footer class="pf-footer"><p data-i18n="bc.footer.tagline">Y = f(X) + ε · MOST SYSTEMS REDUCE ε. WE PERFORM IT.</p><p><a href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></p></footer>
 </div>
 
-<script src="js/preview-anims.js"></script>
-<script src="js/preview-anims3.js"></script>
-<script src="js/broadcast-content.js"></script>
+<script src="/js/preview-anims.js"></script>
+<script src="/js/preview-anims3.js"></script>
+<script src="/js/broadcast-content.js"></script>
 <script src="/js/research-gallery.js"></script>
 <script>
 document.addEventListener("pf:lang", function () {
@@ -244,7 +244,7 @@ document.addEventListener("pf:lang", function () {
   }
   function load(lang) {
     if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
-    return window.fetch("i18n/" + lang + ".json").then(function (res) {
+    return window.fetch("/i18n/" + lang + ".json").then(function (res) {
       if (!res.ok) { throw new Error(String(res.status)); }
       return res.json();
     }).then(function (json) { dicts[lang] = json; return json; }).catch(function () { return null; });
@@ -512,7 +512,7 @@ document.addEventListener("pf:lang", function () {
      network path falls back to the seeded fixture, so the channel is never blank. */
   var RESPONSES_API = "https://berlayar.ai/api/artist-responses";
   var RESPONSES_QUERY = "?where[status][equals]=published&limit=100&depth=0";
-  var RESPONSES_FIXTURE = "fixtures/artist-responses.json";
+  var RESPONSES_FIXTURE = "/fixtures/artist-responses.json";
   var QUEUE_KEY = "pf-response-queue";
   var voicesList = $("#voicesList");
   var voicesFallback = $("#voicesFallback");
