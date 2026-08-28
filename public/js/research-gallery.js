@@ -3,7 +3,19 @@
 
   const SAMPLE_FIELDS = ['id', 'group', 'source', 'kind', 'title', 'sourceUrl', 'status', 'note']
   const SCORE_STATUS = 'collection record verified · score candidate'
+  const COUNT_KEYS = {
+    'antiegg-posts': 'bc.research.count.antieggPosts',
+    'njp-center-records': 'bc.research.count.njpCenter',
+    'njpvideo-catalogue': 'bc.research.count.njpCatalogue',
+    'njpvideo-video': 'bc.research.count.njpVideo',
+    'njpvideo-image': 'bc.research.count.njpImage',
+    'njpvideo-pdf': 'bc.research.count.njpPdf',
+    'njpvideo-srt': 'bc.research.count.njpSrt',
+    'videoarchive-pdf': 'bc.research.count.videoArchivePdf',
+    'njp-youtube': 'bc.research.count.njpYoutube',
+  }
   let readerController = null
+  let renderRequest = 0
 
   function nonEmptyString (value) {
     return typeof value === 'string' && value.trim() !== ''
@@ -71,20 +83,36 @@
     return node
   }
 
-  function renderCounts (records) {
+  function translated (key, fallback) {
+    const value = window.PF_I18N && typeof window.PF_I18N.t === 'function' ? window.PF_I18N.t(key) : ''
+    return nonEmptyString(value) ? value : fallback
+  }
+
+  function localizedCopy () {
+    const countLabels = {}
+    for (const [id, key] of Object.entries(COUNT_KEYS)) countLabels[id] = translated(key, '')
+    return {
+      countLabels,
+      scoreStatus: translated('bc.research.scores.status', SCORE_STATUS),
+      openRecord: translated('bc.research.openRecord', 'OPEN RECORD'),
+      sourceLink: translated('bc.research.sourceLink', 'OPEN ORIGINAL SOURCE →'),
+      error: translated('bc.research.error', 'Research records are temporarily unavailable.'),
+    }
+  }
+
+  function renderCounts (records, copy) {
     const target = document.querySelector('[data-research-counts]')
     if (!target) return
     clear(target)
     for (const record of records) {
       const item = element('li', 'research-count')
-      item.appendChild(element('strong', 'research-count__value', String(record.count)))
-      item.appendChild(element('span', 'research-count__label', record.label))
-      item.appendChild(element('small', 'research-count__observed', `Observed ${record.observed}`))
+      const fallback = `${record.count} ${record.label} · ${record.observed}`
+      item.appendChild(element('span', 'research-count__label', copy.countLabels[record.id] || fallback))
       target.appendChild(item)
     }
   }
 
-  function renderScores (records) {
+  function renderScores (records, copy) {
     const target = document.querySelector('[data-research-scores]')
     if (!target) return
     clear(target)
@@ -92,8 +120,8 @@
       const card = element('article', 'research-score')
       card.appendChild(element('h3', 'research-score__title', record.title))
       card.appendChild(element('p', 'research-score__catalogue', `Catalogue ${record.catalogueId}`))
-      card.appendChild(element('p', 'research-score__status', record.status))
-      const link = element('a', 'research-score__source', 'Original source')
+      card.appendChild(element('p', 'research-score__status', copy.scoreStatus))
+      const link = element('a', 'research-score__source', copy.sourceLink)
       link.href = safeUrl(record.sourceUrl)
       link.target = '_blank'
       link.rel = 'noopener noreferrer'
@@ -112,13 +140,18 @@
     readerController = null
   }
 
-  function wireReader () {
+  function wireReader (copy) {
     const reader = document.getElementById('researchReader')
     if (!reader) {
       disposeReader()
       return function () {}
     }
-    if (readerController && readerController.reader === reader) return readerController.open
+    if (readerController && readerController.reader === reader) {
+      readerController.copy = copy
+      const link = readerField('Link')
+      if (!reader.hidden && link && safeUrl(link.href)) link.textContent = copy.sourceLink
+      return readerController.open
+    }
     disposeReader()
     let opener = null
     const close = () => {
@@ -130,6 +163,7 @@
     const onKeydown = event => { if (event.key === 'Escape' && !reader.hidden) close() }
     if (closeButton) closeButton.addEventListener('click', close)
     document.addEventListener('keydown', onKeydown)
+    const controller = { reader, copy, open: null, dispose: null }
     const open = (record, button) => {
       opener = button
       for (const name of ['Title', 'Source', 'Kind', 'Status', 'Note']) {
@@ -141,29 +175,27 @@
         const href = safeUrl(record.sourceUrl)
         link.href = href
         link.hidden = !href
-        link.textContent = href ? 'Open original source' : ''
+        link.textContent = href ? controller.copy.sourceLink : ''
       }
       reader.hidden = false
       if (closeButton && typeof closeButton.focus === 'function') closeButton.focus()
     }
-    readerController = {
-      reader,
-      open,
-      dispose () {
-        if (closeButton) closeButton.removeEventListener('click', close)
-        document.removeEventListener('keydown', onKeydown)
-      },
+    controller.open = open
+    controller.dispose = () => {
+      if (closeButton) closeButton.removeEventListener('click', close)
+      document.removeEventListener('keydown', onKeydown)
     }
+    readerController = controller
     return open
   }
 
-  function renderSamples (records) {
-    const openReader = wireReader()
+  function renderSamples (records, copy) {
+    const openReader = wireReader(copy)
     for (const target of document.querySelectorAll('[data-research-group]')) {
       clear(target)
       const group = target.getAttribute('data-research-group')
       for (const record of records.filter(item => item.group === group)) {
-        const button = element('button', 'research-sample', record.title)
+        const button = element('button', 'research-sample', `${record.title} · ${copy.openRecord}`)
         button.type = 'button'
         button.addEventListener('click', () => openReader(record, button))
         target.appendChild(button)
@@ -172,20 +204,25 @@
   }
 
   async function init () {
+    const request = ++renderRequest
+    const copy = localizedCopy()
     const error = document.querySelector('[data-research-error]')
-    wireReader()
+    wireReader(copy)
     try {
       const response = await window.fetch('/research/archive-snapshot.json')
       if (!response || !response.ok) throw new Error('Research snapshot unavailable')
       const snapshot = normalize(await response.json())
-      renderCounts(snapshot.counts)
-      renderScores(snapshot.scores)
-      renderSamples(snapshot.samples)
+      if (request !== renderRequest) return null
+      renderCounts(snapshot.counts, copy)
+      renderScores(snapshot.scores, copy)
+      renderSamples(snapshot.samples, copy)
       if (error) error.hidden = true
       return snapshot
     } catch (cause) {
+      if (request !== renderRequest) return null
+      for (const node of document.querySelectorAll('.research-loading')) node.hidden = true
       if (error) {
-        error.textContent = 'Research records are temporarily unavailable.'
+        error.textContent = copy.error
         error.hidden = false
       }
       return null

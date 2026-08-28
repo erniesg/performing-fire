@@ -203,7 +203,7 @@ test('reduced motion uses stable frames and hard state changes', () => {
 
 test('the console payload stays within the former 900 KB budget', async () => {
   let total = (await stat(new URL('index.html', publicDir))).size
-  for (const file of ['js/preview-anims.js', 'js/preview-anims3.js', 'js/broadcast-content.js']) {
+  for (const file of ['js/preview-anims.js', 'js/preview-anims3.js', 'js/broadcast-content.js', 'js/research-gallery.js', 'research/archive-snapshot.json']) {
     total += (await stat(new URL(file, publicDir))).size
   }
   assert.ok(total <= 900 * 1024, `${total} bytes exceeds the 900 KB budget`)

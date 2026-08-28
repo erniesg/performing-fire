@@ -5,6 +5,7 @@ import vm from 'node:vm'
 
 const manifestUrl = new URL('../public/research/archive-snapshot.json', import.meta.url)
 const rendererUrl = new URL('../public/js/research-gallery.js', import.meta.url)
+const broadcastUrl = new URL('../public/broadcast/index.html', import.meta.url)
 
 test('research snapshot preserves verified counts without inventing a total', async () => {
   const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
@@ -104,6 +105,149 @@ function makeNode (attributes = {}) {
     querySelector () { return null },
   }
 }
+
+function makeResearchDom () {
+  const counts = makeNode()
+  const scores = makeNode()
+  const samples = makeNode({ 'data-research-group': 'a' })
+  const error = makeNode()
+  const reader = makeNode()
+  const close = makeNode()
+  const byId = {
+    researchReader: reader,
+    researchReaderClose: close,
+    researchReaderTitle: makeNode(),
+    researchReaderSource: makeNode(),
+    researchReaderKind: makeNode(),
+    researchReaderStatus: makeNode(),
+    researchReaderNote: makeNode(),
+    researchReaderLink: makeNode(),
+  }
+  reader.querySelector = selector => (selector === '[data-research-reader-close]' ? close : null)
+  const listeners = new Map()
+  const document = {
+    createElement: () => makeNode(),
+    getElementById: id => byId[id] ?? null,
+    querySelector: selector => ({
+      '[data-research-counts]': counts,
+      '[data-research-scores]': scores,
+      '[data-research-error]': error,
+    })[selector] ?? null,
+    querySelectorAll: selector => {
+      if (selector === '[data-research-group]') return [samples]
+      if (selector === '.research-loading') return []
+      return []
+    },
+    addEventListener (type, listener, options = {}) {
+      const entries = listeners.get(type) ?? []
+      entries.push({ listener, once: Boolean(options && options.once) })
+      listeners.set(type, entries)
+    },
+    removeEventListener (type, listener) {
+      const entries = listeners.get(type) ?? []
+      listeners.set(type, entries.filter(entry => entry.listener !== listener))
+    },
+    dispatchEvent (event) {
+      const entries = [...(listeners.get(event.type) ?? [])]
+      for (const entry of entries) {
+        entry.listener(event)
+        if (entry.once) this.removeEventListener(event.type, entry.listener)
+      }
+      return true
+    },
+  }
+  return { document, counts, scores, samples, error, reader, close, byId, listeners }
+}
+
+function localizedResearchCopy (locale) {
+  const copy = {
+    en: {
+      'bc.research.count.antieggPosts': '1,463 ANTIEGG records · observed 2026-08-03',
+      'bc.research.scores.status': 'verified score candidate',
+      'bc.research.openRecord': 'OPEN RECORD',
+      'bc.research.sourceLink': 'OPEN ORIGINAL SOURCE →',
+      'bc.research.error': 'RESEARCH UNAVAILABLE',
+    },
+    ko: {
+      'bc.research.count.antieggPosts': 'ANTIEGG 기록 1,463건 · 2026-08-03 관찰',
+      'bc.research.scores.status': '검증된 스코어 후보',
+      'bc.research.openRecord': '레코드 열기',
+      'bc.research.sourceLink': '원본 소스 열기 →',
+      'bc.research.error': '연구 스냅샷 사용 불가',
+    },
+  }
+  return key => copy[locale][key] ?? ''
+}
+
+test('broadcast language events re-render dynamic research chrome without translating record titles', async () => {
+  const source = await readFile(rendererUrl, 'utf8')
+  const broadcast = await readFile(broadcastUrl, 'utf8')
+  const integration = broadcast.match(/<script src="\/js\/research-gallery\.js"><\/script>\s*<script>([\s\S]*?)<\/script>/)?.[1] ?? ''
+  const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
+  const payload = { ...snapshot, counts: snapshot.counts.slice(0, 1), samples: snapshot.samples.slice(0, 1), scores: snapshot.scores.slice(0, 1) }
+  const dom = makeResearchDom()
+  let locale = 'en'
+  const window = {
+    fetch: async () => ({ ok: true, json: async () => payload }),
+    PF_I18N: { t: key => localizedResearchCopy(locale)(key) },
+  }
+  const context = { window, document: dom.document, URL, console, Promise }
+  vm.runInNewContext(source, context)
+  vm.runInNewContext(integration, context)
+
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(dom.counts.children[0].children[0].textContent, '1,463 ANTIEGG records · observed 2026-08-03')
+  assert.equal(dom.scores.children[0].children[0].textContent, payload.scores[0].title)
+  assert.equal(dom.scores.children[0].children[2].textContent, 'verified score candidate')
+  assert.equal(dom.scores.children[0].children[3].textContent, 'OPEN ORIGINAL SOURCE →')
+  assert.match(dom.samples.children[0].textContent, new RegExp(`${payload.samples[0].title}.*OPEN RECORD`))
+  dom.samples.children[0].trigger('click')
+  assert.equal(dom.byId.researchReaderTitle.textContent, payload.samples[0].title)
+  assert.equal(dom.byId.researchReaderLink.textContent, 'OPEN ORIGINAL SOURCE →')
+
+  locale = 'ko'
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(dom.counts.children[0].children[0].textContent, 'ANTIEGG 기록 1,463건 · 2026-08-03 관찰')
+  assert.equal(dom.scores.children[0].children[0].textContent, payload.scores[0].title)
+  assert.equal(dom.scores.children[0].children[2].textContent, '검증된 스코어 후보')
+  assert.equal(dom.scores.children[0].children[3].textContent, '원본 소스 열기 →')
+  assert.match(dom.samples.children[0].textContent, new RegExp(`${payload.samples[0].title}.*레코드 열기`))
+  assert.equal(dom.byId.researchReaderTitle.textContent, payload.samples[0].title)
+  assert.equal(dom.byId.researchReaderLink.textContent, '원본 소스 열기 →')
+
+  window.fetch = async () => { throw new Error('network failure') }
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(dom.error.textContent, '연구 스냅샷 사용 불가')
+  assert.equal(dom.error.hidden, false)
+})
+
+test('a stale research response cannot overwrite a newer language render', async () => {
+  const source = await readFile(rendererUrl, 'utf8')
+  const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
+  const payload = { ...snapshot, counts: snapshot.counts.slice(0, 1), samples: snapshot.samples.slice(0, 1), scores: snapshot.scores.slice(0, 1) }
+  const dom = makeResearchDom()
+  const pending = []
+  let locale = 'en'
+  const window = {
+    fetch: () => new Promise(resolve => pending.push(resolve)),
+    PF_I18N: { t: key => localizedResearchCopy(locale)(key) },
+  }
+  vm.runInNewContext(source, { window, document: dom.document, URL, console })
+
+  const english = window.PF_RESEARCH_GALLERY.init()
+  locale = 'ko'
+  const korean = window.PF_RESEARCH_GALLERY.init()
+  pending[1]({ ok: true, json: async () => payload })
+  await korean
+  pending[0]({ ok: true, json: async () => payload })
+  await english
+
+  assert.equal(dom.counts.children[0].children[0].textContent, 'ANTIEGG 기록 1,463건 · 2026-08-03 관찰')
+  assert.equal(dom.scores.children[0].children[2].textContent, '검증된 스코어 후보')
+})
 
 test('repeated init keeps one reader Escape handler and restores the current opener', async () => {
   const source = await readFile(rendererUrl, 'utf8')
