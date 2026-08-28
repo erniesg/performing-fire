@@ -171,10 +171,28 @@ test('the index matches the broadcast visual language', () => {
   assert.match(index, /prefers-reduced-motion:\s*reduce/)
 })
 
-test('the Experiments page reads Fabric first, then the microsite study', () => {
-  assert.match(index, /class="inquiry fabric-inquiry"/)
-  assert.match(index, /data-i18n="exp\.fabric\.inquiryBody"/)
-  assert.match(index, /href="\/experiments\/fabric\/"[^>]*data-i18n="exp\.fabric\.inquiryLink"/)
+test('the Experiments page gives Fabric a durable v0, v1, and undefined-2.0 lineage', () => {
+  assert.match(index, /class="fabric-lineage"/)
+
+  const v0 = index.match(/<article[^>]*data-version="v0"[\s\S]*?<\/article>/)?.[0]
+  assert.ok(v0, 'Fabric v0 lineage card missing')
+  assert.match(v0, /data-i18n="exp\.lineage\.v0\.label"/)
+  assert.match(v0, /data-i18n="exp\.lineage\.v0\.body"/)
+  assert.match(v0, /href="\/experiments\/fabric\/"[^>]*data-i18n="exp\.lineage\.v0\.link"/)
+  assert.match(v0, /34d94eb/)
+
+  const v1 = index.match(/<article[^>]*data-version="v1"[\s\S]*?<\/article>/)?.[0]
+  assert.ok(v1, 'Fabric v1 lineage card missing')
+  assert.match(v1, /data-i18n="exp\.lineage\.v1\.label"/)
+  assert.match(v1, /data-i18n="exp\.lineage\.v1\.body"/)
+  assert.match(v1, /href="\/experiments\/fabric-v1\/"[^>]*data-i18n="exp\.lineage\.v1\.link"/)
+  assert.match(v1, /audio.*transformation/i)
+
+  const v2 = index.match(/<article[^>]*data-version="2\.0"[\s\S]*?<\/article>/)?.[0]
+  assert.ok(v2, 'Fabric 2.0 lineage card missing')
+  assert.match(v2, /data-i18n="exp\.lineage\.v2\.status"[^>]*>NOT YET DEFINED</)
+  assert.doesNotMatch(v2, /<a\b|href=/)
+
   assert.match(index, /class="inquiry microsite-inquiry"/)
   assert.match(index, /data-i18n="exp\.microsite\.body"/)
   assert.match(index, /href="\/experiments\/microsite\/"[^>]*data-i18n="exp\.microsite\.link"/)

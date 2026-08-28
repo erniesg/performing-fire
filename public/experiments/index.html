@@ -106,7 +106,19 @@ body {
 
 #offair { margin: 8px 2px; font-size: 13px; color: #7C828C; }
 
-/* ---- the reading layer: Fabric first, then the larger microsite study ---- */
+/* ---- the reading layer: Fabric lineage, then the larger microsite study ---- */
+.fabric-lineage {
+  margin-top: 34px; padding: clamp(18px, 3vw, 30px);
+  border: 1px solid #33333E; border-radius: 14px;
+  background: linear-gradient(145deg, rgba(30, 30, 39, .9), rgba(11, 11, 16, .96) 58%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 10px 30px rgba(0, 0, 0, .35);
+}
+.fabric-lineage .inquiry-head { max-width: 72ch; }
+.lineage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 20px; }
+.lineage-card { padding: 16px; border: 1px solid #33333E; border-radius: 10px; background: rgba(5, 5, 7, .72); }
+.lineage-card[data-version="v0"] { --inquiry-tint: #FF9D2E; --inquiry-glow: rgba(255, 125, 30, .3); }
+.lineage-card[data-version="v1"] { --inquiry-tint: #37FF8B; --inquiry-glow: rgba(55, 255, 139, .3); }
+.lineage-card[data-version="2.0"] { --inquiry-tint: #8F959E; --inquiry-glow: rgba(143, 149, 158, .2); }
 .inquiry {
   margin-top: 34px; padding: clamp(18px, 3vw, 30px);
   border: 1px solid #33333E; border-radius: 14px;
@@ -122,6 +134,7 @@ body {
 .inquiry-copy + .inquiry-copy { color: #9AA1AA; }
 .inquiry-link { display: inline-block; margin-top: 8px; padding: 7px 11px; color: var(--inquiry-tint); text-decoration: none; border: 1px solid color-mix(in srgb, var(--inquiry-tint) 62%, #33333E); border-radius: 999px; letter-spacing: 1px; font-size: 12px; transition: background .15s ease, box-shadow .15s ease, color .15s ease; }
 .inquiry-link:hover, .inquiry-link:focus-visible { color: #06060A; background: var(--inquiry-tint); box-shadow: 0 0 20px var(--inquiry-glow); }
+.lineage-status { margin: 0 0 12px; color: var(--inquiry-tint); font-size: 12px; letter-spacing: 2px; }
 
 /* shown only when the CMS is unreachable and the checked-in copy is on air */
 #local-copy {
@@ -161,13 +174,30 @@ body {
     <ul class="wall" id="wall" aria-label="Experiments" data-i18n-aria-label="exp.aria"></ul>
     <p id="offair" hidden data-i18n="exp.offair">OFF AIR — the experiment list could not be loaded.</p>
 
-    <section class="inquiry fabric-inquiry" aria-labelledby="fabric-inquiry-title">
+    <section class="fabric-lineage" aria-labelledby="fabric-lineage-title">
       <div class="inquiry-head">
-        <p class="inquiry-kicker" data-i18n="exp.fabric.kicker">01 / INSTALLATION EXPERIMENT</p>
-        <h2 class="inquiry-title" id="fabric-inquiry-title" data-i18n="exp.fabric.inquiryTitle">SOFTWARE AS MATERIAL</h2>
-        <p class="inquiry-copy" data-i18n="exp.fabric.inquiryBody">Physical fabric is difficult to choreograph. Fabric moves its tension, drag, and instability into software, where a hand can pull, stretch, and disturb it in real time.</p>
-        <p class="inquiry-copy" data-i18n="exp.fabric.inquiryNote">The aim is not perfect control, but a responsive surface that keeps fire's unstable behaviour.</p>
-        <a class="inquiry-link" href="/experiments/fabric/" data-i18n="exp.fabric.inquiryLink">VISIT THE FABRIC EXPERIMENT →</a>
+        <p class="inquiry-kicker" data-i18n="exp.lineage.kicker">FABRIC LINEAGE</p>
+        <h2 class="inquiry-title" id="fabric-lineage-title" data-i18n="exp.lineage.title">MATERIAL, AUDIO, FUTURE SLOT</h2>
+      </div>
+      <div class="lineage-cards">
+        <article class="lineage-card" data-version="v0">
+          <p class="inquiry-kicker" data-i18n="exp.lineage.v0.label">v0 / CHECKPOINT / MATERIAL</p>
+          <h3 class="inquiry-title" data-i18n="exp.lineage.v0.title">DIRECT DISTURBANCE</h3>
+          <p class="inquiry-copy" data-i18n="exp.lineage.v0.body">The preserved checkpoint at 34d94eb: direct hand-and-mouse disturbance of a fire-like software surface.</p>
+          <a class="inquiry-link" href="/experiments/fabric/" data-i18n="exp.lineage.v0.link">OPEN FABRIC v0 →</a>
+        </article>
+        <article class="lineage-card" data-version="v1">
+          <p class="inquiry-kicker" data-i18n="exp.lineage.v1.label">v1 / AUDIO AND TRANSFORMATIONS</p>
+          <h3 class="inquiry-title" data-i18n="exp.lineage.v1.title">ROUTED RESPONSE</h3>
+          <p class="inquiry-copy" data-i18n="exp.lineage.v1.body">Everything added after v0: microphone and generated-beat routing, effect mappings, explode, dissolve, glitter, glitch, and expanded controls.</p>
+          <a class="inquiry-link" href="/experiments/fabric-v1/" data-i18n="exp.lineage.v1.link">OPEN FABRIC v1 →</a>
+        </article>
+        <article class="lineage-card" data-version="2.0">
+          <p class="inquiry-kicker" data-i18n="exp.lineage.v2.label">2.0 / FUTURE SLOT</p>
+          <h3 class="inquiry-title" data-i18n="exp.lineage.v2.title">NEXT EXPERIMENT</h3>
+          <p class="lineage-status" data-i18n="exp.lineage.v2.status">NOT YET DEFINED</p>
+          <p class="inquiry-copy" data-i18n="exp.lineage.v2.body">Reserved for the next Fabric experiment. Its behaviour is not defined yet.</p>
+        </article>
       </div>
     </section>
 
