@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "observed": {
+      "2026-07-27": "NJP Center, Video Archive, Video Library, captions, and official YouTube inventory observation.",
+      "2026-08-03": "Public ANTIEGG WordPress post metadata inventory observation."
+    },
+    "overlapNote": "Counts overlap across catalogue records, file types, and audiovisual assets; they are shown as observations, not a summed total."
+  },
+  "counts": [
+    { "id": "antiegg-posts", "label": "ANTIEGG public post metadata", "count": 1463, "observed": "2026-08-03" },
+    { "id": "njp-center-records", "label": "NJP Center records", "count": 29, "observed": "2026-07-27" },
+    { "id": "njpvideo-catalogue", "label": "NJP Video Library catalogue", "count": 678, "observed": "2026-07-27" },
+    { "id": "njpvideo-video", "label": "NJP Video Library video", "count": 401, "observed": "2026-07-27" },
+    { "id": "njpvideo-image", "label": "NJP Video Library image", "count": 205, "observed": "2026-07-27" },
+    { "id": "njpvideo-pdf", "label": "NJP Video Library PDF", "count": 72, "observed": "2026-07-27" },
+    { "id": "njpvideo-srt", "label": "NJP Video Library human SRT", "count": 38, "observed": "2026-07-27" },
+    { "id": "videoarchive-pdf", "label": "NJP Video Archive linked PDF", "count": 8, "observed": "2026-07-27" },
+    { "id": "njp-youtube", "label": "Official NJP YouTube audiovisual assets", "count": 156, "observed": "2026-07-27" }
+  ],
+  "samples": [
+    { "id": "antiegg-post-35015", "group": "a", "source": "ANTIEGG", "kind": "post", "title": "모든 울타리에는 검은 양이 살고 있다", "sourceUrl": "https://antiegg.kr/35015/", "status": "Metadata and source link", "note": "Public post metadata; sample retained as coverage evidence." },
+    { "id": "antiegg-legacy-25502", "group": "a", "source": "ANTIEGG", "kind": "legacy proof", "title": "Legacy Fluxus article proof", "sourceUrl": "https://antiegg.kr/25502/", "status": "Held/blocked; metadata and link only", "note": "Source is held at the public-rendering boundary." },
+    { "id": "njp-center-39", "group": "a", "source": "NJP Center", "kind": "record", "title": "큐레이터와 함께 7: 백남준, <코끼리 수레>", "sourceUrl": "https://njp.ggcf.kr/mediaObjects/39", "status": "Metadata and source link", "note": "Collection record shown without reproducing source material." },
+    { "id": "njp-videoarchive-1", "group": "b", "source": "NJP Video Archive", "kind": "catalogue", "title": "Korea double Face. Processed with Fairlight CVI, for Mr. Dasan (see 55)", "sourceUrl": "https://njp.ggcf.kr/pages/videoarchive", "status": "Tape metadata only; source held", "note": "Catalogue evidence only." },
+    { "id": "njp-videoarchive-pdf-01", "group": "b", "source": "NJP Video Archive", "kind": "linked PDF", "title": "01-nP2DybQ0TFmSh9eNcZzZKmynjUwmscuyvGvsuLYk.pdf", "sourceUrl": "https://njp.ggcf.kr/pages/videoarchive", "status": "Rendering policy-gated", "note": "Linked document is not reproduced here." },
+    { "id": "njpvideo-video-790", "group": "c", "source": "NJP Video Library", "kind": "video", "title": "Ryuich Sakamoto performance footage", "sourceUrl": "https://njpvideo.ggcf.kr/storage/2022/01/24/107221/107221/Proxy/proxy_107221.mp4", "status": "Link only until display policy permits more", "note": "Original source link only." },
+    { "id": "njpvideo-image-455", "group": "c", "source": "NJP Video Library", "kind": "image", "title": "#Art #Commons #NamJunePaik", "sourceUrl": "https://njpvideo.ggcf.kr/storage/2022/01/05/106179/106179/Proxy/Proxy_106179.jpg", "status": "Link only until display policy permits more", "note": "Original source link only." },
+    { "id": "njpvideo-pdf-383", "group": "c", "source": "NJP Video Library", "kind": "PDF", "title": "The World’s Oldest TV: Time and Spacetime in the Early Work of Nam June Paik", "sourceUrl": "https://njpvideo.ggcf.kr/storage/2022/01/05/105125/105125.pdf", "status": "Native readable source; reproduction policy-gated", "note": "Readable at source; not reproduced here." },
+    { "id": "njpvideo-srt-804", "group": "d", "source": "NJP Video Library", "kind": "human SRT", "title": "Nam June Paik Video Art 30 years (1984)", "sourceUrl": "https://njpvideo.ggcf.kr/storage/2022/01/24/107235/107235/Attach/ATTACH_107235_24359_ko.srt", "status": "Human captions; reproduction policy-gated", "note": "Caption source remains at its original location." },
+    { "id": "njp-youtube-05y8KEPGY9I", "group": "d", "source": "Official NJP YouTube", "kind": "audiovisual asset", "title": "《불연속의 접점들》 Circuits of Chance (2026) 참여 작가 인터뷰", "sourceUrl": "https://www.youtube.com/watch?v=05y8KEPGY9I", "status": "Original-source link", "note": "Official channel record; no copied media." }
+  ],
+  "scores": [
+    { "catalogueId": "552", "title": "Paper Piece", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "570", "assetId": "106344", "title": "Zen for Walking", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "571", "title": "Zen for Walking", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "588", "title": "Zen for Walking", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "575", "title": "Zen for Head", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "581", "title": "Zen for Head", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "576", "title": "Symphony No. 6", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "609", "title": "Symphony No. 6", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "578", "title": "MS-Fluxussus (Symphony No.7)", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "587", "title": "Fluxus Sonata No.4", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" },
+    { "catalogueId": "590", "title": "Zen for Film", "sourceUrl": "https://njpvideo.ggcf.kr", "status": "collection record verified · score candidate" }
+  ]
+}
