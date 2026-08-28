@@ -59,6 +59,15 @@ test('gallery API normalizes complete payloads and rejects malformed data', asyn
     ...snapshot,
     counts: [{ ...snapshot.counts[0], observed: 'not-a-date' }],
   }), /count.*observed/i)
+  assert.throws(() => gallery.normalize({
+    ...snapshot,
+    meta: { ...snapshot.meta, observed: { ...snapshot.meta.observed, '2026-02-29': 'Impossible date' } },
+  }), /observed date/i)
+  assert.throws(() => gallery.normalize({
+    ...snapshot,
+    meta: { ...snapshot.meta, observed: { '2026-02-28': 'Valid date' } },
+    counts: [{ ...snapshot.counts[0], observed: '2026-02-29' }],
+  }), /count.*observed/i)
   assert.equal(gallery.safeUrl('https://example.com/source'), 'https://example.com/source')
   for (const unsafe of ['javascript:alert(1)', 'data:text/html,nope', '//example.com', 'http://example.com', 'not a url']) {
     assert.equal(gallery.safeUrl(unsafe), '', unsafe)
@@ -83,6 +92,9 @@ function makeNode (attributes = {}) {
     textContent: '',
     focusCalls: 0,
     addEventListener (type, listener) { listeners.set(type, listener) },
+    removeEventListener (type, listener) {
+      if (listeners.get(type) === listener) listeners.delete(type)
+    },
     appendChild (child) { this.children.push(child); return child },
     getAttribute (name) { return this.attributes[name] ?? null },
     removeChild (child) { this.children.splice(this.children.indexOf(child), 1); return child },
@@ -119,6 +131,10 @@ test('repeated init keeps one reader Escape handler and restores the current ope
       handlers.push(listener)
       documentListeners.set(type, handlers)
     },
+    removeEventListener (type, listener) {
+      const handlers = documentListeners.get(type) ?? []
+      documentListeners.set(type, handlers.filter(handler => handler !== listener))
+    },
   }
   const window = {
     fetch: async () => ({ ok: true, json: async () => snapshot }),
@@ -135,4 +151,21 @@ test('repeated init keeps one reader Escape handler and restores the current ope
   documentListeners.get('keydown')[0]({ key: 'Escape' })
   assert.equal(reader.hidden, true)
   assert.equal(opener.focusCalls, 1)
+
+  opener.trigger('click')
+  delete byId.researchReader
+  await window.PF_RESEARCH_GALLERY.init()
+  assert.equal(documentListeners.get('keydown').length, 0)
+  assert.equal(reader.hidden, false)
+
+  const replacement = makeNode()
+  const replacementClose = makeNode()
+  replacement.querySelector = selector => (selector === '[data-research-reader-close]' ? replacementClose : null)
+  byId.researchReader = replacement
+  await window.PF_RESEARCH_GALLERY.init()
+  assert.equal(documentListeners.get('keydown').length, 1)
+  samples.children[0].trigger('click')
+  documentListeners.get('keydown')[0]({ key: 'Escape' })
+  assert.equal(replacement.hidden, true)
+  assert.equal(reader.hidden, false)
 })

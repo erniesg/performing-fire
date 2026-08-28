@@ -23,6 +23,12 @@
     if (!Array.isArray(value)) throw new TypeError(`${name} must be an array`)
   }
 
+  function isCalendarDate (value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+    const date = new Date(`${value}T00:00:00.000Z`)
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  }
+
   function normalize (payload) {
     if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new TypeError('payload must be an object')
     if (!payload.meta || typeof payload.meta !== 'object' || Array.isArray(payload.meta)) throw new TypeError('meta must be an object')
@@ -30,7 +36,7 @@
     if (!nonEmptyString(payload.meta.overlapNote)) throw new TypeError('meta.overlapNote must be a string')
     const observedDates = new Set(Object.keys(payload.meta.observed))
     for (const date of observedDates) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) throw new TypeError('observed date must be YYYY-MM-DD')
+      if (!isCalendarDate(date)) throw new TypeError('observed date must be YYYY-MM-DD')
     }
 
     assertArray(payload.counts, 'counts')
@@ -39,7 +45,7 @@
     const ids = new Set()
     for (const count of payload.counts) {
       if (!count || !nonEmptyString(count.id) || !nonEmptyString(count.label) || !Number.isInteger(count.count) || count.count < 0) throw new TypeError('count record is incomplete')
-      if (!nonEmptyString(count.observed) || !/^\d{4}-\d{2}-\d{2}$/.test(count.observed) || !observedDates.has(count.observed)) throw new TypeError('count observed date must be declared YYYY-MM-DD')
+      if (!nonEmptyString(count.observed) || !isCalendarDate(count.observed) || !observedDates.has(count.observed)) throw new TypeError('count observed date must be declared YYYY-MM-DD')
       if (ids.has(count.id)) throw new TypeError('record IDs must be unique')
       ids.add(count.id)
     }
@@ -100,11 +106,20 @@
     return document.getElementById(`researchReader${name}`) || document.querySelector(`[data-research-reader-${name.toLowerCase()}]`)
   }
 
+  function disposeReader () {
+    if (!readerController) return
+    readerController.dispose()
+    readerController = null
+  }
+
   function wireReader () {
     const reader = document.getElementById('researchReader')
-    if (!reader) return function () {}
+    if (!reader) {
+      disposeReader()
+      return function () {}
+    }
     if (readerController && readerController.reader === reader) return readerController.open
-    if (readerController) readerController.dispose()
+    disposeReader()
     let opener = null
     const close = () => {
       reader.hidden = true
