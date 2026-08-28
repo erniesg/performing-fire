@@ -70,6 +70,7 @@ function respond (spec) {
 /** Runs the page script against stubbed fetch/i18n state and returns what it rendered. */
 async function load ({ cms, local, search = '', stored = null, language = 'en-US' } = {}) {
   const requested = []
+  const documentElement = makeNode('html')
   const wall = makeNode('ul')
   const offair = makeNode('p')
   const localCopy = makeNode('p')
@@ -78,6 +79,7 @@ async function load ({ cms, local, search = '', stored = null, language = 'en-US
   const byId = { wall, offair, 'local-copy': localCopy }
 
   const document = {
+    documentElement,
     getElementById: id => byId[id] ?? null,
     createElement: tag => makeNode(tag),
     querySelectorAll: () => [],
@@ -102,7 +104,7 @@ async function load ({ cms, local, search = '', stored = null, language = 'en-US
 
   vm.runInNewContext(inlineScript, { window, document, URLSearchParams, console })
   await new Promise(resolve => setTimeout(resolve, 0)) // drain the fetch promise chain
-  return { requested, wall, offair, localCopy, cards: wall.children }
+  return { requested, documentElement, wall, offair, localCopy, cards: wall.children }
 }
 
 const cmsDocs = [
@@ -297,6 +299,13 @@ test('the CMS request carries the locale the i18n layer resolved', async () => {
   assert.equal(await query({ stored: 'ja' }), `${CMS_ENDPOINT}&locale=ja`, 'stored pf-lang is next')
   assert.equal(await query({ language: 'zh-CN' }), `${CMS_ENDPOINT}&locale=zh`, 'navigator.language is last')
   assert.equal(await query({ search: '?lang=de', language: 'de-DE' }), CMS_ENDPOINT, 'unknown locales are dropped')
+})
+
+test('the document language matches the resolved locale used to render the index', async () => {
+  for (const [stored, expected] of [['en', 'en'], ['ko', 'ko'], ['zh', 'zh-Hans'], ['ja', 'ja']]) {
+    const { documentElement } = await load({ cms: { body: { docs: cmsDocs } }, stored })
+    assert.equal(documentElement.lang, expected, `${stored} copy must expose ${expected} on the document root`)
+  }
 })
 
 test('a CMS doc and a JSON entry render through the same card renderer', async () => {
