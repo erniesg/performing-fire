@@ -16,6 +16,7 @@
   }
   let readerController = null
   let renderRequest = 0
+  let lastSnapshot = null
 
   function nonEmptyString (value) {
     return typeof value === 'string' && value.trim() !== ''
@@ -153,19 +154,28 @@
       return readerController.open
     }
     disposeReader()
-    let opener = null
+    const controller = {
+      reader,
+      copy,
+      opener: null,
+      openerId: null,
+      open: null,
+      rebind: null,
+      dispose: null,
+    }
     const close = () => {
       reader.hidden = true
-      if (opener && typeof opener.focus === 'function') opener.focus()
-      opener = null
+      if (controller.opener && typeof controller.opener.focus === 'function') controller.opener.focus()
+      controller.opener = null
+      controller.openerId = null
     }
     const closeButton = reader.querySelector('[data-research-reader-close]') || document.getElementById('researchReaderClose')
     const onKeydown = event => { if (event.key === 'Escape' && !reader.hidden) close() }
     if (closeButton) closeButton.addEventListener('click', close)
     document.addEventListener('keydown', onKeydown)
-    const controller = { reader, copy, open: null, dispose: null }
     const open = (record, button) => {
-      opener = button
+      controller.opener = button
+      controller.openerId = record.id
       for (const name of ['Title', 'Source', 'Kind', 'Status', 'Note']) {
         const field = readerField(name)
         if (field) field.textContent = record[name.toLowerCase()]
@@ -181,6 +191,9 @@
       if (closeButton && typeof closeButton.focus === 'function') closeButton.focus()
     }
     controller.open = open
+    controller.rebind = (recordId, button) => {
+      if (controller.openerId === recordId) controller.opener = button
+    }
     controller.dispose = () => {
       if (closeButton) closeButton.removeEventListener('click', close)
       document.removeEventListener('keydown', onKeydown)
@@ -191,6 +204,7 @@
 
   function renderSamples (records, copy) {
     const openReader = wireReader(copy)
+    if (readerController && readerController.openerId) readerController.opener = null
     for (const target of document.querySelectorAll('[data-research-group]')) {
       clear(target)
       const group = target.getAttribute('data-research-group')
@@ -199,8 +213,15 @@
         button.type = 'button'
         button.addEventListener('click', () => openReader(record, button))
         target.appendChild(button)
+        if (readerController) readerController.rebind(record.id, button)
       }
     }
+  }
+
+  function renderSnapshot (snapshot, copy) {
+    renderCounts(snapshot.counts, copy)
+    renderScores(snapshot.scores, copy)
+    renderSamples(snapshot.samples, copy)
   }
 
   async function init () {
@@ -208,14 +229,17 @@
     const copy = localizedCopy()
     const error = document.querySelector('[data-research-error]')
     wireReader(copy)
+    if (lastSnapshot) {
+      renderSnapshot(lastSnapshot, copy)
+      if (error) error.hidden = true
+    }
     try {
       const response = await window.fetch('/research/archive-snapshot.json')
       if (!response || !response.ok) throw new Error('Research snapshot unavailable')
       const snapshot = normalize(await response.json())
       if (request !== renderRequest) return null
-      renderCounts(snapshot.counts, copy)
-      renderScores(snapshot.scores, copy)
-      renderSamples(snapshot.samples, copy)
+      lastSnapshot = snapshot
+      renderSnapshot(snapshot, copy)
       if (error) error.hidden = true
       return snapshot
     } catch (cause) {

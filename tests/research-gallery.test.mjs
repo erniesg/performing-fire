@@ -89,6 +89,7 @@ function makeNode (attributes = {}) {
   return {
     attributes,
     children: [],
+    parentNode: null,
     hidden: false,
     textContent: '',
     focusCalls: 0,
@@ -96,9 +97,9 @@ function makeNode (attributes = {}) {
     removeEventListener (type, listener) {
       if (listeners.get(type) === listener) listeners.delete(type)
     },
-    appendChild (child) { this.children.push(child); return child },
+    appendChild (child) { child.parentNode = this; this.children.push(child); return child },
     getAttribute (name) { return this.attributes[name] ?? null },
-    removeChild (child) { this.children.splice(this.children.indexOf(child), 1); return child },
+    removeChild (child) { this.children.splice(this.children.indexOf(child), 1); child.parentNode = null; return child },
     get firstChild () { return this.children[0] ?? null },
     focus () { this.focusCalls++ },
     trigger (type, event = {}) { listeners.get(type)?.(event) },
@@ -220,6 +221,76 @@ test('broadcast language events re-render dynamic research chrome without transl
   window.fetch = async () => { throw new Error('network failure') }
   dom.document.dispatchEvent({ type: 'pf:lang' })
   await new Promise(resolve => setImmediate(resolve))
+  assert.equal(dom.error.textContent, '연구 스냅샷 사용 불가')
+  assert.equal(dom.error.hidden, false)
+})
+
+test('closing an open reader after a language render restores focus to the current record button', async () => {
+  const source = await readFile(rendererUrl, 'utf8')
+  const broadcast = await readFile(broadcastUrl, 'utf8')
+  const integration = broadcast.match(/<script src="\/js\/research-gallery\.js"><\/script>\s*<script>([\s\S]*?)<\/script>/)?.[1] ?? ''
+  const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
+  const payload = { ...snapshot, counts: snapshot.counts.slice(0, 1), samples: snapshot.samples.slice(0, 1), scores: snapshot.scores.slice(0, 1) }
+  const dom = makeResearchDom()
+  let locale = 'en'
+  const window = {
+    fetch: async () => ({ ok: true, json: async () => payload }),
+    PF_I18N: { t: key => localizedResearchCopy(locale)(key) },
+  }
+  const context = { window, document: dom.document, URL, console, Promise }
+  vm.runInNewContext(source, context)
+  vm.runInNewContext(integration, context)
+
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  const detachedOpener = dom.samples.children[0]
+  detachedOpener.trigger('click')
+
+  locale = 'ko'
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  const currentOpener = dom.samples.children[0]
+  assert.notEqual(currentOpener, detachedOpener)
+  assert.equal(detachedOpener.parentNode, null)
+  assert.equal(currentOpener.parentNode, dom.samples)
+
+  dom.close.trigger('click')
+  assert.equal(currentOpener.focusCalls, 1)
+  assert.equal(detachedOpener.focusCalls, 0)
+})
+
+test('a failed language fetch repaints the cached snapshot with current locale chrome', async () => {
+  const source = await readFile(rendererUrl, 'utf8')
+  const broadcast = await readFile(broadcastUrl, 'utf8')
+  const integration = broadcast.match(/<script src="\/js\/research-gallery\.js"><\/script>\s*<script>([\s\S]*?)<\/script>/)?.[1] ?? ''
+  const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
+  const payload = { ...snapshot, counts: snapshot.counts.slice(0, 1), samples: snapshot.samples.slice(0, 1), scores: snapshot.scores.slice(0, 1) }
+  const dom = makeResearchDom()
+  let locale = 'en'
+  const window = {
+    fetch: async () => ({ ok: true, json: async () => payload }),
+    PF_I18N: { t: key => localizedResearchCopy(locale)(key) },
+  }
+  const context = { window, document: dom.document, URL, console, Promise }
+  vm.runInNewContext(source, context)
+  vm.runInNewContext(integration, context)
+
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+  dom.samples.children[0].trigger('click')
+  assert.equal(dom.byId.researchReaderLink.textContent, 'OPEN ORIGINAL SOURCE →')
+
+  locale = 'ko'
+  window.fetch = async () => { throw new Error('network failure') }
+  dom.document.dispatchEvent({ type: 'pf:lang' })
+  await new Promise(resolve => setImmediate(resolve))
+
+  assert.equal(dom.counts.children[0].children[0].textContent, 'ANTIEGG 기록 1,463건 · 2026-08-03 관찰')
+  assert.equal(dom.scores.children[0].children[2].textContent, '검증된 스코어 후보')
+  assert.equal(dom.scores.children[0].children[3].textContent, '원본 소스 열기 →')
+  assert.match(dom.samples.children[0].textContent, /레코드 열기/)
+  assert.doesNotMatch(dom.samples.children[0].textContent, /OPEN RECORD/)
+  assert.equal(dom.byId.researchReaderLink.textContent, '원본 소스 열기 →')
   assert.equal(dom.error.textContent, '연구 스냅샷 사용 불가')
   assert.equal(dom.error.hidden, false)
 })
