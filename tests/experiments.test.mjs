@@ -184,13 +184,14 @@ test('the Experiments page gives Fabric a durable v0, v1, and undefined-2.0 line
   const v1 = index.match(/<article[^>]*data-version="v1"[\s\S]*?<\/article>/)?.[0]
   assert.ok(v1, 'Fabric v1 lineage card missing')
   assert.match(v1, /data-i18n="exp\.lineage\.v1\.label"/)
-  assert.match(v1, /data-i18n="exp\.lineage\.v1\.body"/)
+  assert.match(v1, /data-i18n="exp\.lineage\.v1\.body"[^>]*>Everything added after v0: microphone and generated-beat routing, effect mappings, explode, dissolve, glitter, glitch, and expanded controls\.</)
   assert.match(v1, /href="\/experiments\/fabric-v1\/"[^>]*data-i18n="exp\.lineage\.v1\.link"/)
-  assert.match(v1, /audio.*transformation/i)
+  assert.match(v1, /AUDIO AND TRANSFORMATIONS/)
 
   const v2 = index.match(/<article[^>]*data-version="2\.0"[\s\S]*?<\/article>/)?.[0]
   assert.ok(v2, 'Fabric 2.0 lineage card missing')
   assert.match(v2, /data-i18n="exp\.lineage\.v2\.status"[^>]*>NOT YET DEFINED</)
+  assert.match(v2, /data-i18n="exp\.lineage\.v2\.body"[^>]*>Reserved for the next Fabric experiment\. Its behaviour is not defined yet\.</)
   assert.doesNotMatch(v2, /<a\b|href=/)
 
   assert.match(index, /class="inquiry microsite-inquiry"/)
