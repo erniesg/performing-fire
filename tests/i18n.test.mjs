@@ -30,8 +30,16 @@ test('every dictionary value is a non-empty string', () => {
 })
 
 test('machine-draft dictionaries are marked for native review', () => {
+  assert.equal(dicts.en._review, 'source-reviewed', 'en.json must keep the "_review": "source-reviewed" marker')
   for (const locale of ['ko', 'zh', 'ja']) {
     assert.equal(dicts[locale]._review, 'machine-draft', `${locale}.json must keep the "_review": "machine-draft" marker`)
+  }
+})
+
+test('archive-count labels retain every verified public category', () => {
+  for (const locale of LOCALES) {
+    assert.match(dicts[locale]['bc.research.count.videoArchivePdf'], /8/)
+    assert.match(dicts[locale]['bc.research.count.videoArchivePdf'], /2026-07-27/)
   }
 })
 

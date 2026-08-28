@@ -278,5 +278,6 @@
   "exp.lineage.v2.label": "2.0 / FUTURE SLOT",
   "exp.lineage.v2.title": "NEXT EXPERIMENT",
   "exp.lineage.v2.status": "NOT YET DEFINED",
-  "exp.lineage.v2.body": "Reserved for the next Fabric experiment. Its behaviour is not defined yet."
+  "exp.lineage.v2.body": "Reserved for the next Fabric experiment. Its behaviour is not defined yet.",
+  "bc.research.count.videoArchivePdf": "8 linked NJP Video Archive PDFs · observed 2026-07-27"
 }
