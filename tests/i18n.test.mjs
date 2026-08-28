@@ -54,6 +54,12 @@ test('English source copy preserves the approved editorial and Fabric boundaries
   assert.match(dicts.en['bc.log.1.body'], /what was tested, what failed, and what changed/i)
 })
 
+test('Korean About copy keeps the equation and situated-material movements distinct', () => {
+  assert.match(dicts.ko['bc.about.2.body'], /Y = f\(X\) \+ ε.*X.*가져오는.*f\(X\).*조직.*ε.*들어맞/i)
+  assert.match(dicts.ko['bc.about.3.body'], /기여.*익명.*아닌.*맥락.*인간.*재료/i)
+  assert.doesNotMatch(dicts.ko['bc.about.3.body'], /임베딩|군집|지도/)
+})
+
 test('every data-i18n key referenced in the pages exists in the dictionaries', () => {
   const keys = new Set(Object.keys(dicts.en))
   for (const [name, page] of Object.entries(pages)) {
