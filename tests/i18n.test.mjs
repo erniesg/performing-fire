@@ -35,6 +35,17 @@ test('machine-draft dictionaries are marked for native review', () => {
   }
 })
 
+test('English source copy preserves the approved editorial and Fabric boundaries', () => {
+  assert.match(dicts.en['bc.about.1.body'], /make, use, and depend on.*never fully control/i)
+  assert.match(dicts.en['bc.about.4.body'], /scores turn ideas into instructions, actions, and situations/i)
+  assert.match(dicts.en['bc.experiments.fabricV0.detail'], /checkpoint/i)
+  assert.match(dicts.en['bc.experiments.fabricV1.detail'], /Bass.*Body.*Treble.*Hits.*explode.*dissolve.*glitter.*glitch/i)
+  assert.equal(dicts.en['bc.experiments.fabric2.detail'], 'Reserved for the next Fabric experiment. Its behaviour is not defined yet.')
+  assert.equal(dicts.en['bc.experiments.fabric2.status'], 'NOT YET DEFINED')
+  assert.match(dicts.en['bc.research.scores.body'], /collection record.*score text/i)
+  assert.match(dicts.en['bc.log.1.body'], /what was tested, what failed, and what changed/i)
+})
+
 test('every data-i18n key referenced in the pages exists in the dictionaries', () => {
   const keys = new Set(Object.keys(dicts.en))
   for (const [name, page] of Object.entries(pages)) {

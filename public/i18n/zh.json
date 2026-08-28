@@ -20,7 +20,7 @@
   "bc.footer.tagline": "Y = f(X) + ε · 多数系统试图缩小 ε；我们让它成为表演。",
   "bc.about.1.label": "01 / 方程",
   "bc.about.1.heading": "Y = f(X) + ε",
-  "bc.about.1.body": "X 是人们带来的东西。f(X) 是系统整理它们的尝试。ε 是不肯安定下来的部分。",
+  "bc.about.1.body": "技术是人们制造、使用并依赖，却永远无法完全控制的东西。火聚集、维持、毁坏并转化。",
   "bc.about.2.label": "02 / 输入",
   "bc.about.2.heading": "X / 痕迹",
   "bc.about.2.body": "人们带来文字、声音、绘画、手势、动作、希望、恐惧和短视频。这些痕迹就是原始材料 X。",
@@ -29,7 +29,7 @@
   "bc.about.3.body": "拟议中的系统对痕迹进行嵌入、聚类和映射。f(X) 是让它们变得可读、可管理的尝试。",
   "bc.about.4.label": "04 / 余项",
   "bc.about.4.heading": "ε / 抵抗之物",
-  "bc.about.4.body": "误译、矛盾、沉默、奇异手势和模糊信号抵抗这张图。多数 AI 系统试图缩小 ε；在这里，我们表演它。",
+  "bc.about.4.body": "白南准和激浪派提供一种方法：乐谱把观念转成指令、行动与情境。",
   "bc.about.5.label": "05 / 表演",
   "bc.about.5.heading": "余项燃烧",
   "bc.about.5.body": "表演者在织物图腾内部或周围行动，把 ε 转化为光、粒子、声音、故障和象征性的火。",
@@ -76,7 +76,7 @@
   "bc.research.5.body": "权利未清的材料保持搁置。离线实现只表示本地元数据和离线样本。线上验证表示已检查公开路径；研究状态不等于完成的模型。",
   "bc.log.1.label": "拟议计划 · 07/07–18",
   "bc.log.1.heading": "主题 + 概念",
-  "bc.log.1.body": "拟议计划从主题发展、任务复盘、角色设定和概念细化开始。",
+  "bc.log.1.body": "这份日志记录测试了什么、什么失败、什么改变，让下一项实验有可见的理由。",
   "bc.log.1.link": "打开实验",
   "bc.log.2.label": "拟议计划 · 07/19–25",
   "bc.log.2.heading": "研究 + 回应",
@@ -213,5 +213,9 @@
   "micro.final.title": "五个容器。一次广播。",
   "micro.final.body": "ABOUT 建立作品的前提。CONTRIBUTE 邀请人们进入。EXPERIMENTS 测试形式。RESEARCH 追踪来源。LOG 记录时间。它们共同组成一个开放系统。",
   "micro.final.link": "返回 THE BROADCAST →",
-  "micro.footer.project": "PERFORMING FIRE · 微型网站研究"
+  "micro.footer.project": "PERFORMING FIRE · 微型网站研究",
+  "bc.experiments.fabricV0.kicker": "FABRIC v0 · 检查点 / 材料", "bc.experiments.fabricV0.title": "直接扰动", "bc.experiments.fabricV0.teaser": "保存下来的材料检查点。", "bc.experiments.fabricV0.detail": "Fabric v0 是 34d94eb 的检查点状态：以手和鼠标直接扰动如火的软件表面。", "bc.experiments.fabricV0.link": "打开 FABRIC v0 →", "bc.experiments.fabricV1.kicker": "FABRIC v1 · 音频与变换", "bc.experiments.fabricV1.title": "路由的回应", "bc.experiments.fabricV1.teaser": "后续添加让材料有更多变化方式。", "bc.experiments.fabricV1.detail": "Fabric v1 加入麦克风和生成节拍路由：Bass、Body、Treble 与 Hits 驱动独立映射，explode、dissolve、glitter、glitch 以及扩展控制。", "bc.experiments.fabricV1.link": "打开 FABRIC v1 →", "bc.experiments.fabric2.kicker": "FABRIC 2.0 · 未来位置", "bc.experiments.fabric2.title": "下一项实验", "bc.experiments.fabric2.status": "NOT YET DEFINED", "bc.experiments.fabric2.detail": "为下一项 Fabric 实验预留。它的行为尚未定义。", "bc.experiments.microsite.body": "微型网站把各自独立的屏幕物件发展为五频道广播形式。",
+  "bc.research.scores.label": "01 / 乐谱候选", "bc.research.scores.heading": "指令仍待阅读", "bc.research.scores.body": "每条馆藏记录已经核验，但 score text 尚未经过人工确认。历史乐谱候选与未来由 Performing Fire 生成的乐谱保持区分。", "bc.research.scores.status": "collection record verified · score candidate", "bc.research.counts.label": "02 / 公开在线快照", "bc.research.counts.heading": "已观察，不合计", "bc.research.counts.body": "经过核验的公开数量保留观察日期；类别互有重叠，不能相加。", "bc.research.samplesA.label": "03 / 样本记录 A", "bc.research.samplesA.heading": "ANTIEGG + NJP CENTER", "bc.research.samplesB.label": "04 / 样本记录 B", "bc.research.samplesB.heading": "VIDEO ARCHIVE", "bc.research.samplesC.label": "05 / 样本记录 C", "bc.research.samplesC.heading": "VIDEO LIBRARY", "bc.research.samplesD.label": "06 / 样本记录 D", "bc.research.samplesD.heading": "字幕 + YOUTUBE", "bc.research.rights.label": "07 / 证据 + 权利", "bc.research.rights.heading": "展示有边界", "bc.research.rights.body": "样本展示元数据与来源链接。可读文件或衍生物只会在现行政策允许公开渲染时出现。",
+  "bc.research.openRecord": "打开记录", "bc.research.sourceLink": "打开原始来源 →", "bc.research.reader.label": "研究记录", "bc.research.reader.close": "关闭记录", "bc.research.reader.source": "来源", "bc.research.reader.kind": "类型", "bc.research.reader.status": "状态", "bc.research.reader.note": "说明", "bc.research.error": "研究快照不可用 — 正在显示本地传输副本。", "bc.research.loading": "正在调入研究快照…", "bc.research.count.antieggPosts": "1,463 条 ANTIEGG 帖子元数据记录 · 观察于 2026-08-03", "bc.research.count.njpCenter": "29 条 NJP Center 记录 · 观察于 2026-07-27", "bc.research.count.njpCatalogue": "678 条 NJP Video Library 目录记录 · 观察于 2026-07-27", "bc.research.count.njpVideo": "401 条视频记录 · 观察于 2026-07-27", "bc.research.count.njpImage": "205 条图像记录 · 观察于 2026-07-27", "bc.research.count.njpPdf": "72 条 PDF 记录 · 观察于 2026-07-27", "bc.research.count.njpSrt": "38 个人工 SRT 字幕文件 · 观察于 2026-07-27", "bc.research.count.njpYoutube": "156 项官方 NJP YouTube 视听资产 · 观察于 2026-07-27",
+  "exp.lineage.kicker": "FABRIC 谱系", "exp.lineage.title": "材料、音频、未来位置", "exp.lineage.v0.label": "v0 / 检查点 / 材料", "exp.lineage.v0.title": "直接扰动", "exp.lineage.v0.body": "保存于 34d94eb 的检查点：以手和鼠标直接扰动如火的软件表面。", "exp.lineage.v0.link": "打开 FABRIC v0 →", "exp.lineage.v1.label": "v1 / 音频与变换", "exp.lineage.v1.title": "路由的回应", "exp.lineage.v1.body": "v0 后的全部添加：麦克风与生成节拍路由、效果映射、explode、dissolve、glitter、glitch 和扩展控制。", "exp.lineage.v1.link": "打开 FABRIC v1 →", "exp.lineage.v2.label": "2.0 / 未来位置", "exp.lineage.v2.title": "下一项实验", "exp.lineage.v2.status": "NOT YET DEFINED", "exp.lineage.v2.body": "为下一项 Fabric 实验预留。它的行为尚未定义。"
 }
