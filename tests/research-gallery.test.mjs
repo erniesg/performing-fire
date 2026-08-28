@@ -168,4 +168,15 @@ test('repeated init keeps one reader Escape handler and restores the current ope
   documentListeners.get('keydown')[0]({ key: 'Escape' })
   assert.equal(replacement.hidden, true)
   assert.equal(reader.hidden, false)
+
+  const replacementOpener = samples.children[0]
+  replacementOpener.trigger('click')
+  assert.equal(replacement.hidden, false)
+  const focusBeforeFailedInit = replacementOpener.focusCalls
+  delete byId.researchReader
+  window.fetch = async () => { throw new Error('network failure') }
+  await window.PF_RESEARCH_GALLERY.init()
+  assert.equal(documentListeners.get('keydown').length, 0)
+  assert.equal(replacement.hidden, false)
+  assert.equal(replacementOpener.focusCalls, focusBeforeFailedInit)
 })

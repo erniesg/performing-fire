@@ -173,6 +173,7 @@
 
   async function init () {
     const error = document.querySelector('[data-research-error]')
+    wireReader()
     try {
       const response = await window.fetch('/research/archive-snapshot.json')
       if (!response || !response.ok) throw new Error('Research snapshot unavailable')
