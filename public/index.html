@@ -605,6 +605,36 @@
     const s = G.segs[G.segs.length - 1];
     return [s.bx, s.by];
   }
+  const IDLE_GLYPH_ORDER = [
+    { key: "tv-flame", glyph: 0 },
+    { key: "火", glyph: 2 },
+    { key: "불", glyph: 3 },
+  ];
+  const IDLE_GLYPH_FRAMES = [
+    [0.19, 0.62, 0.19, 0.57],                                // broad TV-flame mark
+    [0.27, 0.46, 0.13, 0.74],
+    [0.23, 0.54, 0.12, 0.76],                                // 火
+    [0.30, 0.40, 0.10, 0.80],                                // 불
+  ];
+  function glyphSeat(u, gi, W, H) {
+    const [left, width, top, height] = IDLE_GLYPH_FRAMES[gi];
+    const [gx, gy] = glyphPoint(u, gi);
+    return [W * (left + gx * width), H * (top + gy * height)];
+  }
+  function idleGlyphMorph(cyc) {
+    if (reduced) return { glyphIndex: 0, nextGlyphIndex: 0, mix: 0, lock: 1 };
+    const tv = IDLE_GLYPH_ORDER[0].glyph;
+    const ja = IDLE_GLYPH_ORDER[1].glyph;
+    const ko = IDLE_GLYPH_ORDER[2].glyph;
+    if (cyc < 5.2 || cyc >= 16.4) return { glyphIndex: tv, nextGlyphIndex: tv, mix: 0, lock: 0 };
+    if (cyc < 6.4) return { glyphIndex: tv, nextGlyphIndex: tv, mix: 0, lock: sm(5.2, 6.4, cyc) };
+    if (cyc < 8.6) return { glyphIndex: tv, nextGlyphIndex: tv, mix: 0, lock: 1 };
+    if (cyc < 9.7) return { glyphIndex: tv, nextGlyphIndex: ja, mix: sm(8.6, 9.7, cyc), lock: 1 };
+    if (cyc < 11.9) return { glyphIndex: ja, nextGlyphIndex: ja, mix: 0, lock: 1 };
+    if (cyc < 13.0) return { glyphIndex: ja, nextGlyphIndex: ko, mix: sm(11.9, 13.0, cyc), lock: 1 };
+    if (cyc < 15.2) return { glyphIndex: ko, nextGlyphIndex: ko, mix: 0, lock: 1 };
+    return { glyphIndex: ko, nextGlyphIndex: ko, mix: 0, lock: 1 - sm(15.2, 16.4, cyc) };
+  }
   /* master idle — a firefly swarm with real physics (stochastic flight, local
      flocking, pulse-coupled flashing where neighbours recruit each other) that
      catches fire. Embers rise through three tongue envelopes, each breathing on
@@ -696,8 +726,10 @@
     }
     if (st === 3) x.globalCompositeOperation = "lighter";    // gold: overlaps fuse to cream
     const cyc = (t - (mflyCyc0 >= 0 ? mflyCyc0 : t)) % IDLE_CYC;
-    /* burning by default — the swarm escapes for ~5s per cycle, then recombusts */
-    const fk = 1 - sm(13.4, 14.8, cyc) * (1 - sm(19.8, 21.4, cyc));
+    /* burning by default; after the three glyph holds, the swarm slips loose
+       briefly and recombusts before the cycle repeats */
+    const fk = 1 - sm(16.4, 17.5, cyc) * (1 - sm(20.0, 21.4, cyc));
+    const glyphMorph = idleGlyphMorph(cyc);
     masterFk = fk;
     /* base sits at the flat's bottom edge — the fire RESTS on the recess floor,
        with lit wood behind it and floor in front: a diorama, not wallpaper */
@@ -738,7 +770,13 @@
       /* render — style-dependent; the physics above is shared by every style */
       const v = (t * f.rise + f.u * 7) % 1;
       const [ex, ey] = emberPoint(f, v, W, H, t, sway, baseY, flameH);
-      const px = lerp(f.x * W, ex, fk), py = lerp(f.y * H, ey, fk);
+      let px = lerp(f.x * W, ex, fk), py = lerp(f.y * H, ey, fk);
+      const [gx, gy] = glyphSeat(f.u, glyphMorph.glyphIndex, W, H);
+      const [nx, ny] = glyphSeat(f.u, glyphMorph.nextGlyphIndex, W, H);
+      const glyphJitter = reduced ? 0 : 1.25;
+      const glx = lerp(gx, nx, glyphMorph.mix) + Math.sin(t * 2.7 + f.u * 41) * glyphJitter;
+      const gly = lerp(gy, ny, glyphMorph.mix) + Math.cos(t * 2.3 + f.u * 37) * glyphJitter;
+      px = lerp(px, glx, glyphMorph.lock); py = lerp(py, gly, glyphMorph.lock);
 
       if (st === 2) {                                        // 08: no fade — explicit soft trails along real paths
         const lit = lerp(f.flash, 0.85 - v * 0.45, fk);

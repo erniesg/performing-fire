@@ -86,6 +86,18 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
   assert.doesNotMatch(television, /PROGRAM_ADVANCE_MS|scheduleProgrammeAdvance/)
 })
 
+test('the master fire sparks morph through the TV flame, Japanese fire, and Korean fire forms', () => {
+  const glyphOrder = television.match(/const IDLE_GLYPH_ORDER = \[([\s\S]*?)\n  \];/)?.[1] || ''
+  assert.match(glyphOrder, /key: "tv-flame", glyph: 0/)
+  assert.match(glyphOrder, /key: "\u706b", glyph: 2/)
+  assert.match(glyphOrder, /key: "\ubd88", glyph: 3/)
+  assert.match(television, /function idleGlyphMorph\(cyc\)/)
+  assert.match(television, /if \(reduced\) return \{ glyphIndex: 0, nextGlyphIndex: 0, mix: 0, lock: 1 \};/)
+  assert.match(television, /glyphSeat\(f\.u, glyphMorph\.glyphIndex, W, H\)/)
+  assert.match(television, /glyphSeat\(f\.u, glyphMorph\.nextGlyphIndex, W, H\)/)
+  assert.match(television, /px = lerp\(px, glx, glyphMorph\.lock\); py = lerp\(py, gly, glyphMorph\.lock\);/)
+})
+
 test('channel pages remain framed by the main CRT throughout entry and exit', () => {
   assert.match(television, /<div class="page-screen">/)
   assert.match(television, /overlayCRT\(s, TINT\[c\.ch\], "", 0, "top"\)/)
