@@ -96,6 +96,10 @@ test('the master fire sparks morph through the TV flame, Japanese fire, and Kore
   assert.match(television, /glyphSeat\(f\.u, glyphMorph\.glyphIndex, W, H\)/)
   assert.match(television, /glyphSeat\(f\.u, glyphMorph\.nextGlyphIndex, W, H\)/)
   assert.match(television, /px = lerp\(px, glx, glyphMorph\.lock\); py = lerp\(py, gly, glyphMorph\.lock\);/)
+  assert.match(television, /const frameT = reduced \? 0 : t;/)
+  assert.match(television, /if \(reduced\) \{\s*x\.clearRect\(0, 0, W, H\);\s*\} else if \(styleDef\.persist\)/)
+  assert.match(television, /const cyc = reduced \? 0 : \(t - \(mflyCyc0 >= 0 \? mflyCyc0 : t\)\) % IDLE_CYC;/)
+  assert.match(television, /uTime\.value = reduced && d === master \? 0 : t/)
 })
 
 test('channel pages remain framed by the main CRT throughout entry and exit', () => {

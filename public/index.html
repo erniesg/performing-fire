@@ -702,12 +702,15 @@
   if (/^\d+$/.test(fireQ.get("fire") || "")) fireStyle = Math.min(FIRE_STYLES.length - 1, Math.max(0, parseInt(fireQ.get("fire"), 10) - 1));
   let masterScan = fireQ.get("scan") === "1";
   function masterIdleDraw(x, W, H, t) {
-    const dt = Math.min(0.05, Math.max(0.001, t - mflyLast));
-    mflyLast = t;
+    const frameT = reduced ? 0 : t;
+    const dt = reduced ? 0 : Math.min(0.05, Math.max(0.001, t - mflyLast));
+    if (!reduced) mflyLast = t;
     const styleDef = FIRE_STYLES[fireStyle], st = fireStyle;
     x.setTransform(1, 0, 0, 1, 0, 0);
     x.globalCompositeOperation = "source-over";
-    if (styleDef.persist) {                                  // the fade IS the comet tails
+    if (reduced) {
+      x.clearRect(0, 0, W, H);
+    } else if (styleDef.persist) {                           // the fade IS the comet tails
       /* the canvas is TRANSPARENT (diorama flat): fade by erasing alpha, and every
          half second zero out near-invisible residue so ghosts can't stall */
       x.globalCompositeOperation = "destination-out";
@@ -725,7 +728,7 @@
       x.clearRect(0, 0, W, H);                               // 08 draws its own trails
     }
     if (st === 3) x.globalCompositeOperation = "lighter";    // gold: overlaps fuse to cream
-    const cyc = (t - (mflyCyc0 >= 0 ? mflyCyc0 : t)) % IDLE_CYC;
+    const cyc = reduced ? 0 : (t - (mflyCyc0 >= 0 ? mflyCyc0 : t)) % IDLE_CYC;
     /* burning by default; after the three glyph holds, the swarm slips loose
        briefly and recombusts before the cycle repeats */
     const fk = 1 - sm(16.4, 17.5, cyc) * (1 - sm(20.0, 21.4, cyc));
@@ -734,7 +737,7 @@
     /* base sits at the flat's bottom edge — the fire RESTS on the recess floor,
        with lit wood behind it and floor in front: a diorama, not wallpaper */
     const baseY = H * 0.965, flameH = H * 0.76;              // the centre tongue owns most of the tube now
-    const sway = Math.sin(t * 1.9) * 0.6 + Math.sin(t * 3.3) * 0.3;
+    const sway = Math.sin(frameT * 1.9) * 0.6 + Math.sin(frameT * 3.3) * 0.3;
 
     for (let i = 0; i < MFLY.length; i++) {
       const f = MFLY[i];
@@ -768,14 +771,14 @@
       f.flash *= Math.exp(-f.decay * dt);
 
       /* render — style-dependent; the physics above is shared by every style */
-      const v = (t * f.rise + f.u * 7) % 1;
-      const [ex, ey] = emberPoint(f, v, W, H, t, sway, baseY, flameH);
+      const v = (frameT * f.rise + f.u * 7) % 1;
+      const [ex, ey] = emberPoint(f, v, W, H, frameT, sway, baseY, flameH);
       let px = lerp(f.x * W, ex, fk), py = lerp(f.y * H, ey, fk);
       const [gx, gy] = glyphSeat(f.u, glyphMorph.glyphIndex, W, H);
       const [nx, ny] = glyphSeat(f.u, glyphMorph.nextGlyphIndex, W, H);
       const glyphJitter = reduced ? 0 : 1.25;
-      const glx = lerp(gx, nx, glyphMorph.mix) + Math.sin(t * 2.7 + f.u * 41) * glyphJitter;
-      const gly = lerp(gy, ny, glyphMorph.mix) + Math.cos(t * 2.3 + f.u * 37) * glyphJitter;
+      const glx = lerp(gx, nx, glyphMorph.mix) + Math.sin(frameT * 2.7 + f.u * 41) * glyphJitter;
+      const gly = lerp(gy, ny, glyphMorph.mix) + Math.cos(frameT * 2.3 + f.u * 37) * glyphJitter;
       px = lerp(px, glx, glyphMorph.lock); py = lerp(py, gly, glyphMorph.lock);
 
       if (st === 2) {                                        // 08: no fade — explicit soft trails along real paths
@@ -787,7 +790,7 @@
         const TR = fk > 0.02 ? 5 : 2;
         for (let b = TR - 1; b >= 0; b--) {
           const back = b * 0.02, vv = Math.max(0, v - back);
-          const [bx2, by2] = emberPoint(f, vv, W, H, t, sway, baseY, flameH);
+          const [bx2, by2] = emberPoint(f, vv, W, H, frameT, sway, baseY, flameH);
           const pxs = lerp((f.x - f.vx * back * 7) * W, bx2, fk);
           const pys = lerp((f.y - f.vy * back * 7) * H, by2, fk);
           const rad = r * (b === 0 ? 3.2 : 2.2 - b * 0.22);
@@ -2812,7 +2815,7 @@
     if (envDef.tick && t - lastEnvTick >= 0.11) { lastEnvTick = t; envDef.tick(); envDef.sky.needsUpdate = true; }
 
     devices.forEach(d => {
-      d.screenMesh.material.uniforms.uTime.value = t;
+      d.screenMesh.material.uniforms.uTime.value = reduced && d === master ? 0 : t;
       d.screenMesh.material.uniforms.uFlame.value = d.screen.uFlame || 0;
     });
     updateCamera(t, p);
