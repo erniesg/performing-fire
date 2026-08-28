@@ -44,12 +44,27 @@ test('the Broadcast remains its own site and the fabric study is its own experim
   assert.doesNotMatch(experiment, /THE BROADCAST/)
 })
 
-test('Experiments opens Fabric and Microsite together inside the console', () => {
+test('Experiments preserves the Fabric lineage and Microsite as two transmissions', () => {
   assert.match(broadcast, /data-channel-panel="experiments"[\s\S]*?class="[^"]*experiment-switchboard[^"]*"/)
-  assert.match(broadcast, /data-study="fabric"[\s\S]*?href="\/experiments\/fabric\/"/)
+  assert.match(broadcast, /data-study="fabric-v0"[\s\S]*?href="\/experiments\/fabric\/"/)
+  assert.match(broadcast, /data-study="fabric-v1"[\s\S]*?href="\/experiments\/fabric-v1\/"/)
+  assert.match(broadcast, /data-study="fabric-2"[\s\S]*?bc\.experiments\.fabric2\.status/)
+  const fabric2Markup = broadcast.match(/data-study="fabric-2"[\s\S]*?<\/article>/)?.[0] ?? ''
+  assert.doesNotMatch(fabric2Markup, /href=/)
   assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
   assert.match(broadcast, /class="study-toggle"[\s\S]*?bc\.experiments\.open[\s\S]*?bc\.experiments\.close/)
-  assert.match(broadcast, /signal: "x3"[\s\S]*?count: 1/)
+  assert.match(broadcast, /signal: "x3"[\s\S]*?count: 2/)
+})
+
+test('Research exposes seven transmissions and an in-console reader', () => {
+  assert.match(broadcast, /data-channel-panel="research"[\s\S]*?data-research-scores/)
+  assert.match(broadcast, /data-research-counts/)
+  assert.equal((broadcast.match(/data-research-group="[a-d]"/g) ?? []).length, 4)
+  assert.match(broadcast, /id="researchReader"[\s\S]*?role="dialog"/)
+  assert.match(broadcast, /data-research-error/)
+  assert.match(broadcast, /\/js\/research-gallery\.js/)
+  assert.match(broadcast, /PF_RESEARCH_GALLERY\.init/)
+  assert.match(broadcast, /signal: "r1"[\s\S]*?count: 7/)
 })
 
 test('reduced motion is supported', () => {

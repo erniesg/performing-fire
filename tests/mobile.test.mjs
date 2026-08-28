@@ -30,10 +30,21 @@ test('the narrow layout keeps all five previews above the viewer', () => {
   assert.match(broadcast, /<section class="previews"[\s\S]*<section class="viewer-bezel"/)
 })
 
+test('research grids and the reader stay compact inside the fixed content pane', () => {
+  const css = mobileCss()
+  assert.match(broadcast, /\.research-counts\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/)
+  assert.match(broadcast, /\.research-samples\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/)
+  assert.match(broadcast, /\.research-sample\{[^}]*-webkit-line-clamp:2/)
+  assert.match(broadcast, /\.research-reader\{[^}]*position:absolute[^}]*inset:0/)
+  assert.match(css, /\.research-counts,\.research-samples\{grid-template-columns:1fr/)
+  assert.match(css, /\.research-reader\{padding:/)
+  assert.doesNotMatch(css, /overflow-y:\s*(?:auto|scroll)/)
+})
+
 test('coarse pointers receive 44px targets for console controls', () => {
   const css = mobileCss()
   assert.match(css, /@media \(hover:none\) and \(pointer:coarse\)/)
-  for (const selector of ['.preview-btn', '.transport-btn', '.tab-btn', '.send-btn', '.link-btn', '.lang-toggle button']) {
+  for (const selector of ['.preview-btn', '.transport-btn', '.tab-btn', '.send-btn', '.link-btn', '.study-link', '.research-sample', '.research-score__source', '.research-reader__close', '.research-reader__link', '.lang-toggle button']) {
     assert.ok(css.includes(selector), `${selector} must be covered by the coarse-pointer rule`)
   }
   assert.match(css, /min-height:44px/)
