@@ -55,6 +55,10 @@ test('gallery API normalizes complete payloads and rejects malformed data', asyn
   assert.deepEqual(gallery.normalize(snapshot), snapshot)
   assert.throws(() => gallery.normalize({ ...snapshot, samples: {} }), /samples/)
   assert.throws(() => gallery.normalize({ ...snapshot, samples: [{ id: 'missing' }] }), /sample/)
+  assert.throws(() => gallery.normalize({
+    ...snapshot,
+    counts: [{ ...snapshot.counts[0], observed: 'not-a-date' }],
+  }), /count.*observed/i)
   assert.equal(gallery.safeUrl('https://example.com/source'), 'https://example.com/source')
   for (const unsafe of ['javascript:alert(1)', 'data:text/html,nope', '//example.com', 'http://example.com', 'not a url']) {
     assert.equal(gallery.safeUrl(unsafe), '', unsafe)
@@ -68,4 +72,67 @@ test('gallery implementation renders through textContent only', async () => {
   assert.match(source, /fetch\(['"]\/research\/archive-snapshot\.json['"]\)/)
   assert.match(source, /data-research-error/)
   assert.match(source, /Escape/)
+})
+
+function makeNode (attributes = {}) {
+  const listeners = new Map()
+  return {
+    attributes,
+    children: [],
+    hidden: false,
+    textContent: '',
+    focusCalls: 0,
+    addEventListener (type, listener) { listeners.set(type, listener) },
+    appendChild (child) { this.children.push(child); return child },
+    getAttribute (name) { return this.attributes[name] ?? null },
+    removeChild (child) { this.children.splice(this.children.indexOf(child), 1); return child },
+    get firstChild () { return this.children[0] ?? null },
+    focus () { this.focusCalls++ },
+    trigger (type, event = {}) { listeners.get(type)?.(event) },
+    querySelector () { return null },
+  }
+}
+
+test('repeated init keeps one reader Escape handler and restores the current opener', async () => {
+  const source = await readFile(rendererUrl, 'utf8')
+  const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
+  const counts = makeNode()
+  const scores = makeNode()
+  const samples = makeNode({ 'data-research-group': 'a' })
+  const error = makeNode()
+  const reader = makeNode()
+  const close = makeNode()
+  reader.querySelector = selector => (selector === '[data-research-reader-close]' ? close : null)
+  const documentListeners = new Map()
+  const byId = { researchReader: reader }
+  const document = {
+    createElement: () => makeNode(),
+    getElementById: id => byId[id] ?? null,
+    querySelector: selector => ({
+      '[data-research-counts]': counts,
+      '[data-research-scores]': scores,
+      '[data-research-error]': error,
+    })[selector] ?? null,
+    querySelectorAll: selector => (selector === '[data-research-group]' ? [samples] : []),
+    addEventListener (type, listener) {
+      const handlers = documentListeners.get(type) ?? []
+      handlers.push(listener)
+      documentListeners.set(type, handlers)
+    },
+  }
+  const window = {
+    fetch: async () => ({ ok: true, json: async () => snapshot }),
+  }
+  vm.runInNewContext(source, { window, document, URL, console })
+
+  await window.PF_RESEARCH_GALLERY.init()
+  await window.PF_RESEARCH_GALLERY.init()
+  assert.equal(documentListeners.get('keydown').length, 1)
+
+  const opener = samples.children[0]
+  opener.trigger('click')
+  assert.equal(reader.hidden, false)
+  documentListeners.get('keydown')[0]({ key: 'Escape' })
+  assert.equal(reader.hidden, true)
+  assert.equal(opener.focusCalls, 1)
 })
