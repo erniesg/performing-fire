@@ -54,6 +54,45 @@ test('English source copy preserves the approved editorial and Fabric boundaries
   assert.match(dicts.en['bc.log.1.body'], /what was tested, what failed, and what changed/i)
 })
 
+test('About and Log labels and headings match the approved editorial movements', () => {
+  const movements = {
+    'bc.about.1': ['01 / ARTIST STATEMENT', 'PLAYING WITH FIRE'],
+    'bc.about.2': ['02 / EQUATION', 'Y = f(X) + ε'],
+    'bc.about.3': ['03 / CONTRIBUTIONS', 'HUMAN MATERIAL'],
+    'bc.about.4': ['04 / RESEARCH METHOD', 'IDEAS BECOME ACTIONS'],
+    'bc.about.5': ['05 / PERFORMANCE', 'WHAT REMAINS UNSETTLED'],
+    'bc.log.1': ['01 / WHY THIS LOG', 'A DECISION RECORD'],
+    'bc.log.2': ['02 / RESEARCH', 'BUILD THE SOURCE BOUNDARY'],
+    'bc.log.3': ['03 / FABRIC', 'CHECKPOINT → LATER ADDITIONS'],
+    'bc.log.4': ['04 / MICROSITE', 'FIVE CONTAINERS. ONE BROADCAST.'],
+    'bc.log.5': ['05 / NEXT', 'FABRIC 2.0 REMAINS OPEN'],
+  }
+  for (const [prefix, [label, heading]] of Object.entries(movements)) {
+    assert.equal(dicts.en[`${prefix}.label`], label)
+    assert.equal(dicts.en[`${prefix}.heading`], heading)
+  }
+})
+
+test('generated research and lineage chrome is translated in every locale', () => {
+  assert.equal(dicts.en['bc.experiments.lineage.label'], '01 / FABRIC LINEAGE')
+  assert.equal(dicts.en['bc.research.catalogue'], 'CATALOGUE')
+  assert.equal(dicts.en['bc.research.scores.sample'], 'PUBLIC SAMPLE · CATALOGUE 570 / ASSET 106344')
+  for (const locale of ['ko', 'zh', 'ja']) {
+    for (const key of ['bc.experiments.lineage.label', 'bc.research.catalogue', 'bc.research.scores.sample']) {
+      assert.notEqual(dicts[locale][key], dicts.en[key], `${locale}.${key} must be semantically translated`)
+    }
+  }
+})
+
+test('SRT count labels retain the file count, asset span, and observation date', () => {
+  for (const locale of LOCALES) {
+    const label = dicts[locale]['bc.research.count.njpSrt']
+    assert.match(label, /38/)
+    assert.match(label, /18/)
+    assert.match(label, /2026-07-27/)
+  }
+})
+
 test('Korean About copy keeps the equation and situated-material movements distinct', () => {
   assert.match(dicts.ko['bc.about.2.body'], /Y = f\(X\) \+ ε.*X.*가져오는.*f\(X\).*조직.*ε.*들어맞/i)
   assert.match(dicts.ko['bc.about.3.body'], /기여.*익명.*아닌.*맥락.*인간.*재료/i)

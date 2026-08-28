@@ -45,6 +45,7 @@ test('the Broadcast remains its own site and the fabric study is its own experim
 })
 
 test('Experiments preserves the Fabric lineage and Microsite as two transmissions', () => {
+  assert.match(broadcast, /data-i18n="bc\.experiments\.lineage\.label"[^>]*>01 \/ FABRIC LINEAGE</)
   assert.match(broadcast, /data-channel-panel="experiments"[\s\S]*?class="[^"]*experiment-switchboard[^"]*"/)
   assert.match(broadcast, /data-study="fabric-v0"[\s\S]*?href="\/experiments\/fabric\/"/)
   assert.match(broadcast, /data-study="fabric-v1"[\s\S]*?href="\/experiments\/fabric-v1\/"/)
@@ -54,6 +55,30 @@ test('Experiments preserves the Fabric lineage and Microsite as two transmission
   assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
   assert.match(broadcast, /class="study-toggle"[\s\S]*?bc\.experiments\.open[\s\S]*?bc\.experiments\.close/)
   assert.match(broadcast, /signal: "x3"[\s\S]*?count: 2/)
+})
+
+test('About and Log static fallbacks match the approved movements without obsolete schedule chrome', () => {
+  const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const exactPairs = [
+    ['bc.about.1', '01 / ARTIST STATEMENT', 'PLAYING WITH FIRE'],
+    ['bc.about.2', '02 / EQUATION', 'Y = f(X) + ε'],
+    ['bc.about.3', '03 / CONTRIBUTIONS', 'HUMAN MATERIAL'],
+    ['bc.about.4', '04 / RESEARCH METHOD', 'IDEAS BECOME ACTIONS'],
+    ['bc.about.5', '05 / PERFORMANCE', 'WHAT REMAINS UNSETTLED'],
+    ['bc.log.1', '01 / WHY THIS LOG', 'A DECISION RECORD'],
+    ['bc.log.2', '02 / RESEARCH', 'BUILD THE SOURCE BOUNDARY'],
+    ['bc.log.3', '03 / FABRIC', 'CHECKPOINT → LATER ADDITIONS'],
+    ['bc.log.4', '04 / MICROSITE', 'FIVE CONTAINERS. ONE BROADCAST.'],
+    ['bc.log.5', '05 / NEXT', 'FABRIC 2.0 REMAINS OPEN'],
+  ]
+  for (const [key, label, heading] of exactPairs) {
+    assert.match(broadcast, new RegExp(`data-i18n="${escapeRegex(`${key}.label`)}"[^>]*>${escapeRegex(label)}<`))
+    assert.match(broadcast, new RegExp(`data-i18n="${escapeRegex(`${key}.heading`)}"[^>]*>${escapeRegex(heading)}<`))
+  }
+  assert.match(broadcast, /id="viewerLabel">01 \/ ARTIST STATEMENT</)
+  assert.doesNotMatch(broadcast, /PROPOSED ·|07\/07–18|07\/19–25|07\/26–08\/08|08\/09–22|08\/23–31/)
+  const firstLog = broadcast.match(/data-channel-panel="log"[\s\S]*?data-transmission="0"[\s\S]*?<\/article>/)?.[0] ?? ''
+  assert.doesNotMatch(firstLog, /<a\b|bc\.log\.1\.link/)
 })
 
 test('Research exposes seven transmissions and an in-console reader', () => {

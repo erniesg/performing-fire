@@ -2,7 +2,15 @@
   'use strict'
 
   const SAMPLE_FIELDS = ['id', 'group', 'source', 'kind', 'title', 'sourceUrl', 'status', 'note']
+  const SCORE_FIELDS = ['catalogueId', 'assetId', 'title', 'source', 'kind', 'displayStatus', 'provenance', 'sourceUrl', 'status']
   const SCORE_STATUS = 'collection record verified · score candidate'
+  const SCORE_SOURCE = 'NJP Video Library'
+  const SCORE_KIND = 'Catalogue record / image'
+  const SCORE_DISPLAY_STATUS = 'Metadata and source link; score text not verified'
+  const SCORE_ASSETS = {
+    552: '106306', 570: '106344', 571: '106345', 588: '106366', 575: '106351', 581: '106359',
+    576: '106353', 609: '106400', 578: '106355', 587: '106365', 590: '106368',
+  }
   const COUNT_KEYS = {
     'antiegg-posts': 'bc.research.count.antieggPosts',
     'njp-center-records': 'bc.research.count.njpCenter',
@@ -25,8 +33,15 @@
   function safeUrl (value) {
     if (!nonEmptyString(value) || /^\s*\/\//.test(value)) return ''
     try {
-      const url = new URL(value)
-      return url.protocol === 'https:' ? url.href : ''
+      const trimmed = value.trim()
+      const siteRootPath = /^\/(?!\/)/.test(trimmed)
+      const origin = window.location && window.location.origin
+      if (siteRootPath && !nonEmptyString(origin)) return ''
+      if (!siteRootPath && !/^https:\/\//i.test(trimmed)) return ''
+      const url = siteRootPath ? new URL(trimmed, origin) : new URL(trimmed)
+      if (url.protocol !== 'https:' || url.username || url.password) return ''
+      if (siteRootPath && url.origin !== new URL(origin).origin) return ''
+      return url.href
     } catch (_) {
       return ''
     }
@@ -67,9 +82,21 @@
       if (ids.has(sample.id)) throw new TypeError('record IDs must be unique')
       ids.add(sample.id)
     }
+    const publicSamples = []
     for (const score of payload.scores) {
-      if (!score || !nonEmptyString(score.catalogueId) || !nonEmptyString(score.title) || !safeUrl(score.sourceUrl) || score.status !== SCORE_STATUS) throw new TypeError('score record is incomplete')
+      const assetId = score && SCORE_ASSETS[score.catalogueId]
+      const expectedProvenance = assetId ? `NJP Video Library catalogue ${score.catalogueId} · asset ${assetId} · observed 2026-07-27` : ''
+      const expectedUrl = assetId ? `https://njpvideo.ggcf.kr/storage/2022/01/05/${assetId}/${assetId}/Proxy/Proxy_${assetId}.jpg` : ''
+      if (!score || SCORE_FIELDS.some(field => !nonEmptyString(score[field])) ||
+        !assetId || score.assetId !== assetId || score.source !== SCORE_SOURCE || score.kind !== SCORE_KIND ||
+        score.displayStatus !== SCORE_DISPLAY_STATUS || score.provenance !== expectedProvenance ||
+        safeUrl(score.sourceUrl) !== expectedUrl || score.status !== SCORE_STATUS ||
+        (score.sample !== undefined && typeof score.sample !== 'boolean')) {
+        throw new TypeError('score record is incomplete')
+      }
+      if (score.sample === true) publicSamples.push(score)
     }
+    if (publicSamples.length !== 1 || publicSamples[0].catalogueId !== '570' || publicSamples[0].assetId !== '106344') throw new TypeError('score public sample is invalid')
     return payload
   }
 
@@ -95,6 +122,8 @@
     return {
       countLabels,
       scoreStatus: translated('bc.research.scores.status', SCORE_STATUS),
+      catalogue: translated('bc.research.catalogue', 'CATALOGUE'),
+      scoreSample: translated('bc.research.scores.sample', 'PUBLIC SAMPLE · CATALOGUE 570 / ASSET 106344'),
       openRecord: translated('bc.research.openRecord', 'OPEN RECORD'),
       sourceLink: translated('bc.research.sourceLink', 'OPEN ORIGINAL SOURCE →'),
       error: translated('bc.research.error', 'Research records are temporarily unavailable.'),
@@ -120,8 +149,13 @@
     for (const record of records) {
       const card = element('article', 'research-score')
       card.appendChild(element('h3', 'research-score__title', record.title))
-      card.appendChild(element('p', 'research-score__catalogue', `Catalogue ${record.catalogueId}`))
+      card.appendChild(element('p', 'research-score__catalogue', `${copy.catalogue} ${record.catalogueId}`))
       card.appendChild(element('p', 'research-score__status', copy.scoreStatus))
+      card.appendChild(element('p', 'research-score__record-source', record.source))
+      card.appendChild(element('p', 'research-score__kind', record.kind))
+      card.appendChild(element('p', 'research-score__display-status', record.displayStatus))
+      card.appendChild(element('p', 'research-score__provenance', record.provenance))
+      if (record.sample === true) card.appendChild(element('p', 'research-score__sample', copy.scoreSample))
       const link = element('a', 'research-score__source', copy.sourceLink)
       link.href = safeUrl(record.sourceUrl)
       link.target = '_blank'
@@ -163,14 +197,50 @@
       rebind: null,
       dispose: null,
     }
+    const backgroundRegions = () => Array.from(document.querySelectorAll('[data-research-modal-background]'))
+    const setBackgroundInert = inert => {
+      for (const region of backgroundRegions()) region.inert = inert
+    }
+    const isVisibleOpener = opener => {
+      if (!opener || opener.hidden || !opener.parentNode || opener.isConnected === false) return false
+      if (typeof opener.closest === 'function' && opener.closest('[hidden]')) return false
+      return true
+    }
+    const restoreFocus = () => {
+      const target = isVisibleOpener(controller.opener)
+        ? controller.opener
+        : document.querySelector('.preview-btn[data-channel="research"]')
+      if (target && typeof target.focus === 'function') target.focus()
+    }
     const close = () => {
       reader.hidden = true
-      if (controller.opener && typeof controller.opener.focus === 'function') controller.opener.focus()
+      setBackgroundInert(false)
+      restoreFocus()
       controller.opener = null
       controller.openerId = null
     }
     const closeButton = reader.querySelector('[data-research-reader-close]') || document.getElementById('researchReaderClose')
-    const onKeydown = event => { if (event.key === 'Escape' && !reader.hidden) close() }
+    const focusableControls = () => Array.from(reader.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+      .filter(control => !control.hidden)
+    const onKeydown = event => {
+      if (reader.hidden) return
+      if (event.key === 'Escape') {
+        close()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const controls = focusableControls()
+      if (!controls.length) return
+      const first = controls[0]
+      const last = controls[controls.length - 1]
+      if (event.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
     if (closeButton) closeButton.addEventListener('click', close)
     document.addEventListener('keydown', onKeydown)
     const open = (record, button) => {
@@ -187,6 +257,7 @@
         link.hidden = !href
         link.textContent = href ? controller.copy.sourceLink : ''
       }
+      setBackgroundInert(true)
       reader.hidden = false
       if (closeButton && typeof closeButton.focus === 'function') closeButton.focus()
     }
@@ -197,6 +268,7 @@
     controller.dispose = () => {
       if (closeButton) closeButton.removeEventListener('click', close)
       document.removeEventListener('keydown', onKeydown)
+      setBackgroundInert(false)
     }
     readerController = controller
     return open

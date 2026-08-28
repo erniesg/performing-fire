@@ -215,8 +215,20 @@ test('reduced motion uses stable frames and hard state changes', () => {
 })
 
 test('the console payload stays within the former 900 KB budget', async () => {
-  let total = (await stat(new URL('index.html', publicDir))).size
-  for (const file of ['js/preview-anims.js', 'js/preview-anims3.js', 'js/broadcast-content.js', 'js/research-gallery.js', 'research/archive-snapshot.json']) {
+  const localScripts = [...broadcast.matchAll(/<script src="(\/[^"?]+)"/g)].map(match => match[1].slice(1))
+  assert.deepEqual(localScripts, ['js/preview-anims.js', 'js/preview-anims3.js', 'js/broadcast-content.js', 'js/research-gallery.js'])
+  const payloadFiles = [
+    'broadcast/index.html',
+    ...localScripts,
+    'research/archive-snapshot.json',
+    'i18n/en.json',
+    'i18n/ko.json',
+    'i18n/zh.json',
+    'i18n/ja.json',
+    'fixtures/artist-responses.json',
+  ]
+  let total = 0
+  for (const file of payloadFiles) {
     total += (await stat(new URL(file, publicDir))).size
   }
   assert.ok(total <= 900 * 1024, `${total} bytes exceeds the 900 KB budget`)
