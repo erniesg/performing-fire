@@ -33,9 +33,9 @@ Use two transmissions:
 
 The Fabric distinctions are exact:
 
-- **v0 / Material:** direct hand-and-mouse surface interaction.
-- **v1 / Audio-reactive:** audio maps into individual transformation parameters already present in the prototype.
-- **2.0 / Performance composition:** in development; timed, repeatable cues arrange intact, dissolve, particle burst, glitter, glitch, and recovery states into a performance score.
+- **v0 / Checkpoint / material:** the preserved state at checkpoint `34d94eb`; direct hand-and-mouse surface interaction. `public/experiments/fabric/index.html` is unchanged between that checkpoint and the approved-plan head.
+- **v1 / Audio and transformations:** everything added after v0: audio routing, individual effect mappings, explode, dissolve, glitter, glitch, and the expanded controls already present in `/experiments/fabric-v1/`.
+- **2.0 / Future slot:** present in the lineage so the next experiment has a place, but explicitly not yet defined. Do not assign it a behaviour, feature set, or live link.
 
 ### CH04 — Research
 
@@ -53,7 +53,7 @@ Each sample card opens a reader inside the console. The reader shows title, sour
 
 ### CH05 — Log
 
-Replace a generic proposed schedule with a concise decision record: why the log exists, archive governance, Fabric material/audio findings, the broadcast-form decision, and the next Fabric 2.0 composition question.
+Replace a generic proposed schedule with a concise decision record: why the log exists, archive governance, Fabric material/audio findings, the broadcast-form decision, and the still-open next Fabric experiment.
 
 ## Verified archive snapshot
 
@@ -118,8 +118,8 @@ All new interface and editorial strings must exist in EN, KO, ZH, and JA diction
 ## Acceptance criteria
 
 1. The copy across all five channels reads as one coherent artist statement and process record.
-2. Fabric v1 and Fabric 2.0 are distinct in both the broadcast and experiments index.
-3. Fabric 2.0 is visibly in development and has no false live link.
+2. Fabric v0 is identified as the checkpoint state and Fabric v1 contains the later audio, transformation, and control additions.
+3. Fabric 2.0 is visibly not yet defined and has no invented behaviour or false live link.
 4. CH04 opens with Scores, shows the verified archive-size snapshot, and includes exactly one representative record for every source/type listed above.
 5. Every research sample opens inside the existing console and retains provenance and display status.
 6. No governed raw/derived corpus content is copied into the public repository.

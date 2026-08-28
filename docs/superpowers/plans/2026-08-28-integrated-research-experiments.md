@@ -14,8 +14,8 @@
 
 - Preserve the five-channel CRT console and its fixed-viewport behavior.
 - Use the approved editorial argument and exact Fabric taxonomy in `PRODUCT.md` and the spec.
-- Fabric v1 already maps audio into explode, dissolve, glitter, and glitch; Fabric 2.0 composes those states as timed, repeatable performance cues.
-- Fabric 2.0 must be visibly `IN DEVELOPMENT` and must not link to a nonexistent implementation.
+- Fabric v0 is the preserved checkpoint state at `34d94eb`; Fabric v1 contains everything added afterward, including audio routing, expanded controls, explode, dissolve, glitter, and glitch.
+- Fabric 2.0 is an unscoped future slot. It must be visibly `NOT YET DEFINED`, must claim no behaviour, and must not link to a nonexistent implementation.
 - Research samples are metadata and source links only unless the manifest explicitly permits more.
 - Keep historic score candidates separate from future Performing Fire-generated scores; use `collection record verified · score candidate` until text is human-confirmed.
 - Do not sum overlapping archive categories.
@@ -107,10 +107,10 @@ Require these English source-copy distinctions:
 ```js
 assert.match(dicts.en['bc.about.1.body'], /make, use, and depend on.*never fully control/i)
 assert.match(dicts.en['bc.about.4.body'], /scores turn ideas into instructions, actions, and situations/i)
+assert.match(dicts.en['bc.experiments.fabricV0.detail'], /checkpoint/i)
 assert.match(dicts.en['bc.experiments.fabricV1.detail'], /Bass.*Body.*Treble.*Hits.*explode.*dissolve.*glitter.*glitch/i)
-assert.match(dicts.en['bc.experiments.fabric2.detail'], /timed, repeatable performance cues/i)
-assert.doesNotMatch(dicts.en['bc.experiments.fabric2.detail'], /maps audio into individual parameters/i)
-assert.equal(dicts.en['bc.experiments.fabric2.status'], 'IN DEVELOPMENT')
+assert.equal(dicts.en['bc.experiments.fabric2.detail'], 'Reserved for the next Fabric experiment. Its behaviour is not defined yet.')
+assert.equal(dicts.en['bc.experiments.fabric2.status'], 'NOT YET DEFINED')
 assert.match(dicts.en['bc.research.scores.body'], /collection record.*score text/i)
 assert.match(dicts.en['bc.log.1.body'], /what was tested, what failed, and what changed/i)
 ```
@@ -157,7 +157,7 @@ git commit -m "copy: unify the site artist statement"
 
 - [ ] **Step 1: Replace the old two-study expectation with a failing lineage contract**
 
-Require v0 to link `/experiments/fabric/`, v1 to link `/experiments/fabric-v1/`, 2.0 to contain localized `IN DEVELOPMENT` status and no anchor, and the Microsite to remain linked at `/experiments/microsite/`. Keep the CMS/fallback tests unchanged.
+Require v0 to link `/experiments/fabric/` and identify the checkpoint state, v1 to link `/experiments/fabric-v1/` and own the later audio/transformation additions, 2.0 to contain localized `NOT YET DEFINED` status and no anchor, and the Microsite to remain linked at `/experiments/microsite/`. Keep the CMS/fallback tests unchanged.
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
@@ -167,7 +167,7 @@ Expected: FAIL because the lineage is absent.
 
 - [ ] **Step 3: Implement the static lineage**
 
-Replace the single generic Fabric inquiry with a three-card version sequence. The visible English fallback must distinguish Material, Audio-reactive, and Performance composition exactly as the spec does. Use real links only for v0 and v1. Keep Fabric 2.0 as an `<article>` with the explicit status and no `href`.
+Replace the single generic Fabric inquiry with a three-card version sequence. The visible English fallback must distinguish the v0 checkpoint, the v1 audio/transformation additions, and the undefined 2.0 future slot exactly as the spec does. Use real links only for v0 and v1. Keep Fabric 2.0 as an `<article>` with the explicit status and no `href`.
 
 - [ ] **Step 4: Preserve and reposition the Microsite study**
 
@@ -273,7 +273,7 @@ Check at 1440×900 and 390×844:
 
 - all five channels remain reachable;
 - About reads as one argument;
-- CH03 distinguishes v1 from 2.0 and exposes no false 2.0 link;
+- CH03 identifies v0 as the checkpoint, gives v1 the later additions, and leaves 2.0 undefined with no false link;
 - CH04 starts with Scores, shows every count, and all ten sample cards are reachable across the four groups;
 - the inline reader opens, closes, restores focus, and never clips its source action;
 - KO/ZH/JA switching does not break the console;

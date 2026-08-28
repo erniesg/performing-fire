@@ -27,9 +27,9 @@ The central relation is `Y = f(X) + ε`: `X` is what people bring, `f(X)` is the
 
 ## Experiment lineage
 
-- **Fabric v0 — Material:** direct hand-and-mouse disturbance of a fire-like software surface.
-- **Fabric v1 — Audio-reactive:** microphone and generated-beat routing map bass, body, treble, and hits into explode, dissolve, glitter, and glitch parameters.
-- **Fabric 2.0 — Performance composition:** an in-development cue/score system that composes intact, dissolve, particle burst, glitter, glitch, and recovery states into timed, repeatable performance sequences. It is not a duplicate of Fabric v1 and must not be presented as implemented.
+- **Fabric v0 — Checkpoint / material:** the preserved checkpoint state: direct hand-and-mouse disturbance of a fire-like software surface.
+- **Fabric v1 — Audio and transformations:** everything added after v0, including microphone and generated-beat routing, effect mappings, explode, dissolve, glitter, glitch, and the expanded controls.
+- **Fabric 2.0 — Future slot:** reserved in the experiment lineage, but its behaviour is not defined yet. The site must not invent a concept or imply an implementation before that experiment is scoped.
 - **Microsite — Broadcast form:** the visual study that developed separate screen objects into the five-channel console.
 
 Fabric v0 remains canonical at `/experiments/fabric/`. Fabric v1 remains at `/experiments/fabric-v1/`. The retired Flame Cloth name must not return.
@@ -49,5 +49,5 @@ Research stays inside CH04 of the existing broadcast. The public surface present
 
 - Republishing the complete corpus or downloaded media.
 - Claiming that score text has been fully identified or verified.
-- Implementing the Fabric 2.0 effects/cue engine.
+- Defining or implementing Fabric 2.0 before its experiment brief exists.
 - Changing the current Fabric v1 runtime or its uncommitted audio-control work.
