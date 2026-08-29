@@ -222,6 +222,9 @@
     const closeButton = reader.querySelector('[data-research-reader-close]') || document.getElementById('researchReaderClose')
     const focusableControls = () => Array.from(reader.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
       .filter(control => !control.hidden)
+    const containChannelKeys = event => {
+      if (!reader.hidden && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) event.stopPropagation()
+    }
     const onKeydown = event => {
       if (reader.hidden) return
       if (event.key === 'Escape') {
@@ -242,6 +245,7 @@
       }
     }
     if (closeButton) closeButton.addEventListener('click', close)
+    reader.addEventListener('keydown', containChannelKeys)
     document.addEventListener('keydown', onKeydown)
     const open = (record, button) => {
       controller.opener = button
@@ -267,6 +271,7 @@
     }
     controller.dispose = () => {
       if (closeButton) closeButton.removeEventListener('click', close)
+      reader.removeEventListener('keydown', containChannelKeys)
       document.removeEventListener('keydown', onKeydown)
       setBackgroundInert(false)
     }

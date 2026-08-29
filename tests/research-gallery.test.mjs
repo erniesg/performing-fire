@@ -392,7 +392,7 @@ test('a stale research response cannot overwrite a newer language render', async
   assert.equal(dom.scores.children[0].children.find(node => node.className === 'research-score__status').textContent, '검증된 스코어 후보')
 })
 
-test('reader traps focus, inerts the background, and falls back when its opener is hidden', async () => {
+test('reader traps focus, contains channel arrows, inerts the background, and falls back when its opener is hidden', async () => {
   const source = await readFile(rendererUrl, 'utf8')
   const snapshot = JSON.parse(await readFile(manifestUrl, 'utf8'))
   const dom = makeResearchDom()
@@ -412,6 +412,11 @@ test('reader traps focus, inerts the background, and falls back when its opener 
 
   const sourceLink = dom.byId.researchReaderLink
   sourceLink.focus()
+  let arrowsStopped = 0
+  for (const key of ['ArrowLeft', 'ArrowRight']) {
+    dom.reader.trigger('keydown', { key, stopPropagation () { arrowsStopped++ } })
+  }
+  assert.equal(arrowsStopped, 2, 'reader arrow keys cannot reach the console channel tuner')
   let prevented = 0
   dom.document.dispatchEvent({ type: 'keydown', key: 'Tab', shiftKey: false, preventDefault () { prevented++ } })
   assert.equal(dom.document.activeElement, dom.close, 'forward Tab cycles from the last control to the first')
