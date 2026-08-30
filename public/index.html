@@ -145,6 +145,12 @@
     font-size: clamp(1.25rem, 1.35vw, 1.5rem); line-height: 1.55; margin-bottom: .9rem;
     text-shadow: 0 0 7px color-mix(in srgb, var(--tint) 20%, transparent);
   }
+  .page-links { display: flex; flex-wrap: wrap; gap: .65rem 1.2rem; margin-top: .8rem; }
+  .page-links a {
+    color: var(--tint); font-size: clamp(.9rem, 1vw, 1.0625rem); letter-spacing: .08em;
+    text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--tint) 58%, transparent);
+  }
+  .page-links a:hover, .page-links a:focus-visible { border-color: var(--tint); }
   .page .back {
     margin-top: 1.75rem; font: inherit; font-size: clamp(1rem, 1.1vw, 1.125rem); letter-spacing: .18em; cursor: pointer;
     color: var(--tint); background: none; border: 1px solid var(--tint);
@@ -160,6 +166,8 @@
     .page .kicker { font-size: .75rem; letter-spacing: .18em; margin-bottom: .75rem; }
     .page h2 { font-size: clamp(1.75rem, 8vw, 2.5rem); margin-bottom: 1rem; }
     .page p { font-size: 1.0625rem; line-height: 1.5; }
+    .page-links { gap: .55rem 1rem; }
+    .page-links a { font-size: .8125rem; }
     .page .back { margin-top: 1rem; font-size: .875rem; }
   }
 </style>
@@ -202,22 +210,53 @@
   const TINT = { 1: "#37ff8b", 2: "#ff3ea5", 3: "#ffb300", 4: "#2bd9ff", 5: "#e8e9ee" };
   const TINT3 = { 1: [55,255,139], 2: [255,62,165], 3: [255,179,0], 4: [43,217,255], 5: [232,233,238] };
   const CHAN = [
-    { ch: 1, key: "g7", name: "ABOUT",       device: "oscilloscope", kicker: "THIS IS PERFORMING FIRE · APE LAB 2026 · TRACK B (PAIK NAM JUNE)",
-      title: "HOW WILL WE GREET NEW TECHNOLOGY?",
-      body: ["Five signals drift out of phase and periodically cohere into one — five channels, one fire. This master display is where every page of the site renders: tune a channel and its content arrives as broadcast.",
-             "Placeholder copy — the real ABOUT text drops in here."] },
-    { ch: 2, key: "hj", name: "CONTRIBUTE",  device: "field monitor", kicker: "CH 02 · LEAVE YOUR VOICE",
-      title: "FEED THE FIRE.",
-      body: ["Offerings rise through the raster. Voices join the pulse.", "Placeholder copy — contribution flow renders here."] },
-    { ch: 3, key: "x3", name: "EXPERIMENTS", device: "vectorscope", kicker: "CH 03 · LOG",
-      title: "SIGNAL STUDIES.",
-      body: ["Magnet breathe, lissajous morph, noise to order — the bench notes of the fire.", "Placeholder copy — the experiments index renders here."] },
-    { ch: 4, key: "r1", name: "RESEARCH",    device: "dot matrix", kicker: "CH 04 · SCORE",
-      title: "PUNCH DATA.",
-      body: ["Discrete points of the archive, blinking in and out of the void.", "Placeholder copy — research notes render here."] },
-    { ch: 5, key: "l1", name: "LOG",         device: "radar CRT", kicker: "CH 05 · PHASES",
-      title: "MOON PHASES.",
-      body: ["Long-persistence phosphor. The slow diary of the project.", "Placeholder copy — the log renders here."] },
+    { ch: 1, key: "g7", name: "ABOUT", device: "oscilloscope", kicker: "CH 01 · ARTIST STATEMENT",
+      title: "PLAYING WITH FIRE",
+      body: [
+        "Technology is something people make, use, and depend on, but never fully control. Fire gathers, sustains, destroys, and transforms.",
+        "Y = f(X) + ε. X is what people bring; f(X) is the system's attempt to organise it; ε is what refuses to fit.",
+        "Messages, voices, drawings, gestures, movements, hopes, fears, and short videos remain situated human material, not anonymous data.",
+        "Nam June Paik and Fluxus offer a method: scores turn ideas into instructions, actions, and situations.",
+        "Research, contributions, and experiments pass through performer choices into image, sound, fabric, and movement. The work stages what remains unsettled; it does not predict technology's future."
+      ] },
+    { ch: 2, key: "hj", name: "CONTRIBUTE", device: "field monitor", kicker: "CH 02 · CONTRIBUTIONS",
+      title: "LEAVE A TRACE",
+      body: [
+        "Send a question, hope, fear, or imagination about technology. Text is live; voice and video are interface studies and do not upload media.",
+        "Your contribution enters the work as situated material. Any future processing remains proposed; performer choices decide what becomes performance.",
+        "My words may be performed, projected, and burned.",
+        "SUBMISSIONS WAIT FOR MODERATION BEFORE PUBLICATION"
+      ] },
+    { ch: 3, key: "x3", name: "EXPERIMENTS", device: "vectorscope", kicker: "CH 03 · FABRIC LINEAGE",
+      title: "CHECKPOINT → LATER ADDITIONS",
+      body: [
+        "Fabric v0 is the checkpoint state at 34d94eb: direct hand-and-mouse disturbance of a fire-like software surface.",
+        "Fabric v1 adds microphone and generated-beat routing: Bass, Body, Treble, and Hits drive individual mappings that explode, dissolve, glitter, and glitch, alongside expanded controls.",
+        "Reserved for the next Fabric experiment. Its behaviour is not defined yet.",
+        "The Microsite developed separate screen objects into the five-channel broadcast form."
+      ],
+      links: [
+        { href: "/experiments/fabric/", label: "OPEN FABRIC v0 →" },
+        { href: "/experiments/fabric-v1/", label: "OPEN FABRIC v1 →" },
+        { href: "/experiments/", label: "OPEN EXPERIMENT INDEX →" }
+      ] },
+    { ch: 4, key: "r1", name: "RESEARCH", device: "dot matrix", kicker: "CH 04 · RESEARCH",
+      title: "INSTRUCTIONS STILL NEED READING",
+      body: [
+        "Each collection record is verified, but score text is not human-confirmed yet. Historic score candidates remain distinct from future Performing Fire-generated scores.",
+        "Verified public counts retain their observation dates. Categories overlap and must not be summed.",
+        "Viewing, quoting, deriving, and publishing are separate operations. A source can be searchable for research without being copied, transformed, or published.",
+        "Search follows provenance—source, operation, and status—before a deliberate selection is made for a visual study. The result is a considered subset, not an automatic dump."
+      ] },
+    { ch: 5, key: "l1", name: "LOG", device: "radar CRT", kicker: "CH 05 · DECISION LOG",
+      title: "A DECISION RECORD",
+      body: [
+        "This log records what was tested, what failed, and what changed, so the next experiment has a visible reason.",
+        "Archive governance keeps source, operation, and display status attached to each selection. Research status is not publication permission.",
+        "Fabric v0 preserved hand-and-mouse disturbance as material. Fabric v1 added audio routing, transformations, and expanded controls.",
+        "The Microsite tested separate screen objects before the work settled into five modular broadcast channels.",
+        "Fabric 2.0 remains open: the next experiment has a place in the lineage, but its behaviour is not defined yet."
+      ] },
   ];
   const specFor = k => (window.PF_ANIMS || []).find(a => a.key === k);
   const mkRnd = seed => { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; };
@@ -1458,7 +1497,25 @@
     page.style.setProperty("--tint", TINT[ch]);
     page.querySelector(".kicker").textContent = c.kicker;
     page.querySelector("h2").textContent = c.title;
-    page.querySelector(".body").innerHTML = c.body.map(p => `<p>${p}</p>`).join("");
+    const body = page.querySelector(".body");
+    body.replaceChildren();
+    c.body.forEach(copy => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = copy;
+      body.appendChild(paragraph);
+    });
+    if (c.links && c.links.length) {
+      const navigation = document.createElement("nav");
+      navigation.className = "page-links";
+      navigation.setAttribute("aria-label", `${c.name} links`);
+      c.links.forEach(item => {
+        const link = document.createElement("a");
+        link.href = item.href;
+        link.textContent = item.label;
+        navigation.appendChild(link);
+      });
+      body.appendChild(navigation);
+    }
   }
   function preparePage(ch) {
     fillPage(ch);

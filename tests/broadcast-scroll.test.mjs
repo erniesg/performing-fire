@@ -1,11 +1,50 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile, stat } from 'node:fs/promises'
+import vm from 'node:vm'
 
 const publicDir = new URL('../public/', import.meta.url)
 const broadcast = await readFile(new URL('broadcast/index.html', publicDir), 'utf8')
 const television = await readFile(new URL('index.html', publicDir), 'utf8')
 const runtime = await readFile(new URL('js/preview-anims.js', publicDir), 'utf8')
+const english = JSON.parse(await readFile(new URL('i18n/en.json', publicDir), 'utf8'))
+
+function televisionChannels () {
+  const source = television.match(/const CHAN = (\[[\s\S]*?\n  \]);/)?.[1]
+  assert.ok(source, 'the homepage channel model must be readable')
+  return vm.runInNewContext(`(${source})`)
+}
+
+function renderTelevisionChannel (channel) {
+  const channels = televisionChannels()
+  const fillPage = television.match(/function fillPage\(ch\) \{[\s\S]*?\n  \}(?=\n  function preparePage)/)?.[0]
+  assert.ok(fillPage, 'the homepage channel renderer must be readable')
+  const element = tagName => ({
+    tagName: tagName.toUpperCase(),
+    children: [],
+    textContent: '',
+    className: '',
+    href: '',
+    attributes: {},
+    appendChild (child) { this.children.push(child); return child },
+    replaceChildren (...children) { this.children = children },
+    setAttribute (name, value) { this.attributes[name] = value },
+  })
+  const kicker = element('div')
+  const heading = element('h2')
+  const body = element('div')
+  const page = {
+    style: { setProperty () {} },
+    querySelector: selector => ({ '.kicker': kicker, h2: heading, '.body': body })[selector],
+  }
+  vm.runInNewContext(`${fillPage}; fillPage(${channel})`, {
+    CHAN: channels,
+    TINT: { 1: '#1', 2: '#2', 3: '#3', 4: '#4', 5: '#5' },
+    page,
+    document: { createElement: element },
+  })
+  return { kicker, heading, body }
+}
 
 test('the scroll film is gone and the console owns exactly one viewport', () => {
   assert.doesNotMatch(broadcast, /data-scene=|ScrollTrigger|gsap\.registerPlugin/)
@@ -56,6 +95,63 @@ test('the Broadcast remains manual while preserving transmission controls', () =
   assert.match(broadcast, /#transmissionPrev"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(-1\)/)
   assert.match(broadcast, /#transmissionNext"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(1\)/)
   assert.match(broadcast, /event\.key === "ArrowLeft" \|\| event\.key === "ArrowRight"/)
+})
+
+test('the assembled homepage carries the approved five-channel copy and Fabric lineage', () => {
+  const channels = televisionChannels()
+  const [about, contribute, experiments, research, log] = channels
+
+  assert.equal(about.title, english['bc.about.1.heading'])
+  assert.deepEqual([...about.body], [1, 2, 3, 4, 5].map(index => english[`bc.about.${index}.body`]))
+
+  assert.equal(contribute.title, english['bc.contribute.1.heading'])
+  assert.deepEqual([...contribute.body], [
+    english['bc.contribute.1.body'],
+    english['bc.contribute.2.body'],
+    english['bc.ch02.consent'],
+    english['bc.contribute.3.note'],
+  ])
+
+  assert.equal(experiments.title, english['bc.log.3.heading'])
+  assert.deepEqual([...experiments.body], [
+    english['bc.experiments.fabricV0.detail'],
+    english['bc.experiments.fabricV1.detail'],
+    english['bc.experiments.fabric2.detail'],
+    english['bc.experiments.microsite.body'],
+  ])
+  assert.deepEqual(JSON.parse(JSON.stringify(experiments.links)), [
+    { href: '/experiments/fabric/', label: english['bc.experiments.fabricV0.link'] },
+    { href: '/experiments/fabric-v1/', label: english['bc.experiments.fabricV1.link'] },
+    { href: '/experiments/', label: 'OPEN EXPERIMENT INDEX →' },
+  ])
+
+  assert.equal(research.title, english['bc.research.scores.heading'])
+  assert.deepEqual([...research.body], [
+    english['bc.research.scores.body'],
+    english['bc.research.counts.body'],
+    english['bc.research.3.body'],
+    english['bc.research.4.body'],
+  ])
+
+  assert.equal(log.title, english['bc.log.1.heading'])
+  assert.deepEqual([...log.body], [1, 2, 3, 4, 5].map(index => english[`bc.log.${index}.body`]))
+
+  assert.doesNotMatch(television, /HOW WILL WE GREET NEW TECHNOLOGY\?|Placeholder copy/)
+})
+
+test('the assembled Experiments channel renders working Fabric and index links', () => {
+  const { body } = renderTelevisionChannel(3)
+  const paragraphs = body.children.filter(node => node.tagName === 'P')
+  const navigation = body.children.find(node => node.tagName === 'NAV')
+
+  assert.equal(paragraphs.length, 4)
+  assert.ok(navigation, 'experiment links must be rendered inside the assembled CRT')
+  assert.equal(navigation.attributes['aria-label'], 'EXPERIMENTS links')
+  assert.deepEqual(navigation.children.map(link => [link.href, link.textContent]), [
+    ['/experiments/fabric/', 'OPEN FABRIC v0 →'],
+    ['/experiments/fabric-v1/', 'OPEN FABRIC v1 →'],
+    ['/experiments/', 'OPEN EXPERIMENT INDEX →'],
+  ])
 })
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
