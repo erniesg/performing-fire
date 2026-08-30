@@ -64,6 +64,32 @@ test('normalization preserves every ordered copy item for a grouped channel surf
   }, 'en')
   assert.equal(result.about.length, 5)
   assert.equal(result.about[4].heading, 'Movement 5')
+  assert.equal('label' in result.about[4], false, 'later About labels have no render target and must be rejected')
+})
+
+test('normalization accepts only fields with render targets for each movement', () => {
+  const { adapter } = loadAdapter()
+  const result = adapter.normalize({
+    status: 'published',
+    locale: 'en',
+    channels: {
+      contribute: { transmissions: [
+        { label: 'INTRO', heading: 'Offer', body: 'Body' },
+        { label: 'UNSUPPORTED', heading: 'Next', body: 'Body' },
+        { label: 'UNSUPPORTED', heading: 'Consent', body: 'Moderation' },
+        { label: 'UNSUPPORTED', heading: 'Responses', body: 'UNSUPPORTED' },
+        { label: 'UNSUPPORTED', heading: 'Form', body: 'UNSUPPORTED' },
+      ] },
+      experiments: { transmissions: [
+        { label: 'LINEAGE', heading: 'Form', body: 'Body' },
+        { label: 'MICROSITE', heading: 'Broadcast', body: 'Body' },
+      ] },
+    },
+  }, 'en')
+  assert.deepEqual(Object.keys(result.contribute[0]).sort(), ['body', 'heading', 'label'])
+  assert.deepEqual(Object.keys(result.contribute[1]).sort(), ['body', 'heading'])
+  assert.deepEqual(Object.keys(result.contribute[3]).sort(), ['heading'])
+  assert.deepEqual(Object.keys(result.experiments[1]).sort(), ['body', 'heading', 'label'])
 })
 
 test('normalization accepts copy only and rejects remote structure or unsafe links', () => {
@@ -86,6 +112,18 @@ test('normalization accepts copy only and rejects remote structure or unsafe lin
   assert.equal('layout' in result.about[0], false)
   assert.equal('script' in result.about[0], false)
   assert.doesNotMatch(source, /innerHTML|insertAdjacentHTML|outerHTML/)
+})
+
+test('root-relative CMS links cannot escape the site through backslash URL parsing', () => {
+  const { adapter } = loadAdapter()
+  const result = adapter.normalize({
+    status: 'published', locale: 'en',
+    channels: { about: { transmissions: [{
+      heading: 'Heading', linkLabel: 'escape', linkHref: '/\\evil.example/path',
+    }] } },
+  }, 'en')
+  assert.equal('linkHref' in result.about[0], false)
+  assert.equal('linkLabel' in result.about[0], false)
 })
 
 test('unsupported locales and malformed, empty, draft, or failed responses fall back', async () => {

@@ -448,6 +448,14 @@ document.addEventListener("pf:lang", function () {
     }
   });
 
+  function placeContentLink(contentItem, link) {
+    var nestedItem = $("[data-content-item]", contentItem);
+    if (!nestedItem) { contentItem.appendChild(link); return; }
+    while (nestedItem.parentNode && nestedItem.parentNode !== contentItem) { nestedItem = nestedItem.parentNode; }
+    if (nestedItem.parentNode === contentItem) { contentItem.insertBefore(link, nestedItem); }
+    else { contentItem.appendChild(link); }
+  }
+
   function applyRemoteContent(content) {
     if (!content) { return; }
     CHANNELS.forEach(function (channel) {
@@ -468,7 +476,7 @@ document.addEventListener("pf:lang", function () {
           link.className = "tx-link vt cms-link";
           link.href = item.linkHref;
           link.textContent = item.linkLabel;
-          contentItem.appendChild(link);
+          placeContentLink(contentItem, link);
         }
       });
     });

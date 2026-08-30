@@ -4,6 +4,16 @@
   "use strict";
   var LOCALES = ["en", "ko", "zh", "ja"];
   var CHANNELS = ["about", "contribute", "experiments", "research", "log"];
+  var FULL = ["label", "heading", "body", "link"];
+  var SECTION = ["heading", "body", "link"];
+  var HEADING = ["heading", "link"];
+  var FIELD_SUPPORT = {
+    about: [FULL, SECTION, SECTION, SECTION, SECTION],
+    contribute: [FULL, SECTION, SECTION, HEADING, HEADING],
+    experiments: [FULL, FULL],
+    research: [FULL, SECTION, HEADING, HEADING, HEADING, HEADING, SECTION],
+    log: [FULL, SECTION, SECTION, SECTION, SECTION]
+  };
   var meta = document.querySelector('meta[name="pf-broadcast-endpoint"]');
   var configuredEndpoint = meta ? String(meta.getAttribute("content") || "").trim() : "";
 
@@ -22,10 +32,14 @@
   }
 
   function internalLink(value) {
-    return typeof value === "string" && /^\/(?!\/)[^\s]*$/.test(value) ? value : null;
+    if (typeof value !== "string" || value.indexOf("\\") !== -1 || !/^\/(?!\/)[^\s]*$/.test(value)) { return null; }
+    try {
+      var resolved = new URL(value, window.location.origin + "/");
+      return resolved.origin === window.location.origin ? value : null;
+    } catch (e) { return null; }
   }
 
-  function normalizeTransmission(value) {
+  function normalizeTransmission(value, fields) {
     if (!value || typeof value !== "object" || Array.isArray(value)) { return null; }
     var item = {};
     var label = text(value.label, 80);
@@ -33,10 +47,10 @@
     var body = text(value.body, 1200);
     var linkLabel = text(value.linkLabel, 100);
     var linkHref = internalLink(value.linkHref);
-    if (label) { item.label = label; }
-    if (heading) { item.heading = heading; }
-    if (body) { item.body = body; }
-    if (linkLabel && linkHref) { item.linkLabel = linkLabel; item.linkHref = linkHref; }
+    if (label && fields.indexOf("label") !== -1) { item.label = label; }
+    if (heading && fields.indexOf("heading") !== -1) { item.heading = heading; }
+    if (body && fields.indexOf("body") !== -1) { item.body = body; }
+    if (linkLabel && linkHref && fields.indexOf("link") !== -1) { item.linkLabel = linkLabel; item.linkHref = linkHref; }
     return Object.keys(item).length ? item : null;
   }
 
@@ -50,7 +64,10 @@
     CHANNELS.forEach(function (slug) {
       var channel = source[slug];
       if (!channel || !Array.isArray(channel.transmissions)) { return; }
-      var transmissions = channel.transmissions.map(normalizeTransmission);
+      var support = FIELD_SUPPORT[slug];
+      var transmissions = channel.transmissions.map(function (value, index) {
+        return normalizeTransmission(value, support[index] || []);
+      });
       if (transmissions.some(Boolean)) { result[slug] = transmissions; }
     });
     return Object.keys(result).length ? result : null;

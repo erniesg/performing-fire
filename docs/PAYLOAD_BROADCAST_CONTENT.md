@@ -44,10 +44,22 @@ pages. The expected movement counts are About 5, Contribute 5, Experiments 2,
 Research 7, and Log 5. The first item owns the channel introduction and later
 items map to the grouped sections in document order.
 
-The adapter accepts only `label`, `heading`,
-`body`, and a paired root-relative `linkLabel`/`linkHref`. All values render with
-`textContent`; rich text and HTML are rejected. Missing or invalid fields retain
-their bundled fallback.
+The adapter accepts fields only where the corresponding movement has a render
+target:
+
+- Item 0 in every channel: `label`, `heading`, `body`, and an optional link.
+- Later About and Log items: `heading`, `body`, and an optional link.
+- Contribute items 1–2: `heading`, `body`, and an optional link; items 3–4:
+  `heading` and an optional link.
+- Experiments item 1: `label`, `heading`, `body`, and an optional link.
+- Research item 1 and item 6: `heading`, `body`, and an optional link; items 2–5:
+  `heading` and an optional link.
+
+Unsupported fields are rejected during normalization rather than accepted and
+silently hidden. Links require paired `linkLabel`/`linkHref` values; `linkHref`
+must be a same-origin, root-relative path with no backslashes. All copy renders
+with `textContent`; rich text and HTML are rejected. Missing or invalid fields
+retain their bundled fallback.
 
 Renderer keys, animation settings, layout, progress/navigation behavior, response
 endpoints, form fields, consent mechanics, and executable configuration remain

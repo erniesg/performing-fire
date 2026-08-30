@@ -70,6 +70,23 @@ test('Payload copy items map to every editorial movement inside each grouped sur
   assert.doesNotMatch(broadcast, /\$\$\("\[data-transmission\]", panel\)\.forEach\(function \(tx, index\)/)
 })
 
+test('a remote movement link is inserted before nested movements in its own content item', () => {
+  const helperBody = broadcast.match(/function placeContentLink\(contentItem, link\) \{([\s\S]*?)\n  \}/)?.[1] ?? ''
+  const outer = {
+    appended: null,
+    inserted: null,
+    appendChild (node) { this.appended = node },
+    insertBefore (node, anchor) { this.inserted = { node, anchor } },
+  }
+  const group = { parentNode: outer }
+  const nestedItem = { parentNode: group }
+  const link = {}
+  Function('$', 'contentItem', 'link', helperBody)(() => nestedItem, outer, link)
+  assert.deepEqual(outer.inserted, { node: link, anchor: group })
+  assert.equal(outer.appended, null)
+  assert.match(broadcast, /placeContentLink\(contentItem, link\);/)
+})
+
 test('the initial Broadcast channel can be selected from ?ch=1 through ?ch=5', () => {
   assert.match(broadcast, /new URLSearchParams\(window\.location\.search\)\.get\("ch"\)/)
   assert.match(broadcast, /initialChannel >= 1 && initialChannel <= CHANNELS\.length/)
