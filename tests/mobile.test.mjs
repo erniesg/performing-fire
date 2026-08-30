@@ -14,11 +14,12 @@ function mobileCss () {
   return broadcast.slice(from + BEGIN.length, to)
 }
 
-test('the viewport and console are non-scrolling at every width', () => {
+test('the viewport stays fixed while the selected content pane can scroll', () => {
   assert.match(broadcast, /html,body\{[^}]*height:100%[^}]*overflow:hidden/)
   assert.match(broadcast, /\.pf\{[^}]*height:100svh/)
-  assert.match(broadcast, /\.transmission-stage\{[^}]*overflow:hidden/)
-  assert.doesNotMatch(broadcast, /overflow-y:\s*(?:auto|scroll)/)
+  assert.match(broadcast, /\.content-pane\{[^}]*overflow:hidden/)
+  assert.match(broadcast, /\.transmission-stage\{[^}]*overflow-y:auto/)
+  assert.match(broadcast, /\.signal-pane\{[^}]*min-height:0/)
 })
 
 test('the narrow layout keeps all five previews above the viewer', () => {
@@ -30,6 +31,13 @@ test('the narrow layout keeps all five previews above the viewer', () => {
   assert.match(broadcast, /<section class="previews"[\s\S]*<section class="viewer-bezel"/)
 })
 
+test('Fabric and Microsite explanations remain readable instead of disappearing on narrow screens', () => {
+  const css = mobileCss()
+  assert.doesNotMatch(css, /\.experiment-version__detail\{display:none/)
+  assert.match(css, /\.experiment-version\{grid-template-columns:1fr/)
+  assert.match(css, /\.experiment-version \.study-link,\.experiment-version \.study-status\{grid-column:1/)
+})
+
 test('research grids and the reader stay compact inside the fixed content pane', () => {
   const css = mobileCss()
   assert.match(broadcast, /\.research-counts\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/)
@@ -38,7 +46,7 @@ test('research grids and the reader stay compact inside the fixed content pane',
   assert.match(broadcast, /\.research-reader\{[^}]*position:absolute[^}]*inset:0/)
   assert.match(css, /\.research-counts,\.research-samples\{grid-template-columns:1fr/)
   assert.match(css, /\.research-reader\{padding:/)
-  assert.doesNotMatch(css, /overflow-y:\s*(?:auto|scroll)/)
+  assert.doesNotMatch(css, /\.transmission-stage\{[^}]*overflow-y:\s*(?:auto|scroll)/)
 })
 
 test('coarse pointers receive 44px targets for console controls', () => {

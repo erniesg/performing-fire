@@ -29,13 +29,15 @@ test('selected, latent, pointer, and focus preview states are explicit', () => {
   assert.match(broadcast, /aria-pressed="true" aria-label="CH 01 ABOUT"/)
 })
 
-test('navigation and progress controls live inside the CRT', () => {
+test('channel navigation and progress controls live inside the CRT', () => {
   assert.match(broadcast, /<div class="viewer viewer-screen"[\s\S]*?<nav class="transport"[\s\S]*?<\/div>\s*<\/section>/)
   assert.match(broadcast, /id="transmissionPrev"/)
   assert.match(broadcast, /id="transmissionNext"/)
   assert.match(broadcast, /id="progressCount"/)
   assert.match(broadcast, /id="progressTrack"/)
   assert.match(broadcast, /event\.key !== "ArrowLeft" && event\.key !== "ArrowRight"/)
+  assert.match(broadcast, /CH " \+ pad2\(currentChannel \+ 1\) \+ " \/ 05"/)
+  assert.doesNotMatch(broadcast, /currentTransmission \+ 1\) \+ " \/ "/)
 })
 
 test('the Broadcast remains its own site and the fabric study is its own experiment page', () => {
@@ -44,44 +46,53 @@ test('the Broadcast remains its own site and the fabric study is its own experim
   assert.doesNotMatch(experiment, /THE BROADCAST/)
 })
 
-test('Experiments preserves the Fabric lineage and Microsite as two transmissions', () => {
-  assert.match(broadcast, /data-i18n="bc\.experiments\.lineage\.label"[^>]*>01 \/ FABRIC LINEAGE</)
-  assert.match(broadcast, /data-channel-panel="experiments"[\s\S]*?class="[^"]*experiment-switchboard[^"]*"/)
+test('each selected channel is one coherent scrollable console surface', () => {
+  for (const channel of ['about', 'contribute', 'experiments', 'research', 'log']) {
+    const panel = broadcast.match(new RegExp(`data-channel-panel="${channel}"[\\s\\S]*?<\\/section>`))?.[0] ?? ''
+    assert.equal((panel.match(/data-transmission=/g) ?? []).length, 1, `${channel} must not split into internal transmissions`)
+  }
+  assert.match(broadcast, /\.transmission-stage\{[^}]*overflow-y:auto/)
+  assert.match(broadcast, /\.signal-pane\{[^}]*min-height:0/)
+})
+
+test('the initial Broadcast channel can be selected from ?ch=1 through ?ch=5', () => {
+  assert.match(broadcast, /new URLSearchParams\(window\.location\.search\)\.get\("ch"\)/)
+  assert.match(broadcast, /initialChannel >= 1 && initialChannel <= CHANNELS\.length/)
+  assert.match(broadcast, /tune\(initialChannel - 1, true\)/)
+})
+
+test('Experiments preserves the Fabric lineage and Microsite in one transmission', () => {
+  assert.match(broadcast, /data-i18n="bc\.experiments\.lineage\.label"[^>]*>01 \/ EXPERIMENT LINEAGE</)
+  const experiments = broadcast.match(/data-channel-panel="experiments"[\s\S]*?<\/section>/)?.[0] ?? ''
+  assert.equal((experiments.match(/data-transmission=/g) ?? []).length, 1)
+  assert.match(experiments, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
   assert.match(broadcast, /data-study="fabric-v0"[\s\S]*?href="\/experiments\/fabric\/"/)
   assert.match(broadcast, /data-study="fabric-v1"[\s\S]*?href="\/experiments\/fabric-v1\/"/)
   assert.match(broadcast, /data-study="fabric-2"[\s\S]*?bc\.experiments\.fabric2\.status/)
   const fabric2Markup = broadcast.match(/data-study="fabric-2"[\s\S]*?<\/article>/)?.[0] ?? ''
   assert.doesNotMatch(fabric2Markup, /href=/)
-  assert.match(broadcast, /data-study="microsite"[\s\S]*?href="\/experiments\/microsite\/"/)
-  assert.match(broadcast, /class="study-toggle"[\s\S]*?bc\.experiments\.open[\s\S]*?bc\.experiments\.close/)
-  assert.match(broadcast, /signal: "x3"[\s\S]*?count: 2/)
+  assert.match(experiments, /href="\/experiments\/"[^>]*data-i18n="bc\.footer\.experiments"/)
+  assert.match(broadcast, /signal: "x3"[\s\S]*?count: 1/)
+  assert.match(broadcast, /\.experiment-version__detail\{[^}]*white-space:normal/)
+  assert.doesNotMatch(broadcast, /\.experiment-version__detail\{[^}]*text-overflow:ellipsis/)
 })
 
-test('About and Log static fallbacks match the approved movements without obsolete schedule chrome', () => {
-  const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const exactPairs = [
-    ['bc.about.1', '01 / ARTIST STATEMENT', 'PLAYING WITH FIRE'],
-    ['bc.about.2', '02 / EQUATION', 'Y = f(X) + ε'],
-    ['bc.about.3', '03 / CONTRIBUTIONS', 'HUMAN MATERIAL'],
-    ['bc.about.4', '04 / RESEARCH METHOD', 'IDEAS BECOME ACTIONS'],
-    ['bc.about.5', '05 / PERFORMANCE', 'WHAT REMAINS UNSETTLED'],
-    ['bc.log.1', '01 / WHY THIS LOG', 'A DECISION RECORD'],
-    ['bc.log.2', '02 / RESEARCH', 'BUILD THE SOURCE BOUNDARY'],
-    ['bc.log.3', '03 / FABRIC', 'CHECKPOINT → LATER ADDITIONS'],
-    ['bc.log.4', '04 / MICROSITE', 'FIVE CONTAINERS. ONE BROADCAST.'],
-    ['bc.log.5', '05 / NEXT', 'FABRIC 2.0 REMAINS OPEN'],
-  ]
-  for (const [key, label, heading] of exactPairs) {
-    assert.match(broadcast, new RegExp(`data-i18n="${escapeRegex(`${key}.label`)}"[^>]*>${escapeRegex(label)}<`))
-    assert.match(broadcast, new RegExp(`data-i18n="${escapeRegex(`${key}.heading`)}"[^>]*>${escapeRegex(heading)}<`))
+test('Contribute asks for consent at the controls instead of asserting it in the page copy', () => {
+  assert.equal((broadcast.match(/data-i18n="bc\.ch02\.consent"/g) ?? []).length, 3)
+  assert.doesNotMatch(broadcast, /<p[^>]*class="tx-body"[^>]*data-i18n="bc\.ch02\.consent"/)
+})
+
+test('About and Log group their existing records without obsolete schedule chrome', () => {
+  for (const key of ['bc.about.1.body', 'bc.about.2.body', 'bc.about.3.body', 'bc.about.4.body', 'bc.about.5.body', 'bc.log.1.body', 'bc.log.2.body', 'bc.log.3.body', 'bc.log.4.body', 'bc.log.5.body']) {
+    assert.match(broadcast, new RegExp(`data-i18n="${key.replace('.', '\\.')}`))
   }
   assert.match(broadcast, /id="viewerLabel">01 \/ ARTIST STATEMENT</)
   assert.doesNotMatch(broadcast, /PROPOSED ·|07\/07–18|07\/19–25|07\/26–08\/08|08\/09–22|08\/23–31/)
-  const firstLog = broadcast.match(/data-channel-panel="log"[\s\S]*?data-transmission="0"[\s\S]*?<\/article>/)?.[0] ?? ''
-  assert.doesNotMatch(firstLog, /<a\b|bc\.log\.1\.link/)
+  const log = broadcast.match(/data-channel-panel="log"[\s\S]*?<\/section>/)?.[0] ?? ''
+  assert.doesNotMatch(log, /FABRIC 2\.0 REMAINS OPEN/)
 })
 
-test('Research exposes seven transmissions and an in-console reader', () => {
+test('Research groups scores, dated counts, samples, rights, and reader in its one console surface', () => {
   assert.match(broadcast, /data-channel-panel="research"[\s\S]*?data-research-scores/)
   assert.match(broadcast, /data-research-counts/)
   assert.equal((broadcast.match(/data-research-group="[a-d]"/g) ?? []).length, 4)
@@ -89,7 +100,7 @@ test('Research exposes seven transmissions and an in-console reader', () => {
   assert.match(broadcast, /data-research-error/)
   assert.match(broadcast, /\/js\/research-gallery\.js/)
   assert.match(broadcast, /PF_RESEARCH_GALLERY\.init/)
-  assert.match(broadcast, /signal: "r1"[\s\S]*?count: 7/)
+  assert.match(broadcast, /signal: "r1"[\s\S]*?count: 1/)
 })
 
 test('reduced motion is supported', () => {

@@ -1,50 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile, stat } from 'node:fs/promises'
-import vm from 'node:vm'
 
 const publicDir = new URL('../public/', import.meta.url)
 const broadcast = await readFile(new URL('broadcast/index.html', publicDir), 'utf8')
 const television = await readFile(new URL('index.html', publicDir), 'utf8')
 const runtime = await readFile(new URL('js/preview-anims.js', publicDir), 'utf8')
-const english = JSON.parse(await readFile(new URL('i18n/en.json', publicDir), 'utf8'))
-
-function televisionChannels () {
-  const source = television.match(/const CHAN = (\[[\s\S]*?\n  \]);/)?.[1]
-  assert.ok(source, 'the homepage channel model must be readable')
-  return vm.runInNewContext(`(${source})`)
-}
-
-function renderTelevisionChannel (channel) {
-  const channels = televisionChannels()
-  const fillPage = television.match(/function fillPage\(ch\) \{[\s\S]*?\n  \}(?=\n  function preparePage)/)?.[0]
-  assert.ok(fillPage, 'the homepage channel renderer must be readable')
-  const element = tagName => ({
-    tagName: tagName.toUpperCase(),
-    children: [],
-    textContent: '',
-    className: '',
-    href: '',
-    attributes: {},
-    appendChild (child) { this.children.push(child); return child },
-    replaceChildren (...children) { this.children = children },
-    setAttribute (name, value) { this.attributes[name] = value },
-  })
-  const kicker = element('div')
-  const heading = element('h2')
-  const body = element('div')
-  const page = {
-    style: { setProperty () {} },
-    querySelector: selector => ({ '.kicker': kicker, h2: heading, '.body': body })[selector],
-  }
-  vm.runInNewContext(`${fillPage}; fillPage(${channel})`, {
-    CHAN: channels,
-    TINT: { 1: '#1', 2: '#2', 3: '#3', 4: '#4', 5: '#5' },
-    page,
-    document: { createElement: element },
-  })
-  return { kicker, heading, body }
-}
 
 test('the scroll film is gone and the console owns exactly one viewport', () => {
   assert.doesNotMatch(broadcast, /data-scene=|ScrollTrigger|gsap\.registerPlugin/)
@@ -92,66 +53,26 @@ test('the main signal is live while previews start frozen and wake individually'
 
 test('the Broadcast remains manual while preserving transmission controls', () => {
   assert.doesNotMatch(broadcast, /AUTO_ADVANCE_MS|scheduleAutoAdvance/)
-  assert.match(broadcast, /#transmissionPrev"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(-1\)/)
-  assert.match(broadcast, /#transmissionNext"\)\.addEventListener\("click", function \(\) \{ stepTransmission\(1\)/)
+  assert.match(broadcast, /#transmissionPrev"\)\.addEventListener\("click", function \(\) \{ stepChannel\(-1\)/)
+  assert.match(broadcast, /#transmissionNext"\)\.addEventListener\("click", function \(\) \{ stepChannel\(1\)/)
   assert.match(broadcast, /event\.key === "ArrowLeft" \|\| event\.key === "ArrowRight"/)
 })
 
-test('the assembled homepage carries the approved five-channel copy and Fabric lineage', () => {
-  const channels = televisionChannels()
-  const [about, contribute, experiments, research, log] = channels
-
-  assert.equal(about.title, english['bc.about.1.heading'])
-  assert.deepEqual([...about.body], [1, 2, 3, 4, 5].map(index => english[`bc.about.${index}.body`]))
-
-  assert.equal(contribute.title, english['bc.contribute.1.heading'])
-  assert.deepEqual([...contribute.body], [
-    english['bc.contribute.1.body'],
-    english['bc.contribute.2.body'],
-    english['bc.ch02.consent'],
-    english['bc.contribute.3.note'],
-  ])
-
-  assert.equal(experiments.title, english['bc.log.3.heading'])
-  assert.deepEqual([...experiments.body], [
-    english['bc.experiments.fabricV0.detail'],
-    english['bc.experiments.fabricV1.detail'],
-    english['bc.experiments.fabric2.detail'],
-    english['bc.experiments.microsite.body'],
-  ])
-  assert.deepEqual(JSON.parse(JSON.stringify(experiments.links)), [
-    { href: '/experiments/fabric/', label: english['bc.experiments.fabricV0.link'] },
-    { href: '/experiments/fabric-v1/', label: english['bc.experiments.fabricV1.link'] },
-    { href: '/experiments/', label: 'OPEN EXPERIMENT INDEX →' },
-  ])
-
-  assert.equal(research.title, english['bc.research.scores.heading'])
-  assert.deepEqual([...research.body], [
-    english['bc.research.scores.body'],
-    english['bc.research.counts.body'],
-    english['bc.research.3.body'],
-    english['bc.research.4.body'],
-  ])
-
-  assert.equal(log.title, english['bc.log.1.heading'])
-  assert.deepEqual([...log.body], [1, 2, 3, 4, 5].map(index => english[`bc.log.${index}.body`]))
-
-  assert.doesNotMatch(television, /HOW WILL WE GREET NEW TECHNOLOGY\?|Placeholder copy/)
+test('the assembled TV hands channel selections to the canonical Broadcast URL', () => {
+  assert.match(television, /function handoffToBroadcast\(ch\) \{[\s\S]*location\.assign\(`\/broadcast\/\?ch=\$\{ch\}\$\{lang/)
+  assert.match(television, /if \(params\.has\("ch"\) \|\| hashCh\) history\.replaceState\(null, "", location\.pathname\)/)
+  assert.match(television, /masterFx\.state = "collapse"; masterFx\.t0 = sceneTime\(\); masterFx\.pending = ch;[\s\S]*onComplete\(\) \{ handoffToBroadcast\(ch\); \}/)
+  assert.match(television, /if \(jumpCh >= 1 && jumpCh <= 5\) \{[\s\S]*handoffToBroadcast\(jumpCh\);/)
+  assert.match(television, /else if \(hashCh\) \{[\s\S]*tuneTo\(\+hashCh\)/)
+  assert.doesNotMatch(television, /location\.replace\(/)
 })
 
-test('the assembled Experiments channel renders working Fabric and index links', () => {
-  const { body } = renderTelevisionChannel(3)
-  const paragraphs = body.children.filter(node => node.tagName === 'P')
-  const navigation = body.children.find(node => node.tagName === 'NAV')
-
-  assert.equal(paragraphs.length, 4)
-  assert.ok(navigation, 'experiment links must be rendered inside the assembled CRT')
-  assert.equal(navigation.attributes['aria-label'], 'EXPERIMENTS links')
-  assert.deepEqual(navigation.children.map(link => [link.href, link.textContent]), [
-    ['/experiments/fabric/', 'OPEN FABRIC v0 →'],
-    ['/experiments/fabric-v1/', 'OPEN FABRIC v1 →'],
-    ['/experiments/', 'OPEN EXPERIMENT INDEX →'],
-  ])
+test('the root contains no duplicate channel copy or selected-page renderer', () => {
+  assert.doesNotMatch(television, /const CHAN = \[/)
+  assert.doesNotMatch(television, /<section class="page"/)
+  assert.doesNotMatch(television, /function fillPage\(/)
+  assert.doesNotMatch(television, /function (?:enterPage|swapPage|exitPage|syncPageToMaster)\(/)
+  assert.doesNotMatch(television, /CHECKPOINT → LATER ADDITIONS|PLAYING WITH FIRE|Placeholder copy/)
 })
 
 test('the TV breathes before assembling and its side screens settle on Broadcast stills', () => {
@@ -188,7 +109,6 @@ test('the TV breathes before assembling and its side screens settle on Broadcast
   assert.match(television, /mode === "orbit" && hoverDev === d/)
   assert.match(television, /mode !== "orbit" && currentCh === d\.chan\.ch/)
   assert.match(television, /const signalT = source \? signalAt\(source\.screen, now\) : SIDE_STILL_T/)
-  assert.match(television, /pauseChannel\(leavingCh\);[\s\S]*mode = "orbit"; currentCh = 0/)
   assert.match(television, /masterFx\.t0 = sceneTime\(\)/)
   assert.doesNotMatch(television, /masterFx\.t0 = performance\.now\(\) \/ 1000/)
   assert.doesNotMatch(television, /outBack/)
@@ -241,34 +161,17 @@ test('the TV flame bookends a stable per-cycle shuffle of 火, ひ, and 불', ()
   assert.match(television, /uTime\.value = reduced && d === master \? 0 : t/)
 })
 
-test('channel pages remain framed by the main CRT throughout entry and exit', () => {
-  assert.match(television, /<div class="page-screen">/)
+test('channel selection keeps the existing master CRT tuning transition', () => {
   assert.match(television, /overlayCRT\(s, TINT\[c\.ch\], "", 0, "top"\)/)
   assert.doesNotMatch(television, /overlayCRT\(s, TINT\[c\.ch\], `CH 0\$\{c\.ch\} · \$\{c\.name\}`/)
   assert.doesNotMatch(television, /focus-blur|backdrop-filter: blur/)
   assert.match(television, /uFocusRect: \{ value: new THREE\.Vector4\(0, 0, 1, 1\) \}/)
   assert.match(television, /uFocusAmount: \{ value: 0 \}/)
   assert.match(television, /single Poisson disc stays seamless/)
-  assert.doesNotMatch(television, /\.page-screen \{[\s\S]{0,700}backdrop-filter/)
   assert.match(television, /body\.docked \.hud h1 \{ font-size: clamp\(2rem, 3\.2vw, 3rem\)/)
-  assert.match(television, /\.page h2 \{[\s\S]*max-width: none;/)
-  assert.match(television, /\.page \.body \{ max-width: none; \}/)
-  assert.match(television, /\.page p \{[\s\S]*font-size: clamp\(1\.25rem, 1\.35vw, 1\.5rem\); line-height: 1\.55/)
-  assert.match(television, /\.page h2 \{[\s\S]*font-size: clamp\(2\.5rem, 4vw, 4\.5rem\)/)
-  assert.match(television, /function syncPageToMaster\(\)/)
-  assert.match(television, /master\.screenMesh\.localToWorld\(pageCorners\[i\]\)/)
-  assert.match(television, /--screen-clip["'], `polygon\(\$\{polygon\}\)`/)
-  assert.match(television, /--page-presence["'], sm\(0\.54, 0\.9, flyT\)/)
-  assert.match(television, /focusWidth = widthPx \* 1\.52, focusHeight = heightPx \* 1\.32/)
-  assert.match(television, /postMat\.uniforms\.uFocusRect\.value\.set/)
-  assert.match(television, /postMat\.uniforms\.uFocusAmount\.value = sm\(0\.32, 0\.82, flyT\)/)
   assert.match(television, /flyTo\.addScaledVector\(_v, 3\.25\)/)
   assert.match(television, /distance < 0\.01 \? 0 : Math\.max\(0\.22, distance \* 0\.85\)/)
   assert.match(television, /duration: reduced \? 0\.01 : 0\.85, ease: "power3\.out"/)
-  assert.match(television, /duration: reduced \? 0\.01 : 0\.7, ease: "power3\.in"/)
-  assert.match(television, /preparePage\(ch\);[\s\S]*gsap\.to\(\{ t: 0 \}/)
-  assert.match(television, /onComplete\(\) \{[\s\S]*page\.classList\.remove\("show"\);[\s\S]*mode = "orbit"/)
-  assert.doesNotMatch(television, /setTimeout\(\(\) => page\.classList\.remove\("show"\), 460\)/)
 })
 
 test('master tuning uses the original CRT collapse and short static burst', () => {
@@ -280,20 +183,10 @@ test('master tuning uses the original CRT collapse and short static burst', () =
   assert.doesNotMatch(television, /drawTuningBurst|transitionBuffer|Math\.min\(6, W \* 0\.006\)/)
 })
 
-test('channel focus hides the station wordmark from selection until the exit completes', () => {
+test('channel focus hides the station wordmark during the handoff', () => {
   assert.match(television, /body\.channel-focus \.hud h1 \{[^}]*opacity: 0;[^}]*visibility: hidden;/)
   assert.match(television, /function tuneTo\(ch\) \{[\s\S]*document\.body\.classList\.add\("channel-focus"\)/)
-  assert.match(television, /function enterPage\(ch\) \{[\s\S]*document\.body\.classList\.add\("channel-focus"\)/)
-  assert.match(television, /onComplete\(\) \{[\s\S]*document\.body\.classList\.remove\("channel-focus"\);[\s\S]*mode = "orbit"/)
-})
-
-test('zoomed channel copy dims the entire signal without a local text plate', () => {
-  const pageScreen = television.match(/\.page-screen \{([\s\S]*?)\n  \}/)?.[1] || ''
-  assert.match(pageScreen, /background: rgba\(4,8,6,\.62\);/)
-  assert.match(pageScreen, /filter: none;/)
-  assert.match(pageScreen, /box-shadow: none;/)
-  assert.doesNotMatch(pageScreen, /repeating-linear-gradient|radial-gradient/)
-  assert.doesNotMatch(television, /\.page (?:h2|p)[^{]*\{[^}]*background:/)
+  assert.match(television, /onComplete\(\) \{ handoffToBroadcast\(ch\); \}/)
 })
 
 test('the station wordmark carries the master TV fire colour without a green halo', () => {

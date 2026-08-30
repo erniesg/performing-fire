@@ -45,13 +45,54 @@ test('archive-count labels retain every verified public category', () => {
 
 test('English source copy preserves the approved editorial and Fabric boundaries', () => {
   assert.match(dicts.en['bc.about.1.body'], /make, use, and depend on.*never fully control/i)
-  assert.match(dicts.en['bc.about.4.body'], /scores turn ideas into instructions, actions, and situations/i)
+  assert.match(dicts.en['bc.about.4.body'], /scores (turn|carry) ideas into instructions, actions, and situations/i)
   assert.match(dicts.en['bc.experiments.fabricV0.detail'], /checkpoint/i)
   assert.match(dicts.en['bc.experiments.fabricV1.detail'], /Bass.*Body.*Treble.*Hits.*explode.*dissolve.*glitter.*glitch/i)
-  assert.equal(dicts.en['bc.experiments.fabric2.detail'], 'Reserved for the next Fabric experiment. Its behaviour is not defined yet.')
+  assert.equal(dicts.en['bc.experiments.fabric2.detail'], 'The next Fabric experiment has a place in the lineage, but its behaviour is not defined yet.')
   assert.equal(dicts.en['bc.experiments.fabric2.status'], 'NOT YET DEFINED')
-  assert.match(dicts.en['bc.research.scores.body'], /collection record.*score text/i)
-  assert.match(dicts.en['bc.log.1.body'], /what was tested, what failed, and what changed/i)
+  assert.match(dicts.en['bc.research.scores.body'], /verified collection record.*score.*text is not human-confirmed/i)
+  assert.match(dicts.en['bc.log.1.body'], /tests, failures, and changes/i)
+})
+
+test('English broadcast copy carries one causal argument across all five channels', () => {
+  const en = dicts.en
+
+  // About: premise → relation → situated people → score method → performance.
+  assert.match(en['bc.about.2.body'], /That gap is the relation/i)
+  assert.match(en['bc.about.3.body'], /rather than reduced to anonymous input/i)
+  assert.match(en['bc.about.4.body'], /That is why/i)
+  assert.match(en['bc.about.5.body'], /performer decides/i)
+
+  // Contribute gives a visitor a concrete action, an honest media boundary, and consent.
+  assert.match(en['bc.contribute.1.body'], /^Offer /i)
+  assert.match(en['bc.contribute.1.body'], /do not upload media/i)
+  assert.match(en['bc.contribute.2.body'], /After moderation/i)
+  assert.match(en['bc.ch02.consent'], /^I consent to /i)
+
+  // Experiments presents one lineage rather than three disconnected feature claims.
+  assert.match(en['bc.experiments.fabricV0.detail'], /^Fabric v0 preserves the checkpoint/i)
+  assert.match(en['bc.experiments.fabricV1.detail'], /^Fabric v1 builds on that checkpoint/i)
+  assert.match(en['bc.experiments.fabric2.detail'], /^The next Fabric experiment has a place/i)
+  assert.match(en['bc.experiments.microsite.body'], /^Alongside the Fabric studies/i)
+
+  // Research distinguishes evidence, counts, samples, and public display permission.
+  assert.match(en['bc.research.scores.body'], /^The first question is /i)
+  assert.match(en['bc.research.counts.body'], /^These are dated observations/i)
+  assert.match(en['bc.research.rights.body'], /^Each sample keeps /i)
+
+  // The Log names the decision and consequence without replaying Fabric's detailed spec.
+  for (const key of ['bc.log.1.body', 'bc.log.2.body', 'bc.log.3.body', 'bc.log.4.body', 'bc.log.5.body']) {
+    assert.match(en[key], /^Decision:/, `${key} must state a decision`)
+  }
+  assert.doesNotMatch(en['bc.log.3.body'], /Bass|Body|Treble|Hits|explode|dissolve|glitter|glitch/i)
+})
+
+test('channel transport is named as channel navigation in every locale', () => {
+  for (const [lang, dict] of Object.entries(dicts)) {
+    assert.doesNotMatch(dict['bc.nav.transmission'], /transmission|전송|传输|送信/i, `${lang} transport must not describe old transmission paging`)
+    assert.doesNotMatch(dict['bc.nav.previous'], /transmission|전송|传输|送信/i, `${lang} previous control must change channels`)
+    assert.doesNotMatch(dict['bc.nav.next'], /transmission|전송|传输|送信/i, `${lang} next control must change channels`)
+  }
 })
 
 test('About and Log labels and headings match the approved editorial movements', () => {
@@ -74,11 +115,13 @@ test('About and Log labels and headings match the approved editorial movements',
 })
 
 test('generated research and lineage chrome is translated in every locale', () => {
-  assert.equal(dicts.en['bc.experiments.lineage.label'], '01 / FABRIC LINEAGE')
+  assert.equal(dicts.en['bc.experiments.lineage.label'], '01 / EXPERIMENT LINEAGE')
+  assert.equal(dicts.en['bc.experiments.lineage.heading'], 'HOW THE WORK TOOK FORM')
+  assert.match(dicts.en['bc.experiments.lineage.body'], /Fabric.*responsive material.*Microsite.*broadcast structure/i)
   assert.equal(dicts.en['bc.research.catalogue'], 'CATALOGUE')
   assert.equal(dicts.en['bc.research.scores.sample'], 'PUBLIC SAMPLE · CATALOGUE 570 / ASSET 106344')
   for (const locale of ['ko', 'zh', 'ja']) {
-    for (const key of ['bc.experiments.lineage.label', 'bc.research.catalogue', 'bc.research.scores.sample']) {
+    for (const key of ['bc.experiments.lineage.label', 'bc.experiments.lineage.heading', 'bc.experiments.lineage.body', 'bc.research.catalogue', 'bc.research.scores.sample']) {
       assert.notEqual(dicts[locale][key], dicts.en[key], `${locale}.${key} must be semantically translated`)
     }
   }
