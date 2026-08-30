@@ -140,6 +140,12 @@ export function deriveExplosionImpulse (signals = {}, modulation = 0) {
   return clamp01(modulation) * clamp01(clamp01(signals.onset) * 3.5)
 }
 
+export function deriveLinkedVisualDrive (requestedVolume = 0) {
+  const volume = clamp01(Number(requestedVolume))
+  if (volume <= 0.3) return volume / 0.3
+  return 1 + (volume - 0.3) / 0.7
+}
+
 export function createAudioEngine (provided = {}) {
   const AudioContext = provided.AudioContext || globalThis.AudioContext || globalThis.webkitAudioContext
   const getUserMedia = provided.getUserMedia || globalThis.navigator?.mediaDevices?.getUserMedia?.bind(globalThis.navigator.mediaDevices)
@@ -161,6 +167,7 @@ export function createAudioEngine (provided = {}) {
   let appliedBeatVariation = null
   let beatOutputGain = null
   let beatVolume = 0.3
+  let visualDrive = 1
   let membraneFilter = null
   let occlusion = 0
   let muffleEnabled = false
@@ -311,7 +318,6 @@ export function createAudioEngine (provided = {}) {
       const output = ctx.createGain()
       nodes.push(output)
       setParam(output.gain, beatVolume, ctx.currentTime || 0)
-      output.connect(analyser)
       output.connect(ctx.destination)
 
       const filter = ctx.createBiquadFilter()
@@ -319,6 +325,7 @@ export function createAudioEngine (provided = {}) {
       filter.type = 'lowpass'
       const effectiveOcclusion = muffleEnabled ? occlusion : 0
       setFilterOcclusion(filter, effectiveOcclusion)
+      filter.connect(analyser)
       filter.connect(output)
 
       const rendered = renderGeneratedBeat(style, ctx.sampleRate, variation)
@@ -364,6 +371,12 @@ export function createAudioEngine (provided = {}) {
     beatVolume = clamp01(Number(value))
     if (beatOutputGain) setParamSmooth(beatOutputGain.gain, beatVolume)
     return beatVolume
+  }
+
+  function setVisualDrive (value) {
+    const requested = Number(value)
+    visualDrive = Math.min(2, Math.max(0, Number.isFinite(requested) ? requested : 0))
+    return visualDrive
   }
 
   function randomizeBeat () {
@@ -470,7 +483,7 @@ export function createAudioEngine (provided = {}) {
     if (!analyser || !analyserData || source === 'off') {
       const release = clamp01(Number.isFinite(dt) ? dt * 9 : 0.15)
       for (const name of Object.keys(signals)) signals[name] *= 1 - release
-      priorLevel = signals.level
+      priorLevel = 0
       return { ...signals }
     }
 
@@ -493,22 +506,24 @@ export function createAudioEngine (provided = {}) {
     const nyquist = Math.max(1, (context?.sampleRate || 48000) * 0.5)
     const hz = frequency => clamp01(frequency / nyquist)
 
-    const raw = {
+    const measured = {
       bass: average(0, hz(250)),
       mid: average(hz(250), hz(2400)),
       high: average(hz(2400), hz(12000)),
       level: average(0, hz(12000))
     }
+    const raw = {}
+    for (const name of ['bass', 'mid', 'high', 'level']) raw[name] = clamp01(measured[name] * visualDrive)
     const frame = Math.max(0, Number.isFinite(dt) ? dt : 1 / 60)
     for (const name of ['bass', 'mid', 'high', 'level']) {
       const rate = raw[name] > signals[name] ? 15 : 5
       const amount = 1 - Math.exp(-rate * frame)
       signals[name] = clamp01(signals[name] + (raw[name] - signals[name]) * amount)
     }
-    const rawOnset = clamp01((raw.level - priorLevel) * 7)
+    const rawOnset = clamp01((measured.level - priorLevel) * 7)
     const onsetAmount = 1 - Math.exp(-18 * frame)
     signals.onset = clamp01(signals.onset + (rawOnset - signals.onset) * onsetAmount)
-    priorLevel = raw.level
+    priorLevel = measured.level
     return { ...signals }
   }
 
@@ -557,10 +572,12 @@ export function createAudioEngine (provided = {}) {
     get beatStyle () { return beatStyle },
     get beatVariation () { return beatVariation },
     get beatVolume () { return beatVolume },
+    get visualDrive () { return visualDrive },
     get muffleEnabled () { return muffleEnabled },
     setSource,
     setBeatStyle,
     setBeatVolume,
+    setVisualDrive,
     randomizeBeat,
     sample,
     setOcclusion,

@@ -187,7 +187,7 @@ function failNextBeatBuild (context, failure) {
       node.connect = target => {
         const result = connect(target)
         connectCount++
-        if (connectCount === 2) throw new Error('beat graph failed')
+        if (connectCount === 1) throw new Error('beat graph failed')
         return result
       }
       return node
@@ -230,11 +230,13 @@ test('bug: v1 could accidentally omit its canonical, accessible control surface'
   assert.doesNotMatch(page, /id=["']beat-row["'][^>]*\shidden(?:\s|>|=)/i, 'beat types should remain discoverable before Beat is selected')
   assert.match(page, /<button[^>]+data-beat-randomize[^>]*>\s*Randomize\s*</i)
   assert.match(page, /<label[^>]+for=["']beat-volume["'][^>]*>[\s\S]*?<input[^>]+id=["']beat-volume["'][^>]+data-beat-volume[^>]+type=["']range["'][^>]+min=["']0["'][^>]+max=["']100["']/i)
+  assert.match(page, /<button[^>]+data-volume-drive-link[^>]+aria-pressed=["']true["'][^>]*>\s*Link\s*</i)
+  assert.match(page, /<label[^>]+for=["']fabric-drive["'][^>]*>[\s\S]*?<input[^>]+id=["']fabric-drive["'][^>]+data-fabric-drive[^>]+type=["']range["'][^>]+min=["']0["'][^>]+max=["']200["'][^>]+value=["']100["']/i)
   assert.match(page, /data-mapping=["']muffle["'][^>]+aria-pressed=["']false["'][^>]*>\s*Fabric\s*→\s*Muffle\s*</i)
   for (const mapping of ['explode', 'dissolve', 'glitter', 'glitch', 'muffle']) {
     assert.match(page, new RegExp(`<input[^>]+data-(?:effect|mapping)-amount=["']${mapping}["'][^>]+type=["']range["'][^>]+min=["']25["'][^>]+max=["']200["'][^>]+value=["']150["']`, 'i'))
   }
-  assert.match(page, /<script[^>]+type=["']module["'][^>]+src=["']\.\/audio-engine\.mjs["']/i)
+  assert.match(page, /<script[^>]+type=["']module["'][^>]+src=["']\.\/audio-engine\.mjs\?v=drive-link-2["']/i)
 })
 
 test('bug: desktop status text could sit underneath the centered persona chips', async () => {
@@ -247,7 +249,9 @@ test('bug: desktop status text could sit underneath the centered persona chips',
 test('bug: visible mixer controls could be disconnected from engine and render state', async () => {
   const page = await readFile(v1PageUrl, 'utf8')
   assert.match(page, /\[data-beat-randomize\][\s\S]{0,250}randomizeBeat\(\)/)
-  assert.match(page, /\[data-beat-volume\][\s\S]{0,400}setBeatVolume\(/)
+  assert.match(page, /beatVolumeInput\.addEventListener\('input',[\s\S]{0,220}setBeatVolume\(/)
+  assert.match(page, /fabricDriveInput\.addEventListener\('input',[\s\S]{0,260}setFabricDrive\(/)
+  assert.match(page, /volumeDriveLinkButton\.addEventListener\('click',[\s\S]{0,220}volumeDriveLinked/)
   assert.match(page, /\[data-effect-amount\][\s\S]{0,900}effectAmounts\[effect\]/)
   assert.match(page, /deriveEffectIntensity\(effectMod,\s*effectAmounts\)/)
   assert.match(page, /deriveExplosionImpulse\(audioSignals,\s*effectMod\.explode\)\s*\*\s*effectAmounts\.explode/)
@@ -714,6 +718,72 @@ test('generated beat volume and randomization remain lazy until Beat is selected
   assert.equal(output.gain.value, 0.62)
   assert.equal(engine.beatVariation, variation)
   assert.equal(engine.beatVolume, 0.62)
+})
+
+test('linked Output uses the full Fabric Drive range without saturating halfway up the volume fader', async () => {
+  const { deriveLinkedVisualDrive } = await loadAudioModule()
+  assert.equal(deriveLinkedVisualDrive(0), 0)
+  assert.equal(deriveLinkedVisualDrive(0.3), 1)
+  assert.equal(deriveLinkedVisualDrive(1), 2)
+  assert.ok(deriveLinkedVisualDrive(0.45) > 1 && deriveLinkedVisualDrive(0.45) < 1.5)
+})
+
+test('Fabric Drive is lazy, bounded, and controls analysis independently from audible Beat output', async () => {
+  const { createAudioEngine } = await loadAudioModule()
+  const deps = makeAudioDeps()
+  const engine = createAudioEngine(deps)
+
+  assert.equal(engine.visualDrive, 1)
+  assert.equal(engine.setVisualDrive(3), 2)
+  assert.equal(engine.setVisualDrive(-1), 0)
+  assert.equal(engine.setVisualDrive(0.5), 0.5)
+  assert.equal(deps.contexts.length, 0, 'Drive should not allocate Web Audio while idle')
+
+  engine.setBeatVolume(0)
+  await engine.setSource('beat')
+  const context = deps.contexts[0]
+  const analyser = context.created.find(node => node.kind === 'analyser')
+  const output = context.created.find(node => node.kind === 'gain')
+  const membrane = context.created.find(node => node.kind === 'biquad-filter')
+  assert.ok(isConnectedTo(membrane, analyser), 'the filtered source should feed analysis before audible output gain')
+  assert.equal(isConnectedTo(output, analyser), false, 'audible output gain must not secretly control Fabric analysis')
+  assert.ok(isConnectedTo(output, context.destination), 'audible output must still reach the destination')
+
+  const quietDrive = engine.sample(1)
+  engine.setVisualDrive(2)
+  const strongDrive = engine.sample(1)
+  assert.ok(strongDrive.level > quietDrive.level, 'Drive should strengthen Fabric analysis even while output is muted')
+  assert.equal(engine.beatVolume, 0)
+})
+
+test('changing Fabric Drive does not create an onset from a steady spectrum', async () => {
+  const { createAudioEngine } = await loadAudioModule()
+  const deps = makeAudioDeps()
+  const engine = createAudioEngine(deps)
+  await engine.setSource('beat')
+
+  engine.sample(1)
+  const settled = engine.sample(1)
+  assert.ok(settled.onset < 0.001, 'a steady spectrum must settle before Drive changes')
+
+  engine.setVisualDrive(2)
+  const afterDriveChange = engine.sample(1)
+  assert.ok(afterDriveChange.onset < 0.001, 'Drive must scale visuals without synthesizing an onset')
+})
+
+test('a real spectrum rise still produces an onset after Drive-independent sampling', async () => {
+  const { createAudioEngine } = await loadAudioModule()
+  const deps = makeAudioDeps()
+  const engine = createAudioEngine(deps)
+  await engine.setSource('beat')
+  const analyser = deps.contexts[0].created.find(node => node.kind === 'analyser')
+
+  engine.sample(1)
+  engine.sample(1)
+  analyser.spectrum.fill(255)
+  const afterSpectrumRise = engine.sample(1)
+
+  assert.ok(afterSpectrumRise.onset > 0.5, 'a real rise in spectrum energy must still trigger onset')
 })
 
 test('active generated Beat can change volume and randomize without changing type or leaking the old loop', async () => {

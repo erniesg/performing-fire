@@ -215,16 +215,25 @@
       <button type="button" data-beat-randomize aria-label="Randomize current generated beat">Randomize</button>
     </div>
   </div>
-  <div class="audio-row" role="group" aria-label="Generated beat volume">
-    <span class="audio-label">Volume</span>
+  <div class="audio-row" role="group" aria-label="Generated beat output and Fabric Drive link">
+    <span class="audio-label">Output</span>
     <label class="range-control" for="beat-volume">
-      <span>Generated only</span>
+      <span>Heard · generated only</span>
       <input id="beat-volume" data-beat-volume type="range" min="0" max="100" step="1" value="30">
       <output id="beat-volume-output" for="beat-volume">30%</output>
     </label>
+    <button type="button" data-volume-drive-link aria-label="Link Output to Fabric Drive" aria-pressed="true">Link</button>
   </div>
-  <div class="audio-row mapping-row" role="group" aria-label="Sound-to-fabric mappings">
-    <span class="audio-label">Mappings</span>
+  <div class="audio-row" role="group" aria-label="Audio to Fabric Drive">
+    <span class="audio-label">Drive</span>
+    <label class="range-control" for="fabric-drive">
+      <span>Audio → whole fabric</span>
+      <input id="fabric-drive" data-fabric-drive type="range" min="0" max="200" step="5" value="100">
+      <output id="fabric-drive-output" for="fabric-drive">100%</output>
+    </label>
+  </div>
+  <div class="audio-row mapping-row" role="group" aria-label="Sound-to-fabric mapping depths">
+    <span class="audio-label">Depth</span>
     <div class="audio-options mapping-options">
       <div class="mapping-control">
         <button type="button" data-effect="explode" aria-pressed="false">Bass → Explode</button>
@@ -338,9 +347,9 @@
 })();
 </script>
 
-<script type="module" src="./audio-engine.mjs"></script>
+<script type="module" src="./audio-engine.mjs?v=drive-link-2"></script>
 <script type="module">
-import { createAudioEngine, createEffectState, toggleEffect, deriveEffectModulation, deriveEffectIntensity, deriveExplosionImpulse } from './audio-engine.mjs';
+import { createAudioEngine, createEffectState, toggleEffect, deriveEffectModulation, deriveEffectIntensity, deriveExplosionImpulse, deriveLinkedVisualDrive } from './audio-engine.mjs?v=drive-link-2';
 /* ============================================================
    FABRIC — TouchDesigner-style interactive surface
    Technique (mirrors the TD Spring-SOP + Bloom/Feedback pattern):
@@ -1045,10 +1054,39 @@ randomizeButton.addEventListener('click', ()=>{
 });
 const beatVolumeInput = audioPanel.querySelector('[data-beat-volume]');
 const beatVolumeOutput = $('beat-volume-output');
+const fabricDriveInput = audioPanel.querySelector('[data-fabric-drive]');
+const fabricDriveOutput = $('fabric-drive-output');
+const volumeDriveLinkButton = audioPanel.querySelector('[data-volume-drive-link]');
+let volumeDriveLinked = true;
+function setFabricDrive(value){
+  const drive = audioEngine.setVisualDrive(value);
+  const percent = Math.round(drive*100);
+  fabricDriveInput.value = String(percent);
+  fabricDriveOutput.textContent = `${percent}%`;
+  return percent;
+}
+function syncLinkedDrive(){
+  return setFabricDrive(deriveLinkedVisualDrive(audioEngine.beatVolume));
+}
 beatVolumeInput.addEventListener('input', ()=>{
   const percent = Math.round(audioEngine.setBeatVolume(Number(beatVolumeInput.value)/100)*100);
   beatVolumeOutput.textContent = `${percent}%`;
-  audioStateEl.textContent = `generated beat volume · ${percent}%`;
+  const drivePercent = volumeDriveLinked ? syncLinkedDrive() : Math.round(audioEngine.visualDrive*100);
+  audioStateEl.textContent = `output ${percent}% · fabric drive ${drivePercent}%${volumeDriveLinked?' · linked':''}`;
+});
+fabricDriveInput.addEventListener('input', ()=>{
+  volumeDriveLinked = false;
+  volumeDriveLinkButton.setAttribute('aria-pressed', 'false');
+  const percent = setFabricDrive(Number(fabricDriveInput.value)/100);
+  audioStateEl.textContent = `fabric drive · ${percent}% · independent`;
+});
+volumeDriveLinkButton.addEventListener('click', ()=>{
+  volumeDriveLinked = !volumeDriveLinked;
+  volumeDriveLinkButton.setAttribute('aria-pressed', String(volumeDriveLinked));
+  const drivePercent = volumeDriveLinked ? syncLinkedDrive() : Math.round(audioEngine.visualDrive*100);
+  audioStateEl.textContent = volumeDriveLinked
+    ? `output ↔ fabric drive linked · ${drivePercent}% drive`
+    : `output ↔ fabric drive unlinked · ${drivePercent}% drive`;
 });
 for(const button of audioPanel.querySelectorAll('[data-effect]')){
   button.addEventListener('click', ()=>{
@@ -1102,6 +1140,8 @@ window.PF_FABRIC_V1 = {
     beatStyle:audioEngine.beatStyle,
     beatVariation:audioEngine.beatVariation,
     beatVolume:audioEngine.beatVolume,
+    visualDrive:audioEngine.visualDrive,
+    volumeDriveLinked,
     muffleEnabled:audioEngine.muffleEnabled,
     effects:{...effectState},
     effectAmounts:{...effectAmounts},
