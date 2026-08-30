@@ -6,7 +6,7 @@ must first be added in the separate `erniesg/berlayar` CMS repository before the
 fields will appear in Payload admin.
 
 The optional endpoint is configured with the empty-by-default
-`pf-broadcast-endpoint` meta value in `public/index.html`. It may be same-origin or
+`pf-broadcast-endpoint` meta value in `public/broadcast/index.html`. It may be same-origin or
 use `https://berlayar.ai`; it is a public read endpoint and must not require browser
 credentials. The client appends `locale=en|ko|zh|ja`.
 
@@ -37,8 +37,14 @@ The response may be the object below or `{ "docs": [object] }`:
 }
 ```
 
-Channel order is fixed as About, Contribute, Experiments, Research, Log. Payload
-array order is transmission order. The adapter accepts only `label`, `heading`,
+Channel order is fixed as About, Contribute, Experiments, Research, Log. Each
+channel renders as one internally scrollable surface; the legacy `transmissions`
+array now means ordered editorial movements within that surface, not separate UI
+pages. The expected movement counts are About 5, Contribute 5, Experiments 2,
+Research 7, and Log 5. The first item owns the channel introduction and later
+items map to the grouped sections in document order.
+
+The adapter accepts only `label`, `heading`,
 `body`, and a paired root-relative `linkLabel`/`linkHref`. All values render with
 `textContent`; rich text and HTML are rejected. Missing or invalid fields retain
 their bundled fallback.

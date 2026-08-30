@@ -50,6 +50,22 @@ test('a configured request forwards the selected locale', async () => {
   assert.equal(result.about[0].heading, '方程式')
 })
 
+test('normalization preserves every ordered copy item for a grouped channel surface', () => {
+  const { adapter } = loadAdapter()
+  const transmissions = Array.from({ length: 5 }, (_, index) => ({
+    label: `0${index + 1}`,
+    heading: `Movement ${index + 1}`,
+    body: `Body ${index + 1}`,
+  }))
+  const result = adapter.normalize({
+    status: 'published',
+    locale: 'en',
+    channels: { about: { transmissions } },
+  }, 'en')
+  assert.equal(result.about.length, 5)
+  assert.equal(result.about[4].heading, 'Movement 5')
+})
+
 test('normalization accepts copy only and rejects remote structure or unsafe links', () => {
   const { adapter } = loadAdapter()
   const result = adapter.normalize({

@@ -55,6 +55,21 @@ test('each selected channel is one coherent scrollable console surface', () => {
   assert.match(broadcast, /\.signal-pane\{[^}]*min-height:0/)
 })
 
+test('Payload copy items map to every editorial movement inside each grouped surface', () => {
+  const expected = { about: 5, contribute: 5, experiments: 2, research: 7, log: 5 }
+  const channelOrder = Object.keys(expected)
+  channelOrder.forEach((channel, index) => {
+    const start = broadcast.indexOf(`data-channel-panel="${channel}"`)
+    const next = index + 1 < channelOrder.length
+      ? broadcast.indexOf(`data-channel-panel="${channelOrder[index + 1]}"`, start)
+      : broadcast.indexOf('id="researchReader"', start)
+    const panel = broadcast.slice(start, next)
+    assert.equal((panel.match(/data-content-item=/g) ?? []).length, expected[channel], `${channel} content-item count`)
+  })
+  assert.match(broadcast, /var contentItems = \$\$\("\[data-content-item\]", panel\)/)
+  assert.doesNotMatch(broadcast, /\$\$\("\[data-transmission\]", panel\)\.forEach\(function \(tx, index\)/)
+})
+
 test('the initial Broadcast channel can be selected from ?ch=1 through ?ch=5', () => {
   assert.match(broadcast, /new URLSearchParams\(window\.location\.search\)\.get\("ch"\)/)
   assert.match(broadcast, /initialChannel >= 1 && initialChannel <= CHANNELS\.length/)
