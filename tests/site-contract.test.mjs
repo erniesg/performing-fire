@@ -87,6 +87,15 @@ test('a remote movement link is inserted before nested movements in its own cont
   assert.match(broadcast, /placeContentLink\(contentItem, link\);/)
 })
 
+test('locale reloads clear stale CMS links before remote copy succeeds or falls back', () => {
+  const clearBody = broadcast.match(/function clearRemoteLinks\(\) \{([\s\S]*?)\n  \}/)?.[1] ?? ''
+  const links = [{ removed: false, remove () { this.removed = true } }, { removed: false, remove () { this.removed = true } }]
+  Function('$$', clearBody)(selector => selector === '.cms-link' ? links : [])
+  assert.ok(links.every(link => link.removed))
+  assert.match(broadcast, /function applyRemoteContent\(content\) \{\s*clearRemoteLinks\(\);\s*if \(!content\) \{ render\(\); return; \}/)
+  assert.match(broadcast, /function loadBroadcastContent\(\) \{\s*clearRemoteLinks\(\);\s*if \(!window\.PF_BROADCAST_CONTENT\)/)
+})
+
 test('the initial Broadcast channel can be selected from ?ch=1 through ?ch=5', () => {
   assert.match(broadcast, /new URLSearchParams\(window\.location\.search\)\.get\("ch"\)/)
   assert.match(broadcast, /initialChannel >= 1 && initialChannel <= CHANNELS\.length/)

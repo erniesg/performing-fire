@@ -456,13 +456,17 @@ document.addEventListener("pf:lang", function () {
     else { contentItem.appendChild(link); }
   }
 
+  function clearRemoteLinks() {
+    $$(".cms-link").forEach(function (link) { link.remove(); });
+  }
+
   function applyRemoteContent(content) {
-    if (!content) { return; }
+    clearRemoteLinks();
+    if (!content) { render(); return; }
     CHANNELS.forEach(function (channel) {
       var overrides = content[channel.id];
       if (!overrides) { return; }
       var panel = $('[data-channel-panel="' + channel.id + '"]');
-      $$(".cms-link", panel).forEach(function (link) { link.remove(); });
       var contentItems = $$("[data-content-item]", panel);
       contentItems.forEach(function (contentItem, index) {
         var item = overrides[index];
@@ -484,6 +488,7 @@ document.addEventListener("pf:lang", function () {
   }
   var contentRequest = 0;
   function loadBroadcastContent() {
+    clearRemoteLinks();
     if (!window.PF_BROADCAST_CONTENT) { return; }
     var request = ++contentRequest;
     window.PF_BROADCAST_CONTENT.load(window.PF_I18N.current()).then(function (content) {
