@@ -353,8 +353,14 @@ document.addEventListener("pf:lang", function () {
     window.setTimeout(function () { viewer.classList.remove("is-tuning"); }, 260);
   }
 
+  function resetChannelScroll() {
+    var stage = $("#transmissionStage");
+    if (stage) { stage.scrollTop = 0; }
+  }
+
   function tune(index, skipHistory) {
     currentChannel = (index + CHANNELS.length) % CHANNELS.length;
+    resetChannelScroll();
     if (window.PF_SIGNALS) { window.PF_SIGNALS.setMain(CHANNELS[currentChannel].signal); }
     if (!skipHistory && window.history && window.history.replaceState) {
       var query = new URLSearchParams(window.location.search);

@@ -61,6 +61,14 @@ test('the initial Broadcast channel can be selected from ?ch=1 through ?ch=5', (
   assert.match(broadcast, /tune\(initialChannel - 1, true\)/)
 })
 
+test('switching channels starts the new coherent surface at its beginning', () => {
+  const resetBody = broadcast.match(/function resetChannelScroll\(\) \{([\s\S]*?)\n  \}/)?.[1] ?? ''
+  const stage = { scrollTop: 720 }
+  Function('$', resetBody)(selector => selector === '#transmissionStage' ? stage : null)
+  assert.equal(stage.scrollTop, 0)
+  assert.match(broadcast, /function tune\(index, skipHistory\) \{[\s\S]*?resetChannelScroll\(\);[\s\S]*?render\(\);/)
+})
+
 test('Experiments preserves the Fabric lineage and Microsite in one transmission', () => {
   assert.match(broadcast, /data-i18n="bc\.experiments\.lineage\.label"[^>]*>01 \/ EXPERIMENT LINEAGE</)
   const experiments = broadcast.match(/data-channel-panel="experiments"[\s\S]*?<\/section>/)?.[0] ?? ''

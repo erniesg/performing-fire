@@ -87,6 +87,12 @@ test('English broadcast copy carries one causal argument across all five channel
   assert.doesNotMatch(en['bc.log.3.body'], /Bass|Body|Treble|Hits|explode|dissolve|glitter|glitch/i)
 })
 
+test('every non-English contribution promise remains conditional on moderation', () => {
+  assert.match(dicts.ko['bc.contribute.2.body'], /검토 후.*들어갈 수 있습니다/)
+  assert.match(dicts.zh['bc.contribute.2.body'], /审核后.*可能.*进入作品/)
+  assert.match(dicts.ja['bc.contribute.2.body'], /モデレーション後.*入ることがあります/)
+})
+
 test('channel transport is named as channel navigation in every locale', () => {
   for (const [lang, dict] of Object.entries(dicts)) {
     assert.doesNotMatch(dict['bc.nav.transmission'], /transmission|전송|传输|送信/i, `${lang} transport must not describe old transmission paging`)
