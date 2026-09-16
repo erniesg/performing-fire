@@ -40,7 +40,7 @@ test('channel navigation and progress controls live inside the CRT', () => {
   assert.doesNotMatch(broadcast, /currentTransmission \+ 1\) \+ " \/ "/)
 })
 
-test('the Broadcast remains its own site and the fabric study is its own experiment page', () => {
+test('the integrated Broadcast console stays visually distinct from the fabric experiment', () => {
   assert.match(broadcast, /THE BROADCAST/)
   assert.match(experiment, /FABRIC/)
   assert.doesNotMatch(experiment, /THE BROADCAST/)

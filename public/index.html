@@ -106,14 +106,32 @@
   }
   @keyframes cuepulse { 50% { opacity: .35; } }
   .fail { position: fixed; inset: 0; display: grid; place-items: center; z-index: 30; padding: 30px; text-align: center; font-size: 14px; line-height: 1.7; }
+  #broadcastLayer {
+    position: fixed; inset: 0; z-index: 50; background: #030404;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .28s ease, visibility 0s linear .28s;
+  }
+  body.broadcast-open #broadcastLayer {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .28s ease;
+  }
+  #broadcastFrame { display: block; width: 100%; height: 100%; border: 0; background: #0a0a10; }
+  #broadcastClose {
+    position: absolute; z-index: 2; left: 14px; bottom: 13px;
+    min-height: 36px; padding: 7px 11px; border: 1px solid #51515d; border-radius: 2px;
+    color: #e8e9ee; background: rgba(4, 5, 7, .92); font: inherit; font-size: 11px;
+    letter-spacing: .14em; cursor: pointer; box-shadow: 0 0 18px rgba(0, 0, 0, .65);
+  }
+  #broadcastClose:hover, #broadcastClose:focus-visible { color: #030404; background: #ff8c3c; border-color: #ff8c3c; outline: none; }
   @media (max-width: 640px) {
     .hud { padding: 18px 18px 0; }
     .idx button { padding: 6px 9px; font-size: 11px; }
+    #broadcastClose { left: 8px; bottom: 8px; min-height: 44px; }
   }
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
+<canvas id="gl" tabindex="-1" aria-label="Interactive Performing Fire world"></canvas>
 <div id="scanlines" aria-hidden="true"></div>
 
 <header class="hud">
@@ -127,6 +145,11 @@
 <div class="cue" id="cue">SCROLL — THE SWARM BECOMES SIGNAL ▼</div>
 <div class="space"></div>
 
+<section id="broadcastLayer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Performing Fire five-channel broadcast">
+  <iframe id="broadcastFrame" src="/broadcast/?embedded=1" title="Performing Fire five-channel broadcast" tabindex="-1"></iframe>
+  <button id="broadcastClose" type="button">← RETURN TO FIRE</button>
+</section>
+
 <script src="./vendor/gsap.min.js"></script>
 <script src="./vendor/three-bundle.js"></script>
 <script src="./js/preview-anims.js"></script>
@@ -138,7 +161,7 @@
   /* ================= channel metadata ================= */
   const TINT = { 1: "#37ff8b", 2: "#ff3ea5", 3: "#ffb300", 4: "#2bd9ff", 5: "#e8e9ee" };
   const TINT3 = { 1: [55,255,139], 2: [255,62,165], 3: [255,179,0], 4: [43,217,255], 5: [232,233,238] };
-  /* Visual routing metadata only. The readable channel copy lives in /broadcast/. */
+  /* Visual routing metadata for the fire world; readable channel copy opens in the integrated layer. */
   const CHANNELS = [
     { ch: 1, key: "g7", name: "ABOUT", device: "oscilloscope" },
     { ch: 2, key: "hj", name: "CONTRIBUTE", device: "field monitor" },
@@ -185,6 +208,95 @@
     idx.appendChild(b);
   });
   const cue = document.getElementById("cue");
+  const fireWorld = document.getElementById("gl");
+  const broadcastLayer = document.getElementById("broadcastLayer");
+  const broadcastFrame = document.getElementById("broadcastFrame");
+  const broadcastClose = document.getElementById("broadcastClose");
+  const broadcastBackground = [...document.body.children]
+    .filter(child => child !== broadcastLayer && child.tagName !== "SCRIPT");
+  let resetWorldAfterBroadcast = () => {};
+  let broadcastReturnFocus = null;
+
+  function setBroadcastBackgroundInert(inert) {
+    broadcastBackground.forEach(element => { element.inert = inert; });
+  }
+
+  function broadcastUrl(ch) {
+    const query = new URLSearchParams({ embedded: "1", ch: String(ch) });
+    const lang = new URLSearchParams(location.search).get("lang");
+    if (lang) query.set("lang", lang);
+    return `/broadcast/?${query.toString()}`;
+  }
+  function tuneIntegratedFrame(ch) {
+    if (!broadcastFrame.contentWindow) return;
+    broadcastFrame.contentWindow.postMessage({ type: "pf:tune", ch }, location.origin);
+  }
+  function openIntegratedBroadcast(ch, options = {}) {
+    if (broadcastLayer.getAttribute("aria-hidden") === "true") {
+      const active = document.activeElement;
+      broadcastReturnFocus = active instanceof HTMLElement && active !== document.body && !broadcastLayer.contains(active) && active.getClientRects().length
+        ? active
+        : fireWorld;
+    }
+    const query = new URLSearchParams(location.search);
+    query.set("ch", String(ch));
+    if (options.updateHistory !== false) {
+      history[options.replace ? "replaceState" : "pushState"](
+        { pfBroadcast: true }, "", location.pathname + "?" + query.toString() + location.hash
+      );
+    }
+    broadcastLayer.setAttribute("aria-hidden", "false");
+    broadcastFrame.setAttribute("tabindex", "0");
+    setBroadcastBackgroundInert(true);
+    document.body.classList.add("broadcast-open", "locked");
+    if (broadcastFrame.dataset.ready === "true") tuneIntegratedFrame(ch);
+    else if (broadcastFrame.src !== new URL(broadcastUrl(ch), location.href).href) broadcastFrame.src = broadcastUrl(ch);
+    requestAnimationFrame(() => broadcastFrame.focus());
+  }
+  function closeIntegratedBroadcast(options = {}) {
+    const wasOpen = broadcastLayer.getAttribute("aria-hidden") === "false";
+    const restoreFocus = wasOpen ? broadcastReturnFocus : null;
+    broadcastReturnFocus = null;
+    broadcastLayer.setAttribute("aria-hidden", "true");
+    broadcastFrame.setAttribute("tabindex", "-1");
+    setBroadcastBackgroundInert(false);
+    document.body.classList.remove("broadcast-open", "locked", "channel-focus");
+    resetWorldAfterBroadcast();
+    if (options.updateHistory !== false) {
+      const query = new URLSearchParams(location.search);
+      query.delete("ch");
+      const suffix = query.toString();
+      const nextHash = /^#ch0?[1-5]$/i.test(location.hash) ? "" : location.hash;
+      history.replaceState(null, "", location.pathname + (suffix ? `?${suffix}` : "") + nextHash);
+    }
+    if (wasOpen) {
+      requestAnimationFrame(() => {
+        const focusTarget = restoreFocus && restoreFocus.isConnected ? restoreFocus : fireWorld;
+        if (focusTarget) focusTarget.focus();
+      });
+    }
+  }
+  function syncBroadcastFromUrl() {
+    const ch = Number(new URLSearchParams(location.search).get("ch"));
+    if (ch >= 1 && ch <= 5) openIntegratedBroadcast(ch, { updateHistory: false });
+    else closeIntegratedBroadcast({ updateHistory: false });
+  }
+  broadcastFrame.addEventListener("load", () => {
+    broadcastFrame.dataset.ready = "true";
+    const ch = Number(new URLSearchParams(location.search).get("ch"));
+    if (ch >= 1 && ch <= 5) tuneIntegratedFrame(ch);
+  });
+  broadcastClose.addEventListener("click", () => closeIntegratedBroadcast());
+  addEventListener("popstate", syncBroadcastFromUrl);
+  addEventListener("message", event => {
+    if (event.origin !== location.origin || event.source !== broadcastFrame.contentWindow) return;
+    if (!event.data || event.data.type !== "pf:broadcast-channel") return;
+    const ch = Number(event.data.ch);
+    if (!(ch >= 1 && ch <= 5)) return;
+    const query = new URLSearchParams(location.search);
+    query.set("ch", String(ch));
+    history.replaceState({ pfBroadcast: true }, "", location.pathname + "?" + query.toString() + location.hash);
+  });
   addEventListener("error", e => {
     cue.textContent = `ERR: ${e.message} @ ${(e.filename || "").split("/").pop()}:${e.lineno}`;
   });
@@ -1327,7 +1439,7 @@
     wobbleV = Math.min(1, wobbleV + Math.hypot(e.movementX || 0, e.movementY || 0) / 900);
   });
 
-  /* ================= channel tuning → canonical Broadcast ================= */
+  /* ================= channel tuning → integrated Broadcast layer ================= */
   let mode = "orbit";               // orbit | flying
   let flyT = 0, currentCh = 0;
   const masterFx = { state: "idle", t0: 0, pending: 0, renderCh: 0 };   // idle | collapse | static | chan
@@ -1354,12 +1466,6 @@
       s.phase = "still";
     }
   }
-  function handoffToBroadcast(ch) {
-    const params = new URLSearchParams(location.search);
-    const lang = params.get("lang");
-    if (params.has("ch") || hashCh) history.replaceState(null, "", location.pathname);
-    location.assign(`/broadcast/?ch=${ch}${lang ? `&lang=${encodeURIComponent(lang)}` : ""}`);
-  }
   function tuneTo(ch) {
     if (mode === "flying") return;
     mode = "flying"; currentCh = ch;
@@ -1378,11 +1484,19 @@
         gsap.to({ t: 0 }, {
           t: 1, duration: reduced ? 0.01 : 0.85, ease: "power3.out",
           onUpdate() { flyT = this.targets()[0].t; },
-          onComplete() { handoffToBroadcast(ch); },
+          onComplete() { openIntegratedBroadcast(ch); },
         });
       },
     });
   }
+  resetWorldAfterBroadcast = () => {
+    mode = "orbit";
+    flyT = 0;
+    currentCh = 0;
+    masterFx.state = "idle";
+    masterFx.pending = 0;
+    masterFx.renderCh = 0;
+  };
   function applyMasterScan() {
     master.screenMesh.material.uniforms.uA.value = masterScan ? 0.11 : 0;
   }
@@ -2732,10 +2846,10 @@
   frame();
   requestAnimationFrame(() => document.body.classList.add("ready"));
   scheduleAutoAdvance();
-  /* ?ch=3 is the root deep-link alias; Broadcast owns the readable channel. */
+  /* Root deep links open the readable channel without leaving the main site. */
   const jumpCh = parseInt(new URLSearchParams(location.search).get("ch"), 10);
   if (jumpCh >= 1 && jumpCh <= 5) {
-    handoffToBroadcast(jumpCh);
+    openIntegratedBroadcast(jumpCh, { replace: true });
   } else if (hashCh) {
     setTimeout(() => tuneTo(+hashCh), reduced ? 0 : 600);
   } else if (reduced) {

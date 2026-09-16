@@ -58,13 +58,12 @@ test('the Broadcast remains manual while preserving transmission controls', () =
   assert.match(broadcast, /event\.key === "ArrowLeft" \|\| event\.key === "ArrowRight"/)
 })
 
-test('the assembled TV hands channel selections to the canonical Broadcast URL', () => {
-  assert.match(television, /function handoffToBroadcast\(ch\) \{[\s\S]*location\.assign\(`\/broadcast\/\?ch=\$\{ch\}\$\{lang/)
-  assert.match(television, /if \(params\.has\("ch"\) \|\| hashCh\) history\.replaceState\(null, "", location\.pathname\)/)
-  assert.match(television, /masterFx\.state = "collapse"; masterFx\.t0 = sceneTime\(\); masterFx\.pending = ch;[\s\S]*onComplete\(\) \{ handoffToBroadcast\(ch\); \}/)
-  assert.match(television, /if \(jumpCh >= 1 && jumpCh <= 5\) \{[\s\S]*handoffToBroadcast\(jumpCh\);/)
+test('the assembled TV opens the integrated Broadcast layer on the canonical root URL', () => {
+  assert.match(television, /function openIntegratedBroadcast\(ch,[\s\S]*history\[options\.replace \? "replaceState" : "pushState"\]\([\s\S]*location\.pathname/)
+  assert.match(television, /masterFx\.state = "collapse"; masterFx\.t0 = sceneTime\(\); masterFx\.pending = ch;[\s\S]*onComplete\(\) \{ openIntegratedBroadcast\(ch\); \}/)
+  assert.match(television, /if \(jumpCh >= 1 && jumpCh <= 5\) \{[\s\S]*openIntegratedBroadcast\(jumpCh, \{ replace: true \}\);/)
   assert.match(television, /else if \(hashCh\) \{[\s\S]*tuneTo\(\+hashCh\)/)
-  assert.doesNotMatch(television, /location\.replace\(/)
+  assert.doesNotMatch(television, /location\.assign\(`\/broadcast\//)
 })
 
 test('the root contains no duplicate channel copy or selected-page renderer', () => {
@@ -186,7 +185,7 @@ test('master tuning uses the original CRT collapse and short static burst', () =
 test('channel focus hides the station wordmark during the handoff', () => {
   assert.match(television, /body\.channel-focus \.hud h1 \{[^}]*opacity: 0;[^}]*visibility: hidden;/)
   assert.match(television, /function tuneTo\(ch\) \{[\s\S]*document\.body\.classList\.add\("channel-focus"\)/)
-  assert.match(television, /onComplete\(\) \{ handoffToBroadcast\(ch\); \}/)
+  assert.match(television, /onComplete\(\) \{ openIntegratedBroadcast\(ch\); \}/)
 })
 
 test('the station wordmark carries the master TV fire colour without a green halo', () => {
