@@ -9,6 +9,7 @@ node_modules/
 .env
 .env.*
 .superpowers/
+.worktrees/
 
 # Local rucksack outputs and generated artifacts
 .agent/evidence/

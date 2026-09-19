@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performing Fire — The Broadcast</title>
+<meta name="description" content="An evolving performance about what escapes the systems we build.">
+<link rel="canonical" href="/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:site_name" content="Performing Fire">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Performing Fire — The Broadcast">
+<meta property="og:description" content="An evolving performance about what escapes the systems we build.">
+<meta property="og:url" content="https://performingfire.berlayar.ai/">
+<meta property="og:image" content="https://performingfire.berlayar.ai/share/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A CRT test card: the Performing Fire wordmark in phosphor type over five channel tints.">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+(function () {
+  var query = new URLSearchParams(window.location.search);
+  if (window.top === window.self) {
+    query.delete("embedded");
+    var suffix = query.toString() ? "?" + query.toString() : "";
+    window.location.replace("/" + suffix);
+  }
+})();
+</script>
+<!-- Optional public Payload Global endpoint; empty keeps the complete bundled fallback active. -->
+<meta name="pf-broadcast-endpoint" content="">
+<style>
+@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2018-201D;}
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#0a0a10;--panel:#111119;--line:#30303a;--ink:#d7dbe1;--muted:#858b94;--tint:#37ff8b;--glow:rgba(55,255,139,.36)}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg)}
+body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,"Apple SD Gothic Neo","Noto Sans KR",monospace;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}
+button{color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px}
+[hidden]{display:none!important}
+.vt{font-family:"VT323","Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;letter-spacing:.06em}
+.pf{width:min(1180px,calc(100% - 24px));height:100svh;margin:0 auto;padding:8px 0 5px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:6px}
+.station{display:flex;align-items:center;gap:12px;min-height:34px;padding:0 2px}
+.station-id{margin:0;font-size:clamp(20px,2.2vw,30px);font-weight:400;line-height:1;color:#f0f1f4;text-shadow:0 0 12px rgba(232,233,238,.25)}
+.station-onair{margin:0 0 0 auto;color:var(--muted);font-size:15px;white-space:nowrap}.station-onair .dot{color:#ff5c0d}
+.lang-toggle{display:flex;align-items:center;gap:1px}.lang-toggle button{border:0;background:none;padding:4px 6px;color:#747a83;cursor:pointer}.lang-toggle button[aria-pressed="true"]{color:#37ff8b;text-shadow:0 0 8px rgba(55,255,139,.4)}.lang-sep{color:#3d4149}
+.console{width:min(1124px,100%);height:100%;min-width:0;min-height:0;margin:0 auto;display:grid;grid-template-rows:clamp(78px,13vh,142px) minmax(0,1fr);gap:8px}
+.previews{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0;min-height:0}
+.preview-btn,.viewer-bezel{border:1px solid #34343e;background:linear-gradient(155deg,#292932,#141419 65%);box-shadow:inset 0 1px rgba(255,255,255,.06),0 7px 24px rgba(0,0,0,.42)}
+.preview-btn{position:relative;min-width:0;padding:6px;border-radius:11px;cursor:pointer;text-align:left;overflow:hidden}
+.preview-btn[data-channel="about"],.viewer[data-channel="about"]{--tint:#37ff8b;--glow:rgba(55,255,139,.38)}
+.preview-btn[data-channel="contribute"],.viewer[data-channel="contribute"]{--tint:#ff3ea5;--glow:rgba(255,62,165,.38)}
+.preview-btn[data-channel="experiments"],.viewer[data-channel="experiments"]{--tint:#ffb300;--glow:rgba(255,179,0,.38)}
+.preview-btn[data-channel="research"],.viewer[data-channel="research"]{--tint:#2bd9ff;--glow:rgba(43,217,255,.38)}
+.preview-btn[data-channel="log"],.viewer[data-channel="log"]{--tint:#e8e9ee;--glow:rgba(232,233,238,.32)}
+.preview-btn[aria-pressed="true"]{border-color:var(--tint);box-shadow:0 0 0 1px var(--tint),0 0 20px var(--glow),inset 0 1px rgba(255,255,255,.06)}
+.preview-crt,.signal-pane{position:relative;display:block;width:100%;height:100%;min-width:0;overflow:hidden;background:#050507;border-radius:6px}
+.preview-crt::after,.signal-pane::after,.viewer-screen::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.23) 0 1px,transparent 1px 3px),radial-gradient(130% 135% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.preview-crt canvas,.signal-pane canvas{display:block;width:100%;height:100%;min-width:0;object-fit:cover}
+.preview-btn:not([aria-pressed="true"]) canvas{filter:blur(1.8px) saturate(.65) brightness(.58);transform:scale(1.03);transition:filter .18s,transform .18s}
+.preview-btn:not([aria-pressed="true"]):hover canvas,.preview-btn:not([aria-pressed="true"]):focus-visible canvas,.preview-btn.is-awake canvas{filter:none;transform:none}
+.preview-osd{position:absolute;z-index:4;left:7px;bottom:5px;padding:1px 5px;background:rgba(3,3,6,.74);color:var(--tint);font-size:clamp(11px,1.35vw,17px);line-height:1.05;text-shadow:0 0 7px var(--glow);white-space:nowrap}
+.viewer-bezel{min-width:0;min-height:0;padding:clamp(8px,1vw,12px);border-radius:17px}
+.viewer-screen{position:relative;height:100%;min-height:0;display:grid;grid-template-columns:minmax(260px,38%) minmax(0,1fr);overflow:hidden;border-radius:11px;background:#060609}.signal-pane{min-height:0}.content-pane{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.signal-pane{border-radius:0;z-index:0}.signal-pane canvas{position:absolute;inset:0}.signal-caption{position:absolute;z-index:4;left:12px;bottom:10px;margin:0;color:var(--tint);font-size:16px;text-shadow:0 0 8px var(--glow)}
+.content-pane{position:relative;z-index:2;min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:rgba(8,8,12,.96);border-left:1px solid var(--line)}
+.viewer-head{display:flex;align-items:baseline;gap:9px;padding:11px clamp(12px,2vw,22px) 7px;border-bottom:1px solid #25252e}.viewer-channel{color:var(--tint);font-size:clamp(18px,2vw,25px);text-shadow:0 0 8px var(--glow)}.viewer-label{min-width:0;color:#9298a1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transmission-stage{position:relative;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:clamp(12px,2.1vh,22px) clamp(14px,2.4vw,28px);scrollbar-color:var(--tint) #17171d}.channel,.transmission{min-height:0}.transmission{display:flex;flex-direction:column;justify-content:flex-start;padding-bottom:12px}.tx-kicker{margin:0 0 5px;color:var(--tint);font-size:14px;text-shadow:0 0 7px var(--glow)}.tx-title{margin:0 0 clamp(8px,1.3vh,14px);color:var(--tint);font-weight:400;font-size:clamp(27px,3.2vw,43px);line-height:1;text-shadow:0 0 13px var(--glow)}.tx-body{max-width:58ch;margin:0;color:#cbd0d7;font-size:clamp(13px,1.25vw,15px)}.content-group{max-width:58ch;margin-top:clamp(16px,2.5vh,28px)}.content-group:first-of-type{margin-top:0}.content-group h3{margin:0 0 4px;color:#e0e4e8;font-size:14px;font-weight:400}.equation{font-size:clamp(22px,3vw,38px);letter-spacing:.05em}.study-status{display:inline-block;margin-top:13px;color:#8d939c;border:1px solid #41414b;padding:3px 8px;font-size:12px}.tx-link{align-self:flex-start;margin-top:14px;color:var(--tint);text-decoration:none;border-bottom:1px solid currentColor}
+.experiment-lineage{justify-content:center}.experiment-lineage__rows{display:grid;gap:7px}.experiment-version{display:grid;grid-template-columns:minmax(130px,.75fr) minmax(0,1.75fr);align-items:start;gap:5px 12px;min-width:0;border:1px solid #3a3a45;background:linear-gradient(145deg,rgba(30,30,38,.9),rgba(7,7,10,.96));padding:9px 11px}.experiment-version__name{color:var(--tint);font-size:15px}.experiment-version__body{min-width:0}.experiment-version__title,.experiment-version__detail{display:block}.experiment-version__title{color:#dfe2e7;font-size:12px;white-space:normal}.experiment-version__detail{color:#9298a2;font-size:10px;line-height:1.35;margin-top:2px;overflow:visible;text-overflow:clip;white-space:normal}.experiment-version .study-link,.experiment-version .study-status{grid-column:2;justify-self:start;margin:4px 0 0;white-space:nowrap}.experiment-version .study-link{display:inline-block;color:var(--tint);font-family:"VT323","Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;font-size:14px;letter-spacing:.06em;text-decoration:none;border-bottom:1px solid currentColor}.experiment-version .study-link:hover,.experiment-version .study-link:focus-visible{color:#fff}
+.research-transmission{justify-content:center}.research-transmission .tx-title{font-size:clamp(23px,2.6vw,34px);margin-bottom:6px}.research-transmission .tx-body{font-size:clamp(11px,1vw,13px);line-height:1.3}.research-scores{display:flex;gap:7px;min-width:0;margin-top:10px;padding-bottom:4px;overflow-x:auto;scrollbar-color:var(--tint) #17171d}.research-score{flex:0 0 min(185px,52%);min-width:0;border:1px solid #34343e;background:#0d0d13;padding:8px}.research-score__title{margin:0;color:#e1e4e9;font-size:12px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.research-score__catalogue,.research-score__status{margin:4px 0 0;color:#858b94;font-size:9px;line-height:1.2}.research-score__source{display:inline-block;margin-top:5px;color:var(--tint);font-size:10px}.research-counts{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-width:0;margin:9px 0 0;padding:0}.research-sample-cluster__title{margin:9px 0 3px;color:var(--tint);font-size:11px;font-weight:400}.research-sample-cluster:first-of-type .research-sample-cluster__title{margin-top:6px}.research-samples{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-width:0;margin:0;padding:0}.research-count{min-width:0;border:1px solid #32323c;background:#0d0d13;padding:5px 7px}.research-count__label{min-width:0;color:#c9cdd3;font-size:9px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.research-sample{width:100%;min-width:0;min-height:42px;border:1px solid #34343e;background:#0d0d13;color:#cfd3d9;padding:6px 8px;text-align:left;cursor:pointer;font-size:11px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.research-sample:hover,.research-sample:focus-visible{border-color:var(--tint);color:#fff}.research-loading,.research-error{margin:7px 0 0;color:#8c929b;font-size:10px}.research-error{color:#ffbb7a}.research-reader{position:absolute;inset:0;z-index:6;display:grid;place-items:center;padding:clamp(12px,3vw,28px);background:rgba(5,5,8,.97)}.research-reader__panel{width:min(100%,520px);max-height:100%;border:1px solid var(--tint);background:#0a0a10;box-shadow:0 0 24px var(--glow);padding:13px}.research-reader__head{display:flex;align-items:center;gap:10px;border-bottom:1px solid #30303a;padding-bottom:8px}.research-reader__label{margin:0;color:var(--tint);font-size:13px}.research-reader__close{margin-left:auto;min-width:44px;border:1px solid var(--tint);background:#101016;color:var(--tint);padding:6px 9px;cursor:pointer}.research-reader__title{margin:11px 0;color:#eef0f3;font-size:clamp(19px,2.5vw,28px);line-height:1.05}.research-reader__meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 10px;margin:0}.research-reader__meta dt{color:var(--tint);font-size:10px}.research-reader__meta dd{min-width:0;margin:0;color:#b8bdc5;font-size:11px;overflow-wrap:anywhere}.research-reader__link{display:inline-block;margin-top:11px;color:var(--tint)}
+.research-score{flex-basis:min(210px,60%)}.research-score__record-source,.research-score__kind,.research-score__display-status,.research-score__provenance{margin:4px 0 0;color:#858b94;font-size:8px;line-height:1.2;overflow-wrap:anywhere}.research-score__status,.research-score__sample{color:#c7ccd3}.research-score__sample{margin:5px 0 0;border:1px solid var(--tint);padding:2px 4px;font-size:8px;line-height:1.2}
+.transport{display:grid;grid-template-columns:44px auto minmax(80px,1fr) 44px;align-items:center;gap:9px;padding:7px 12px 9px;border-top:1px solid #25252e}.transport-btn{width:40px;height:34px;border:0;background:none;color:var(--tint);font-size:24px;text-align:center;cursor:pointer;text-shadow:0 0 8px var(--glow)}.progress-count{color:var(--tint);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}.progress-track{list-style:none;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin:0;padding:0}.progress-track li{height:3px;background:#383842}.progress-track li.is-current{background:var(--tint);box-shadow:0 0 8px var(--glow)}
+.tuning-burst{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.28) 3px),linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);mix-blend-mode:screen}.viewer.is-tuning .tuning-burst{animation:tune .24s steps(3)}@keyframes tune{0%{opacity:.85;transform:translateX(-3%)}55%{opacity:.45;transform:translateX(2%)}100%{opacity:0;transform:none}}
+.callers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}.caller{min-width:0;border:1px solid #2d2d36;background:#0e0e14;padding:7px 9px}.caller:nth-child(n+3){display:none}.caller-id{display:block;color:var(--tint);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.caller blockquote{margin:3px 0 0;color:#c6cbd2;font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.caller-pending{border-style:dashed}.caller-pending-tag{display:block;color:#878d96;font-size:11px}.voices-fallback{margin:7px 0 0;color:#a0a6ae;font-size:11px}
+.tabs{display:flex;gap:5px;margin:0 0 8px}.tab-btn{min-height:30px;border:1px solid #35353f;background:#111117;color:#8d939b;padding:4px 9px;cursor:pointer}.tab-btn[aria-pressed="true"]{color:var(--tint);border-color:var(--tint)}.rec{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}.rec-line,.rec-status,.consent-note{margin:0}.rec-line{color:var(--tint)}.rec-status,.consent-note{grid-column:1/-1;font-size:11px;color:#9298a1}.rec-btn,.send-btn,.link-btn{border:1px solid var(--tint);background:#120c11;color:var(--tint);padding:6px 12px;cursor:pointer}.offer-form{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px}.offer-form .full,.consent,.send-btn{grid-column:1/-1}.f-label{color:var(--tint);font-size:11px}.offer-form input[type="text"],.offer-form textarea{width:100%;min-width:0;border:1px solid #383842;background:#09090d;color:#e5e7eb;padding:6px}.offer-form textarea{height:54px;resize:none}.consent{display:flex;gap:7px;color:#aaaeb5;font-size:11px}.send-btn{justify-self:start}.queue-confirm{border:1px dashed var(--tint);padding:14px}.queue-confirm p{margin:0 0 7px}.qc-big{color:var(--tint);font-size:21px}
+.pf-footer{display:flex;justify-content:center;gap:15px;color:#626872;font-size:10px;white-space:nowrap;overflow:hidden}.pf-footer p{margin:0}.pf-footer a{color:#8c929b}
+html[lang="ko"] body{font-family:ui-monospace,"SF Mono",Menlo,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",monospace;word-break:keep-all;line-break:strict}
+html[lang^="zh"] body{font-family:ui-monospace,"SF Mono",Menlo,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",monospace;word-break:normal;line-break:strict}
+html[lang="ja"] body{font-family:ui-monospace,"SF Mono",Menlo,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP",monospace;word-break:normal;line-break:strict}
+html[lang^="zh"] .vt{font-family:"VT323","PingFang SC","Microsoft YaHei",ui-monospace,monospace}html[lang="ja"] .vt{font-family:"VT323","Hiragino Kaku Gothic ProN","Meiryo",ui-monospace,monospace}
+/* ---- touch and small screens: begin ---- */
+@media (hover:none) and (pointer:coarse){.preview-btn,.transport-btn,.tab-btn,.send-btn,.link-btn,.study-link,.research-sample,.research-score__source,.research-reader__close,.research-reader__link,.lang-toggle button{min-height:44px}}
+@media (max-width:700px){.pf{width:min(100% - 12px,1180px);padding-top:5px}.station{gap:5px}.station-id{flex:1;min-width:0;overflow:hidden;white-space:nowrap;font-size:clamp(17px,5vw,23px)}.station-onair{display:none}.lang-toggle{flex:none;margin-left:auto}.lang-toggle button{font-size:11px;padding-inline:4px}.console{grid-template-rows:clamp(68px,10.5vh,88px) minmax(0,1fr);gap:5px}.previews{gap:4px}.preview-btn{padding:3px;border-radius:7px}.preview-osd{left:3px;bottom:3px;padding:1px 3px;font-size:clamp(8px,2.3vw,11px)}.viewer-bezel{padding:5px;border-radius:10px}.viewer-screen{grid-template-columns:1fr;grid-template-rows:minmax(90px,26%) minmax(0,1fr)}.content-pane{border-left:0;border-top:1px solid var(--line)}.signal-caption{font-size:12px}.viewer-head{padding:6px 10px 4px}.viewer-channel{font-size:18px}.viewer-label{font-size:10px}.transmission-stage{padding:9px 12px}.tx-kicker{font-size:11px}.tx-title{font-size:clamp(22px,7.2vw,31px);margin-bottom:7px}.tx-body{font-size:clamp(11px,3.15vw,13px);line-height:1.3}.study-status{margin-top:7px}.experiment-version{grid-template-columns:1fr;gap:4px;padding:7px 8px}.experiment-version__detail{display:block}.experiment-version .study-link,.experiment-version .study-status{grid-column:1;font-size:10px}.research-transmission .tx-title{font-size:clamp(19px,5.8vw,26px)}.research-transmission .tx-body{font-size:10px}.research-counts,.research-samples{grid-template-columns:1fr;gap:3px}.research-count{padding:3px 5px}.research-sample{min-height:36px;padding:4px 6px;font-size:10px}.research-scores{margin-top:6px}.research-score{flex-basis:min(168px,75%);padding:6px}.research-evidence{grid-template-columns:1fr;gap:3px}.research-reader{padding:8px}.research-reader__panel{padding:9px}.research-reader__title{margin:8px 0;font-size:19px}.transport{grid-template-columns:40px auto minmax(60px,1fr) 40px;padding:3px 7px 4px}.transport-btn{height:31px}.progress-count{font-size:15px}.tabs{margin-bottom:5px}.tab-btn{padding:2px 5px;font-size:10px}.callers{margin-top:5px}.offer-form{gap:3px 6px}.offer-form input[type="text"],.offer-form textarea{padding:4px;font-size:11px}.offer-form textarea{height:38px}.consent{font-size:9px}.send-btn{padding:4px 8px;font-size:10px}.pf-footer{font-size:8px}}
+@media (max-width:430px){.lang-sep{display:none}.preview-osd .preview-name{display:none}.callers{grid-template-columns:1fr}.caller:nth-child(n+2){display:none}.signal-pane{min-height:78px}}
+/* ---- touch and small screens: end ---- */
+@media (prefers-reduced-motion:reduce){.viewer.is-tuning .tuning-burst{animation:none}.preview-btn canvas{transition:none!important}.station-onair .dot{animation:none}}
+</style>
+</head>
+<body>
+<div class="pf">
+  <header class="station">
+    <h1 class="station-id vt">PERFORMING FIRE 퍼포밍 파이어 — THE BROADCAST</h1>
+    <p class="station-onair vt"><span class="dot" aria-hidden="true">●</span> <span data-i18n="bc.station.onair">ON AIR</span></p>
+    <nav class="lang-toggle vt" aria-label="Language" data-research-modal-background>
+      <button type="button" data-lang="en" aria-label="English" aria-pressed="false">EN</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ko" aria-label="한국어" aria-pressed="false" lang="ko">KO</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="zh" aria-label="中文" aria-pressed="false" lang="zh-Hans">ZH</button><span class="lang-sep" aria-hidden="true">·</span>
+      <button type="button" data-lang="ja" aria-label="日本語" aria-pressed="false" lang="ja">JA</button>
+    </nav>
+  </header>
+
+  <main class="console" id="console" aria-label="Five-channel broadcast console" data-i18n-aria-label="bc.console.aria">
+    <section class="previews" aria-label="Channel previews" data-i18n-aria-label="bc.previews.aria" data-research-modal-background>
+      <button class="preview-btn bezel" type="button" data-channel="about" data-index="0" aria-pressed="true" aria-label="CH 01 ABOUT">
+        <span class="preview-crt"><canvas data-anim="g7" aria-hidden="true"></canvas><span class="preview-osd vt">CH 01 <span class="preview-name">ABOUT</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="contribute" data-index="1" aria-pressed="false" aria-label="CH 02 CONTRIBUTE">
+        <span class="preview-crt"><canvas data-anim="hj" aria-hidden="true"></canvas><span class="preview-osd vt">CH 02 <span class="preview-name">CONTRIBUTE</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="experiments" data-index="2" aria-pressed="false" aria-label="CH 03 EXPERIMENTS">
+        <span class="preview-crt"><canvas data-anim="x3" aria-hidden="true"></canvas><span class="preview-osd vt">CH 03 <span class="preview-name">EXPERIMENTS</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="research" data-index="3" aria-pressed="false" aria-label="CH 04 RESEARCH">
+        <span class="preview-crt"><canvas data-anim="r1" aria-hidden="true"></canvas><span class="preview-osd vt">CH 04 <span class="preview-name">RESEARCH</span></span></span>
+      </button>
+      <button class="preview-btn bezel" type="button" data-channel="log" data-index="4" aria-pressed="false" aria-label="CH 05 LOG">
+        <span class="preview-crt"><canvas data-anim="l1" aria-hidden="true"></canvas><span class="preview-osd vt">CH 05 <span class="preview-name">LOG</span></span></span>
+      </button>
+    </section>
+
+    <section class="viewer-bezel" aria-label="Main CRT">
+      <div class="viewer viewer-screen" id="viewer" data-channel="about">
+        <div class="signal-pane" aria-hidden="true" data-research-modal-background>
+          <canvas data-anim="g7" data-signal-main></canvas>
+          <p class="signal-caption vt" id="signalCaption">G7 · CHROMATIC LOCK</p>
+        </div>
+        <div class="content-pane">
+          <header class="viewer-head" data-research-modal-background>
+            <span class="viewer-channel vt" id="viewerChannel">CH 01 ABOUT</span>
+            <span class="viewer-label" id="viewerLabel">01 / ARTIST STATEMENT</span>
+          </header>
+          <div class="transmission-stage" id="transmissionStage" aria-live="polite" data-research-modal-background>
+            <section class="channel" data-channel-panel="about">
+              <article class="transmission" data-transmission="0" data-content-item="0">
+                <p class="tx-kicker vt" data-i18n="bc.about.1.label" data-content-field="label">01 / ARTIST STATEMENT</p>
+                <h2 class="tx-title vt" data-i18n="bc.about.1.heading" data-content-field="heading">PLAYING WITH FIRE</h2>
+                <p class="tx-body" data-i18n="bc.about.1.body" data-content-field="body">Performing Fire begins with a contradiction: technology is something people make, use, and depend on, but never fully control. Like fire, it gathers, sustains, destroys, and transforms.</p>
+                <section class="content-group" data-content-item="1"><h3 class="vt equation" data-i18n="bc.about.2.heading" data-content-field="heading">Y = f(X) + ε</h3><p class="tx-body" data-i18n="bc.about.2.body" data-content-field="body">That gap is the relation Y = f(X) + ε: X is what people bring, f(X) is the system's attempt to organise it, and ε is what refuses to fit.</p></section>
+                <section class="content-group" data-content-item="2"><h3 class="vt" data-i18n="bc.about.3.heading" data-content-field="heading">HUMAN MATERIAL</h3><p class="tx-body" data-i18n="bc.about.3.body" data-content-field="body">Here, ε has a body: messages, voices, drawings, gestures, movements, hopes, fears, and short videos arrive with people and circumstances attached, rather than reduced to anonymous input.</p></section>
+                <section class="content-group" data-content-item="3"><h3 class="vt" data-i18n="bc.about.4.heading" data-content-field="heading">IDEAS BECOME ACTIONS</h3><p class="tx-body" data-i18n="bc.about.4.body" data-content-field="body">That is why Nam June Paik and Fluxus matter here: scores carry ideas into instructions, actions, and situations.</p></section>
+                <section class="content-group" data-content-item="4"><h3 class="vt" data-i18n="bc.about.5.heading" data-content-field="heading">WHAT REMAINS UNSETTLED</h3><p class="tx-body" data-i18n="bc.about.5.body" data-content-field="body">Research provides references; contributions and experiments provide material. A performer decides what becomes image, sound, fabric, or movement, keeping the remainder present rather than predicting a technological future.</p></section>
+              </article>
+            </section>
+
+            <section class="channel" data-channel-panel="contribute" hidden>
+              <article class="transmission" data-transmission="0" data-content-item="0">
+                <p class="tx-kicker vt" data-i18n="bc.contribute.1.label" data-content-field="label">01 / WHAT TO SEND</p>
+                <h2 class="tx-title vt" data-i18n="bc.contribute.1.heading" data-content-field="heading">MAKE AN OFFERING</h2>
+                <p class="tx-body" data-i18n="bc.contribute.1.body" data-content-field="body">Offer a question, hope, fear, or imagination about technology. The text field is live; the voice and video controls are interface studies and do not upload media.</p>
+                <section class="content-group" data-content-item="1"><h3 class="vt" data-i18n="bc.contribute.2.heading" data-content-field="heading">WHAT HAPPENS NEXT</h3><p class="tx-body" data-i18n="bc.contribute.2.body" data-content-field="body">After moderation, a contribution may enter the work as situated material. Any further processing remains proposed; a performer decides what, if anything, becomes performance.</p></section>
+                <section class="content-group" data-content-item="2"><h3 class="vt" data-i18n="bc.contribute.3.heading" data-content-field="heading">GIVE PERMISSION</h3><span class="study-status vt" data-i18n="bc.contribute.3.note" data-content-field="body">SUBMISSIONS WAIT FOR MODERATION BEFORE PUBLICATION</span></section>
+                <section class="content-group" data-content-item="3"><h3 class="vt" data-i18n="bc.contribute.4.heading" data-content-field="heading">ARTIST RESPONSES</h3><p class="voices-fallback vt" id="voicesFallback" role="status" hidden data-i18n="bc.ch02.fallback">THE LINE IS DOWN — SHOWING THE ARCHIVE REEL.</p><div class="callers" id="voicesList" aria-live="polite"></div></section>
+                <section class="content-group" data-content-item="4"><h3 class="vt" data-i18n="bc.contribute.5.heading" data-content-field="heading">YOUR OFFERING</h3>
+                <div class="tabs" role="group" aria-label="Message format"><button class="tab-btn vt" type="button" data-tab="voice" aria-pressed="false" data-i18n="bc.ch02.tabVoice">VOICE STUDY</button><button class="tab-btn vt" type="button" data-tab="video" aria-pressed="false" data-i18n="bc.ch02.tabVideo">VIDEO STUDY</button><button class="tab-btn vt" type="button" data-tab="type" aria-pressed="true" data-i18n="bc.ch02.tabType">TYPE</button></div>
+                <div class="tab-panel" data-tab="voice" hidden><div class="rec" data-rec="voice" data-ready="READY — NO AUDIO IS UPLOADED." data-i18n-ready="bc.ch02.readyVoice"><p class="rec-line vt"><span class="timecode">00:00:00</span> <span data-i18n="bc.ch02.modeAudio">AUDIO STUDY</span></p><button class="rec-btn vt" type="button">● REC</button><p class="rec-status" role="status">READY — NO AUDIO IS UPLOADED.</p><p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</p></div></div>
+                <div class="tab-panel" data-tab="video" hidden><div class="rec" data-rec="video" data-ready="READY — NO CAMERA IS ACCESSED." data-i18n-ready="bc.ch02.readyVideo"><p class="rec-line vt"><span class="timecode">00:00:00</span> <span data-i18n="bc.ch02.modeVideo">VIDEO STUDY</span></p><button class="rec-btn vt" type="button">● REC</button><p class="rec-status" role="status">READY — NO CAMERA IS ACCESSED.</p><p class="consent-note" data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</p></div></div>
+                <div class="tab-panel" data-tab="type">
+                  <form class="offer-form" id="offerForm"><div><label class="f-label vt" for="f-name" data-i18n="bc.ch02.nameLabel">NAME</label><input type="text" id="f-name" name="name" data-i18n-placeholder="bc.ch02.namePh" placeholder="name or anonymous" autocomplete="off"></div><div><label class="f-label vt" for="f-disc" data-i18n="bc.ch02.practiceLabel">PRACTICE</label><input type="text" id="f-disc" name="discipline" data-i18n-placeholder="bc.ch02.practicePh" placeholder="e.g. sound" autocomplete="off"></div><div class="full"><label class="f-label vt" for="f-resp" data-i18n="bc.ch02.offeringLabel">YOUR OFFERING</label><textarea id="f-resp" name="response" required data-i18n-placeholder="bc.ch02.offeringPh" placeholder="a question, hope, fear, or imagination"></textarea></div><label class="consent"><input type="checkbox" name="consent" required><span data-i18n="bc.ch02.consent">My words may be performed, projected, and burned.</span></label><button class="send-btn vt" type="submit" data-i18n="bc.ch02.send">SEND TO THE FIRE</button></form>
+                  <div class="queue-confirm" id="queueConfirm" hidden><p class="qc-big vt" data-i18n="bc.ch02.queueBig">YOUR MESSAGE IS IN THE QUEUE.</p><p data-i18n="bc.ch02.queueSub">It is pending moderation.</p><button class="link-btn vt" type="button" id="sendAnother" data-i18n="bc.ch02.sendAnother">SEND ANOTHER</button></div>
+                </div>
+              </section></article>
+            </section>
+
+            <section class="channel" data-channel-panel="experiments" hidden>
+              <article class="transmission experiment-lineage" data-transmission="0" data-content-item="0">
+                <p class="tx-kicker vt" data-i18n="bc.experiments.lineage.label" data-content-field="label">01 / EXPERIMENT LINEAGE</p>
+                <h2 class="tx-title vt" data-i18n="bc.experiments.lineage.heading" data-content-field="heading">HOW THE WORK TOOK FORM</h2>
+                <p class="tx-body" data-i18n="bc.experiments.lineage.body" data-content-field="body">Fabric tests software as responsive material; the Microsite tests the broadcast structure that gives those studies a public form.</p>
+                <div class="experiment-lineage__rows">
+                  <article class="experiment-version" data-study="fabric-v0"><span class="experiment-version__name vt" data-i18n="bc.experiments.fabricV0.kicker">FABRIC v0 · CHECKPOINT / MATERIAL</span><span class="experiment-version__body"><strong class="experiment-version__title" data-i18n="bc.experiments.fabricV0.title">DIRECT DISTURBANCE</strong><small class="experiment-version__detail" data-i18n="bc.experiments.fabricV0.detail">Fabric v0 preserves the checkpoint at 34d94eb: a hand or mouse directly disturbs a fire-like software surface.</small></span><a class="study-link" href="/experiments/fabric/" data-i18n="bc.experiments.fabricV0.link">OPEN FABRIC v0 →</a></article>
+                  <article class="experiment-version" data-study="fabric-v1"><span class="experiment-version__name vt" data-i18n="bc.experiments.fabricV1.kicker">FABRIC v1 · AUDIO AND TRANSFORMATIONS</span><span class="experiment-version__body"><strong class="experiment-version__title" data-i18n="bc.experiments.fabricV1.title">ROUTED RESPONSE</strong><small class="experiment-version__detail" data-i18n="bc.experiments.fabricV1.detail">Fabric v1 builds on that checkpoint with microphone and generated-beat routing. Bass, Body, Treble, and Hits map to explode, dissolve, glitter, and glitch, alongside expanded controls.</small></span><a class="study-link" href="/experiments/fabric-v1/" data-i18n="bc.experiments.fabricV1.link">OPEN FABRIC v1 →</a></article>
+                  <article class="experiment-version" data-study="fabric-2"><span class="experiment-version__name vt" data-i18n="bc.experiments.fabric2.kicker">FABRIC 2.0 · FUTURE SLOT</span><span class="experiment-version__body"><strong class="experiment-version__title" data-i18n="bc.experiments.fabric2.title">NEXT EXPERIMENT</strong><small class="experiment-version__detail" data-i18n="bc.experiments.fabric2.detail">Reserved for the next Fabric experiment. Its behaviour is not defined yet.</small></span><span class="study-status vt" data-i18n="bc.experiments.fabric2.status">NOT YET DEFINED</span></article>
+                  <article class="experiment-version" data-study="microsite" data-content-item="1"><span class="experiment-version__name vt" data-i18n="bc.experiments.microsite.kicker" data-content-field="label">MICROSITE · VISUAL STUDY</span><span class="experiment-version__body"><strong class="experiment-version__title" data-i18n="bc.experiments.microsite.title" data-content-field="heading">HOW DO YOU BUILD A BROADCAST?</strong><small class="experiment-version__detail" data-i18n="bc.experiments.microsite.body" data-content-field="body">Alongside the Fabric studies, the Microsite tested how separate screen objects could become one five-channel broadcast.</small></span><a class="study-link" href="/experiments/microsite/" data-i18n="bc.experiments.microsite.link">READ MICROSITE STUDY →</a></article>
+                </div>
+                <a class="tx-link vt" href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a>
+              </article>
+            </section>
+
+            <section class="channel" data-channel-panel="research" hidden>
+              <article class="transmission research-transmission" data-transmission="0" data-content-item="0">
+                <p class="tx-kicker vt" data-i18n="bc.research.scores.label" data-content-field="label">01 / SCORE CANDIDATES</p>
+                <h2 class="tx-title vt" data-i18n="bc.research.scores.heading" data-content-field="heading">INSTRUCTIONS STILL NEED READING</h2>
+                <p class="tx-body" data-i18n="bc.research.scores.body" data-content-field="body">The first question is whether a verified collection record actually contains a score. Its text is not human-confirmed yet, so historic score candidates remain distinct from future Performing Fire-generated scores.</p>
+                <div class="research-scores" data-research-scores><p class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</p></div>
+                <p class="research-error vt" data-research-error hidden data-i18n="bc.research.error">RESEARCH SNAPSHOT UNAVAILABLE — SHOWING THE LOCAL TRANSMISSION COPY.</p>
+                <section class="content-group" data-content-item="1"><h3 class="vt" data-i18n="bc.research.counts.heading" data-content-field="heading">OBSERVED, NOT TOTALLED</h3><p class="tx-body" data-i18n="bc.research.counts.body" data-content-field="body">These are dated observations of public material, not one total: categories overlap, so they must not be added together.</p><ul class="research-counts" data-research-counts><li class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</li></ul></section>
+                <section class="content-group"><h3 class="vt">SAMPLE RECORDS</h3>
+                  <div class="research-sample-cluster" data-content-item="2"><h4 class="vt research-sample-cluster__title" data-i18n="bc.research.samplesA.heading" data-content-field="heading">ANTIEGG + NJP CENTER</h4><div class="research-samples" data-research-group="a"><p class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</p></div></div>
+                  <div class="research-sample-cluster" data-content-item="3"><h4 class="vt research-sample-cluster__title" data-i18n="bc.research.samplesB.heading" data-content-field="heading">VIDEO ARCHIVE</h4><div class="research-samples" data-research-group="b"><p class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</p></div></div>
+                  <div class="research-sample-cluster" data-content-item="4"><h4 class="vt research-sample-cluster__title" data-i18n="bc.research.samplesC.heading" data-content-field="heading">VIDEO LIBRARY</h4><div class="research-samples" data-research-group="c"><p class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</p></div></div>
+                  <div class="research-sample-cluster" data-content-item="5"><h4 class="vt research-sample-cluster__title" data-i18n="bc.research.samplesD.heading" data-content-field="heading">CAPTIONS + YOUTUBE</h4><div class="research-samples" data-research-group="d"><p class="research-loading" data-i18n="bc.research.loading">TUNING THE RESEARCH SNAPSHOT…</p></div></div>
+                </section>
+                <section class="content-group" data-content-item="6"><h3 class="vt" data-i18n="bc.research.rights.heading" data-content-field="heading">DISPLAY HAS A BOUNDARY</h3><p class="tx-body" data-i18n="bc.research.rights.body" data-content-field="body">Each sample keeps its metadata and original source link. A readable file or derivative appears only when current policy permits public display.</p></section>
+              </article>
+            </section>
+
+            <section class="channel" data-channel-panel="log" hidden>
+              <article class="transmission" data-transmission="0" data-content-item="0">
+                <p class="tx-kicker vt" data-i18n="bc.log.1.label" data-content-field="label">01 / WHY THIS LOG</p>
+                <h2 class="tx-title vt" data-i18n="bc.log.1.heading" data-content-field="heading">A DECISION RECORD</h2>
+                <p class="tx-body" data-i18n="bc.log.1.body" data-content-field="body">Decision: keep a public record of tests, failures, and changes, so the next experiment begins from a stated reason.</p>
+                <section class="content-group" data-content-item="1"><h3 class="vt" data-i18n="bc.log.2.heading" data-content-field="heading">BUILD THE SOURCE BOUNDARY</h3><p class="tx-body" data-i18n="bc.log.2.body" data-content-field="body">Decision: attach source, operation, and display status to every selection. Research access is not permission to publish.</p></section>
+                <section class="content-group" data-content-item="2"><h3 class="vt" data-i18n="bc.log.3.heading" data-content-field="heading">CHECKPOINT → LATER ADDITIONS</h3><p class="tx-body" data-i18n="bc.log.3.body" data-content-field="body">Decision: preserve Fabric v0 as the material checkpoint, then build Fabric v1 as a later layer of audio and transformation instead of overwriting the starting point.</p></section>
+                <section class="content-group" data-content-item="3"><h3 class="vt" data-i18n="bc.log.4.heading" data-content-field="heading">FIVE CONTAINERS. ONE BROADCAST.</h3><p class="tx-body" data-i18n="bc.log.4.body" data-content-field="body">Decision: turn the Microsite's separate screen studies into five modular channels, so distinct parts can be read as one broadcast.</p></section>
+                <section class="content-group" data-content-item="4"><h3 class="vt" data-i18n="bc.log.5.heading" data-content-field="heading">FABRIC 2.0 REMAINS OPEN</h3><p class="tx-body" data-i18n="bc.log.5.body" data-content-field="body">Decision: reserve Fabric 2.0 in the lineage without inventing its behaviour. The next brief must define it.</p></section>
+              </article>
+            </section>
+          </div>
+          <aside class="research-reader" id="researchReader" role="dialog" aria-modal="true" aria-labelledby="researchReaderTitle" hidden>
+            <div class="research-reader__panel">
+              <header class="research-reader__head"><p class="research-reader__label vt" data-i18n="bc.research.reader.label">Research record</p><button class="research-reader__close vt" id="researchReaderClose" type="button" data-research-reader-close data-i18n="bc.research.reader.close">CLOSE RECORD</button></header>
+              <h2 class="research-reader__title vt" id="researchReaderTitle"></h2>
+              <dl class="research-reader__meta"><dt data-i18n="bc.research.reader.source">SOURCE</dt><dd id="researchReaderSource"></dd><dt data-i18n="bc.research.reader.kind">KIND</dt><dd id="researchReaderKind"></dd><dt data-i18n="bc.research.reader.status">STATUS</dt><dd id="researchReaderStatus"></dd><dt data-i18n="bc.research.reader.note">NOTE</dt><dd id="researchReaderNote"></dd></dl>
+              <a class="research-reader__link vt" id="researchReaderLink" target="_blank" rel="noopener noreferrer" data-i18n="bc.research.sourceLink">OPEN ORIGINAL SOURCE →</a>
+            </div>
+          </aside>
+          <nav class="transport" aria-label="Channel navigation" data-i18n-aria-label="bc.nav.transmission" data-research-modal-background>
+            <button class="transport-btn vt" id="transmissionPrev" type="button" aria-label="Previous channel" data-i18n-aria-label="bc.nav.previous">←</button>
+            <output class="progress-count vt" id="progressCount" aria-live="polite">CH 01 / 05</output>
+            <ol class="progress-track" id="progressTrack" aria-label="Channel progress"><li class="is-current"></li><li></li><li></li><li></li><li></li></ol>
+            <button class="transport-btn vt" id="transmissionNext" type="button" aria-label="Next channel" data-i18n-aria-label="bc.nav.next">→</button>
+          </nav>
+        </div>
+        <div class="tuning-burst" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pf-footer"><p data-i18n="bc.footer.tagline">Y = f(X) + ε · MOST SYSTEMS REDUCE ε. WE PERFORM IT.</p><p data-research-modal-background><a href="/experiments/" data-i18n="bc.footer.experiments">OPEN EXPERIMENT INDEX</a></p></footer>
+</div>
+
+<script src="/js/preview-anims.js"></script>
+<script src="/js/preview-anims3.js"></script>
+<script src="/js/broadcast-content.js"></script>
+<script src="/js/research-gallery.js"></script>
+<script>
+document.addEventListener("pf:lang", function () {
+  if (!window.PF_RESEARCH_GALLERY) { return; }
+  window.PF_RESEARCH_GALLERY.init();
+});
+</script>
+<script>
+/* i18n — dictionaries in i18n/{en,ko,zh,ja}.json; resolution: ?lang → localStorage → navigator.language → en */
+(function () {
+  "use strict";
+  var SUPPORTED = ["en", "ko", "zh", "ja"];
+  var HTML_LANG = { en: "en", ko: "ko", zh: "zh-Hans", ja: "ja" };
+  var STORE_KEY = "pf-lang";
+  var dicts = {};
+  var active = "en";
+  function resolveLang() {
+    var q = null;
+    try { q = new URLSearchParams(window.location.search).get("lang"); } catch (e) {}
+    if (q && SUPPORTED.indexOf(q) !== -1) { return q; }
+    var stored = null;
+    try { stored = window.localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (stored && SUPPORTED.indexOf(stored) !== -1) { return stored; }
+    var nav = String(window.navigator.language || "").slice(0, 2).toLowerCase();
+    if (SUPPORTED.indexOf(nav) !== -1) { return nav; }
+    return "en";
+  }
+  function t(key) {
+    var d = dicts[active];
+    if (d && typeof d[key] === "string" && d[key]) { return d[key]; }
+    return dicts.en && typeof dicts.en[key] === "string" ? dicts.en[key] : "";
+  }
+  function load(lang) {
+    if (dicts[lang]) { return Promise.resolve(dicts[lang]); }
+    return window.fetch("/i18n/" + lang + ".json").then(function (res) {
+      if (!res.ok) { throw new Error(String(res.status)); }
+      return res.json();
+    }).then(function (json) { dicts[lang] = json; return json; }).catch(function () { return null; });
+  }
+  function hydrate() {
+    var nodes = document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-ready]");
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var key = el.getAttribute("data-i18n");
+      var value = key ? t(key) : "";
+      if (value) { el.textContent = value; }
+      var ph = el.getAttribute("data-i18n-placeholder");
+      if (ph && t(ph)) { el.setAttribute("placeholder", t(ph)); }
+      var ready = el.getAttribute("data-i18n-ready");
+      if (ready && t(ready)) { el.setAttribute("data-ready", t(ready)); }
+    }
+    var labelled = document.querySelectorAll("[data-i18n-aria-label]");
+    for (var j = 0; j < labelled.length; j++) {
+      var ariaKey = labelled[j].getAttribute("data-i18n-aria-label");
+      var ariaValue = ariaKey ? t(ariaKey) : "";
+      if (ariaValue) { labelled[j].setAttribute("aria-label", ariaValue); }
+    }
+    if (t("bc.title")) { document.title = t("bc.title"); }
+  }
+  function markToggle() {
+    document.querySelectorAll(".lang-toggle [data-lang]").forEach(function (btn) {
+      btn.setAttribute("aria-pressed", String(btn.getAttribute("data-lang") === active));
+    });
+  }
+  function setLang(lang, persist) {
+    if (SUPPORTED.indexOf(lang) === -1) { lang = "en"; }
+    active = lang;
+    if (persist) { try { window.localStorage.setItem(STORE_KEY, lang); } catch (e) {} }
+    document.documentElement.lang = HTML_LANG[lang];
+    markToggle();
+    Promise.all([load("en"), load(lang)]).then(function () {
+      hydrate();
+      document.dispatchEvent(new CustomEvent("pf:lang", { detail: { lang: lang } }));
+    });
+  }
+  window.PF_I18N = { t: t, resolveLang: resolveLang, setLang: setLang, current: function () { return active; } };
+  document.addEventListener("click", function (event) {
+    var btn = event.target && event.target.closest ? event.target.closest(".lang-toggle [data-lang]") : null;
+    if (btn) { setLang(btn.getAttribute("data-lang"), true); }
+  });
+  setLang(resolveLang(), false);
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return [].slice.call((root || document).querySelectorAll(sel)); };
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function tr(key, fallbackText) { var value = window.PF_I18N ? window.PF_I18N.t(key) : ""; return value || fallbackText; }
+
+  var CHANNELS = [
+    { id: "about", nameKey: "bc.channel.about", signalKey: "bc.signal.about", name: "ABOUT", signal: "g7", signalLabel: "G7 · CHROMATIC LOCK", count: 1 },
+    { id: "contribute", nameKey: "bc.channel.contribute", signalKey: "bc.signal.contribute", name: "CONTRIBUTE", signal: "hj", signalLabel: "HJ · CHIMERA FIELD", count: 1 },
+    { id: "experiments", nameKey: "bc.channel.experiments", signalKey: "bc.signal.experiments", name: "EXPERIMENTS", signal: "x3", signalLabel: "X3 · VISUAL LANGUAGE", count: 1 },
+    { id: "research", nameKey: "bc.channel.research", signalKey: "bc.signal.research", name: "RESEARCH", signal: "r1", signalLabel: "R1 · PUNCH DATA", count: 1 },
+    { id: "log", nameKey: "bc.channel.log", signalKey: "bc.signal.log", name: "LOG", signal: "l1", signalLabel: "L1 · MOON PHASES", count: 1 }
+  ];
+  var currentChannel = 0;
+  var viewer = $("#viewer");
+  var previews = $$(".preview-btn");
+
+  if (window.PF_INIT) { window.PF_INIT(); }
+
+  function renderProgress() {
+    var track = $("#progressTrack");
+    track.textContent = "";
+    for (var i = 0; i < CHANNELS.length; i++) {
+      var segment = document.createElement("li");
+      if (i === currentChannel) { segment.className = "is-current"; segment.setAttribute("aria-current", "step"); }
+      track.appendChild(segment);
+    }
+    $("#progressCount").textContent = "CH " + pad2(currentChannel + 1) + " / 05";
+  }
+
+  function render() {
+    var channel = CHANNELS[currentChannel];
+    viewer.dataset.channel = channel.id;
+    $("#viewerChannel").textContent = channel.label;
+    $("#signalCaption").textContent = channel.signalLabel;
+    $$("[data-channel-panel]").forEach(function (panel) {
+      var active = panel.dataset.channelPanel === channel.id;
+      panel.hidden = !active;
+      if (active) {
+        var visible = $("[data-transmission]:not([hidden])", panel);
+        var label = visible && $("[data-content-field=label]", visible);
+        $("#viewerLabel").textContent = label ? label.textContent : "";
+      }
+    });
+    previews.forEach(function (button, index) {
+      button.setAttribute("aria-pressed", String(index === currentChannel));
+      if (index === currentChannel && window.PF_SIGNALS) { window.PF_SIGNALS.freeze($("canvas", button)); }
+    });
+    renderProgress();
+  }
+
+  function localizeChrome() {
+    CHANNELS.forEach(function (channel, index) {
+      var name = tr(channel.nameKey, channel.name);
+      channel.label = "CH " + pad2(index + 1) + " " + name;
+      channel.signalLabel = tr(channel.signalKey, channel.signalLabel);
+      var button = previews[index];
+      if (button) {
+        button.setAttribute("aria-label", channel.label);
+        var nameNode = $(".preview-name", button);
+        if (nameNode) { nameNode.textContent = name; }
+      }
+    });
+    var transport = $(".transport");
+    if (transport) { transport.setAttribute("aria-label", tr("bc.nav.transmission", "Channel navigation")); }
+    var previous = $("#transmissionPrev");
+    var next = $("#transmissionNext");
+    if (previous) { previous.setAttribute("aria-label", tr("bc.nav.previous", "Previous channel")); }
+    if (next) { next.setAttribute("aria-label", tr("bc.nav.next", "Next channel")); }
+    render();
+  }
+
+  function tuningFlash() {
+    if (reduced.matches) { return; }
+    viewer.classList.remove("is-tuning");
+    void viewer.offsetWidth;
+    viewer.classList.add("is-tuning");
+    window.setTimeout(function () { viewer.classList.remove("is-tuning"); }, 260);
+  }
+
+  function resetChannelScroll() {
+    var stage = $("#transmissionStage");
+    if (stage) { stage.scrollTop = 0; }
+  }
+
+  function tune(index, skipHistory) {
+    currentChannel = (index + CHANNELS.length) % CHANNELS.length;
+    resetChannelScroll();
+    if (window.PF_SIGNALS) { window.PF_SIGNALS.setMain(CHANNELS[currentChannel].signal); }
+    if (!skipHistory && window.history && window.history.replaceState) {
+      var query = new URLSearchParams(window.location.search);
+      query.set("ch", String(currentChannel + 1));
+      window.history.replaceState(null, "", window.location.pathname + "?" + query.toString() + window.location.hash);
+    }
+    tuningFlash();
+    render();
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "pf:broadcast-channel", ch: currentChannel + 1 }, window.location.origin);
+    }
+  }
+
+  function stepChannel(direction) {
+    tune(currentChannel + direction);
+  }
+
+  previews.forEach(function (button, index) {
+    var canvas = $("canvas", button);
+    button.addEventListener("click", function () { tune(index); });
+    button.addEventListener("keydown", function (event) {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") { return; }
+      event.preventDefault();
+      var next = (index + (event.key === "ArrowRight" ? 1 : -1) + CHANNELS.length) % CHANNELS.length;
+      previews[next].focus();
+      tune(next);
+    });
+    function wake() {
+      if (index === currentChannel) { return; }
+      button.classList.add("is-awake");
+      if (window.PF_SIGNALS) { window.PF_SIGNALS.wake(canvas); }
+    }
+    function freeze() {
+      button.classList.remove("is-awake");
+      if (window.PF_SIGNALS) { window.PF_SIGNALS.freeze(canvas); }
+    }
+    button.addEventListener("pointerenter", wake);
+    button.addEventListener("pointerleave", freeze);
+    button.addEventListener("focus", wake);
+    button.addEventListener("blur", freeze);
+  });
+  window.addEventListener("message", function (event) {
+    if (event.origin !== window.location.origin || event.source !== window.parent) { return; }
+    if (!event.data || event.data.type !== "pf:tune") { return; }
+    var ch = Number(event.data.ch);
+    if (ch >= 1 && ch <= CHANNELS.length) { tune(Number(event.data.ch) - 1, true); }
+  });
+  document.addEventListener("click", function (event) {
+    if (window.parent === window) { return; }
+    var link = event.target.closest && event.target.closest("a[href]");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) { return; }
+    link.target = "_top";
+  }, true);
+  $("#transmissionPrev").addEventListener("click", function () { stepChannel(-1); });
+  $("#transmissionNext").addEventListener("click", function () { stepChannel(1); });
+  document.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) { return; }
+    var tag = event.target && event.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") { return; }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      tune(currentChannel + (event.key === "ArrowRight" ? 1 : -1));
+    }
+  });
+
+  function placeContentLink(contentItem, link) {
+    var nestedItem = $("[data-content-item]", contentItem);
+    if (!nestedItem) { contentItem.appendChild(link); return; }
+    while (nestedItem.parentNode && nestedItem.parentNode !== contentItem) { nestedItem = nestedItem.parentNode; }
+    if (nestedItem.parentNode === contentItem) { contentItem.insertBefore(link, nestedItem); }
+    else { contentItem.appendChild(link); }
+  }
+
+  function clearRemoteLinks() {
+    $$(".cms-link").forEach(function (link) { link.remove(); });
+  }
+
+  function applyRemoteContent(content) {
+    clearRemoteLinks();
+    if (!content) { render(); return; }
+    CHANNELS.forEach(function (channel) {
+      var overrides = content[channel.id];
+      if (!overrides) { return; }
+      var panel = $('[data-channel-panel="' + channel.id + '"]');
+      var contentItems = $$("[data-content-item]", panel);
+      contentItems.forEach(function (contentItem, index) {
+        var item = overrides[index];
+        if (!item) { return; }
+        ["label", "heading", "body"].forEach(function (field) {
+          var node = $('[data-content-field="' + field + '"]', contentItem);
+          if (node && item[field]) { node.textContent = item[field]; }
+        });
+        if (item.linkLabel && item.linkHref) {
+          var link = document.createElement("a");
+          link.className = "tx-link vt cms-link";
+          link.href = item.linkHref;
+          link.textContent = item.linkLabel;
+          placeContentLink(contentItem, link);
+        }
+      });
+    });
+    render();
+  }
+  var contentRequest = 0;
+  function loadBroadcastContent() {
+    clearRemoteLinks();
+    if (!window.PF_BROADCAST_CONTENT) { return; }
+    var request = ++contentRequest;
+    window.PF_BROADCAST_CONTENT.load(window.PF_I18N.current()).then(function (content) {
+      if (request === contentRequest) { applyRemoteContent(content); }
+    });
+  }
+
+  /* ---------- CH 02: REC VOICE / REC VIDEO / TYPE tabs ---------- */
+  var tabBtns = $$(".tab-btn");
+  var recs = [];
+  function showTab(id) {
+    tabBtns.forEach(function (btn) { btn.setAttribute("aria-pressed", String(btn.dataset.tab === id)); });
+    $$(".tab-panel").forEach(function (panel) { panel.hidden = panel.dataset.tab !== id; });
+    recs.forEach(resetRec);
+  }
+  tabBtns.forEach(function (btn) { btn.addEventListener("click", function () { showTab(btn.dataset.tab); }); });
+  recs = $$("[data-rec]").map(function (root) {
+    var rec = { root: root, btn: $(".rec-btn", root), tc: $(".timecode", root), status: $(".rec-status", root), state: "idle", start: 0 };
+    rec.btn.addEventListener("click", function () { recClick(rec); });
+    return rec;
+  });
+  function recClick(rec) {
+    if (rec.state === "recording") {
+      var sec = Math.max(1, Math.round((Date.now() - rec.start) / 1000));
+      rec.state = "captured";
+      rec.status.textContent = tr("bc.ch02.captured", "MESSAGE CAPTURED — {sec} SEC.").replace("{sec}", sec);
+      rec.btn.textContent = tr("bc.ch02.rerec", "● RE-REC");
+    } else {
+      rec.state = "recording";
+      rec.start = Date.now();
+      rec.status.textContent = tr("bc.ch02.recording", "RECORDING — PRESS STOP WHEN DONE.");
+      rec.btn.textContent = tr("bc.ch02.stop", "■ STOP");
+    }
+  }
+  function resetRec(rec) {
+    rec.state = "idle"; rec.start = 0; rec.tc.textContent = "00:00:00";
+    rec.status.textContent = rec.root.dataset.ready;
+    rec.btn.textContent = tr("bc.ch02.rec", "● REC");
+  }
+  function tickRecs() {
+    recs.forEach(function (rec) {
+      if (rec.state !== "recording") { return; }
+      var ms = Date.now() - rec.start;
+      rec.tc.textContent = pad2(Math.floor(ms / 60000)) + ":" + pad2(Math.floor(ms / 1000) % 60) + ":" + pad2(Math.floor((ms % 1000) / (1000 / 30)));
+    });
+    window.requestAnimationFrame(tickRecs);
+  }
+
+  /* ---------- CH 02: artist responses via the shared berlayar Payload CMS ----------
+     Read is published-only and public; create is public. Moderation and editing happen in the
+     Payload admin, never here — so the page carries no credentials and no admin URL. Every
+     network path falls back to the seeded fixture, so the channel is never blank. */
+  var RESPONSES_API = "https://berlayar.ai/api/artist-responses";
+  var RESPONSES_QUERY = "?where[status][equals]=published&limit=100&depth=0";
+  var RESPONSES_FIXTURE = "/fixtures/artist-responses.json";
+  var QUEUE_KEY = "pf-response-queue";
+  var voicesList = $("#voicesList");
+  var voicesFallback = $("#voicesFallback");
+  var published = [];
+  var pending = [];
+  function currentLang() { return window.PF_I18N ? window.PF_I18N.current() : "en"; }
+  function readQueue() { try { return JSON.parse(window.localStorage.getItem(QUEUE_KEY)) || []; } catch (e) { return []; } }
+  function writeQueue(list) { try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {} }
+  /* built with textContent throughout: CMS text is untrusted and never becomes markup */
+  function callerCard(doc, position, isPending) {
+    var article = document.createElement("article");
+    article.className = isPending ? "caller caller-pending" : "caller";
+    var id = document.createElement("span");
+    id.className = "caller-id vt";
+    var name = String(doc.name || "").trim() || tr("bc.ch02.anonymous", "ANONYMOUS");
+    var line = "CALLER " + pad2(position) + " — " + name;
+    var discipline = String(doc.discipline || "").trim();
+    if (discipline) { line += " · " + discipline; }
+    var lang = String(doc.language || "").trim();
+    if (lang) { line += " · " + lang.toUpperCase(); }
+    id.textContent = line;
+    var quote = document.createElement("blockquote");
+    quote.textContent = String(doc.response || "");
+    article.appendChild(id); article.appendChild(quote);
+    if (isPending) { var tag = document.createElement("span"); tag.className = "caller-pending-tag vt"; tag.textContent = tr("bc.ch02.pending", "PENDING REVIEW"); article.appendChild(tag); }
+    return article;
+  }
+  function renderVoices() {
+    if (!voicesList) { return; }
+    var entries = pending.map(function (doc) { return { doc: doc, pending: true }; }).concat(published.map(function (doc) { return { doc: doc, pending: false }; }));
+    voicesList.textContent = "";
+    entries.forEach(function (entry, ix) { voicesList.appendChild(callerCard(entry.doc, ix + 1, entry.pending)); });
+  }
+  function newestFirst(docs) { return docs.slice().sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); }); }
+  function showFallback(on) { if (voicesFallback) { voicesFallback.hidden = !on; } }
+  function loadFixture() {
+    return window.fetch(RESPONSES_FIXTURE).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); }).then(function (json) { published = newestFirst((json && json.docs) || []); }).catch(function () {}).then(function () { showFallback(true); renderVoices(); });
+  }
+  function loadResponses() {
+    return window.fetch(RESPONSES_API + RESPONSES_QUERY, { headers: { "Accept": "application/json" } }).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); }).then(function (json) { var docs = (json && json.docs) || []; if (!docs.length) { return loadFixture(); } published = newestFirst(docs); showFallback(false); renderVoices(); }).catch(function () { return loadFixture(); });
+  }
+  function postResponse(payload) {
+    return window.fetch(RESPONSES_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(function (res) { if (!res.ok) { throw new Error(String(res.status)); } return res.json(); });
+  }
+  function flushQueue() {
+    var queued = readQueue();
+    if (!queued.length) { return Promise.resolve(); }
+    return queued.reduce(function (chain, payload) { return chain.then(function (kept) { return postResponse(payload).then(function () { return kept; }).catch(function () { return kept.concat([payload]); }); }); }, Promise.resolve([])).then(writeQueue);
+  }
+  var form = $("#offerForm");
+  var confirmBox = $("#queueConfirm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var payload = { name: String($("#f-name").value || "").trim(), discipline: String($("#f-disc").value || "").trim(), response: String($("#f-resp").value || "").trim(), language: currentLang() };
+    form.hidden = true; confirmBox.hidden = false; pending.unshift(payload); renderVoices();
+    postResponse(payload).catch(function () { writeQueue(readQueue().concat([payload])); showFallback(true); });
+  });
+  $("#sendAnother").addEventListener("click", function () { form.reset(); confirmBox.hidden = true; form.hidden = false; });
+  pending = readQueue().slice().reverse();
+  renderVoices(); loadResponses(); flushQueue();
+
+  /* ---------- CH 00: tap toggles (legacy test boundary; no channel exists) ---------- */
+
+  showTab("type");
+  var initialChannel = Number(new URLSearchParams(window.location.search).get("ch"));
+  if (initialChannel >= 1 && initialChannel <= CHANNELS.length) { tune(initialChannel - 1, true); } else { render(); }
+  loadBroadcastContent();
+  window.requestAnimationFrame(tickRecs);
+  document.addEventListener("pf:lang", function () {
+    localizeChrome();
+    recs.forEach(function (rec) { if (rec.state === "idle") { resetRec(rec); } });
+    renderVoices();
+    loadBroadcastContent();
+  });
+})();
+</script>
+</body>
+</html>

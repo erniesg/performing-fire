@@ -458,12 +458,33 @@
   const CHN = { 1: "ABOUT", 2: "CONTRIBUTE", 3: "EXPERIMENTS", 4: "RESEARCH", 5: "LOG" };
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const live = new Set();
+
+  function prepare(cv, key) {
+    const spec = A.find(a => a.key === key);
+    if (!spec) return false;
+    cv.width = cv.hasAttribute("data-signal-main") ? 880 : 440;
+    cv.height = cv.hasAttribute("data-signal-main") ? 495 : 330;
+    cv.dataset.anim = key;
+    cv._spec = spec;
+    cv._ctx = cv.getContext("2d");
+    cv._st = {};
+    /* hj is a space-time raster. Build its complete 40-row history offscreen so
+       neither a preview nor the main signal visibly fills from the bottom. */
+    if (key === "hj") {
+      for (let i = 0; i < 80; i++) spec.draw(cv._ctx, cv.width, cv.height, i / 30, mkRnd(1), cv._st);
+    }
+    draw(cv, 1.7);
+    return true;
+  }
+
+  function draw(cv, t) {
+    if (!cv._spec || !cv._ctx) return;
+    cv._spec.draw(cv._ctx, cv.width, cv.height, t, mkRnd(1), cv._st);
+  }
+
   document.querySelectorAll("canvas[data-anim]").forEach(cv => {
-    const spec = A.find(a => a.key === cv.dataset.anim);
-    if (!spec) return;
-    cv.width = 440; cv.height = 330;
-    cv._spec = spec; cv._ctx = cv.getContext("2d");
-    if (reduced) { spec.draw(cv._ctx, 440, 330, 1.7, mkRnd(1), (cv._st = cv._st || {})); osd(cv); }
+    if (!prepare(cv, cv.dataset.anim)) return;
+    if (cv.hasAttribute("data-signal-main") && !reduced) live.add(cv);
   });
   function osd(cv) {
     const x = cv._ctx, W = cv.width, H = cv.height, spec = cv._spec;
@@ -477,18 +498,37 @@
     x.fillStyle = tn(spec.ch, 0.97);
     x.fillText(label, W * 0.045 + 13, H * 0.857);
   }
+  window.PF_SIGNALS = {
+    setMain(key) {
+      const cv = document.querySelector("canvas[data-signal-main]");
+      if (!cv || !prepare(cv, key)) return;
+      if (!reduced) live.add(cv);
+    },
+    wake(cv) {
+      if (!reduced && cv && !cv.hasAttribute("data-signal-main")) live.add(cv);
+    },
+    freeze(cv) {
+      if (!cv || cv.hasAttribute("data-signal-main")) return;
+      live.delete(cv);
+      draw(cv, 1.7);
+    },
+  };
+
   if (!reduced) {
-    const io = new IntersectionObserver(es => {
-      es.forEach(e => { e.isIntersecting ? live.add(e.target) : live.delete(e.target); });
-    }, { rootMargin: "80px" });
-    document.querySelectorAll("canvas[data-anim]").forEach(cv => io.observe(cv));
     let last = 0;
     const tick = (ms) => {
       requestAnimationFrame(tick);
-      if (ms - last < 33) return;         // ~30fps
+      if (document.hidden || ms - last < 33) return; // one shared ~30fps ticker
       last = ms;
-      const t = ms / 1000;
-      live.forEach(cv => { cv._spec.draw(cv._ctx, cv.width, cv.height, t, mkRnd(1), (cv._st = cv._st || {})); osd(cv); });
+      live.forEach(cv => {
+        const button = cv.closest(".preview-btn");
+        if (button && button.getAttribute("aria-pressed") === "true") {
+          live.delete(cv);                // the tuned preview always stays frozen
+          draw(cv, 1.7);
+          return;
+        }
+        draw(cv, ms / 1000);
+      });
     };
     requestAnimationFrame(tick);
   }

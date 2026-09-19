@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import vm from 'node:vm'
 
-const broadcast = await readFile(new URL('../public/index.html', import.meta.url), 'utf8')
+const broadcast = await readFile(new URL('../public/broadcast/index.html', import.meta.url), 'utf8')
 const fixture = JSON.parse(await readFile(new URL('../public/fixtures/artist-responses.json', import.meta.url), 'utf8'))
 
 const LOCALES = ['en', 'ko', 'zh', 'ja']

@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performing Fire — Earth / Water browser proofs</title>
+<script>
+  const proofFocus = new URLSearchParams(location.search).get("focus");
+  if (proofFocus === "earth" || proofFocus === "water") {
+    document.documentElement.dataset.focus = proofFocus;
+  }
+</script>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #050608;
+    --panel: #0a0c10;
+    --line: #242833;
+    --ink: #d7dce3;
+    --muted: #7f8793;
+    --earth: #f06a30;
+    --water: #66d8ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    padding: clamp(18px, 4vw, 54px);
+  }
+  main { width: min(1240px, 100%); margin: 0 auto; }
+  header { display: grid; gap: 8px; margin-bottom: 28px; }
+  .eyebrow { color: var(--muted); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 0; font: 500 clamp(25px, 4vw, 44px)/1.08 Georgia, serif; letter-spacing: -.025em; }
+  header p { max-width: 72ch; margin: 0; color: #9ba3ad; font-size: 13px; line-height: 1.6; }
+  .canonical {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0 0; list-style: none;
+  }
+  .canonical li {
+    padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px;
+    color: #8d95a0; font-size: 10px; letter-spacing: .04em;
+  }
+  .canonical strong { color: #d7dce3; font-weight: 500; }
+  .proofs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  article {
+    overflow: hidden; border: 1px solid var(--line); border-radius: 18px;
+    background: linear-gradient(145deg, #0c0e13, #07080b 72%);
+    box-shadow: 0 24px 80px rgba(0,0,0,.42);
+  }
+  .screen { position: relative; aspect-ratio: 4 / 3; background: #020304; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+  .water-media {
+    position: absolute; inset: 0; overflow: hidden; background: #020304;
+    touch-action: pan-y; isolation: isolate;
+  }
+  .water-media video,
+  .water-poster {
+    position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+    object-fit: contain; background: #020304;
+  }
+  .water-media video {
+    z-index: 1; opacity: 0; pointer-events: none;
+    will-change: opacity;
+  }
+  .water-poster {
+    z-index: 0; opacity: 1;
+    transition: opacity 180ms cubic-bezier(.16,1,.3,1);
+  }
+  .water-media[data-motion="playing"] .water-poster { opacity: 0; }
+  .screen::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(115% 100% at 50% 45%, transparent 58%, rgba(0,0,0,.52));
+    mix-blend-mode: multiply;
+  }
+  .tag {
+    position: absolute; z-index: 2; left: 13px; top: 12px;
+    padding: 3px 7px; border-radius: 4px; background: rgba(3,4,6,.72);
+    font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .earth .tag { color: var(--earth); border: 1px solid rgba(240,106,48,.45); }
+  .water .tag { color: var(--water); border: 1px solid rgba(102,216,255,.45); }
+  .water-states {
+    --water-progress: 0;
+    position: absolute; z-index: 2; right: 15px; bottom: 14px;
+    display: none; align-items: center; gap: 9px;
+    padding: 6px 8px; border-radius: 5px;
+    background: rgba(3,4,6,.66); border: 1px solid rgba(102,216,255,.18);
+    color: #77858d; font-size: 10px; letter-spacing: .10em; text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .water-states span { transition: color 180ms ease, opacity 180ms ease; opacity: .44; }
+  .water-states span[aria-current="step"] { color: #bcefff; opacity: 1; }
+  .water-meter {
+    position: relative; width: 64px; height: 1px; overflow: hidden;
+    background: rgba(188,239,255,.16);
+  }
+  .water-meter::after {
+    content: ""; position: absolute; inset: 0;
+    background: #bcefff; transform: scaleX(var(--water-progress));
+    transform-origin: left center; will-change: transform;
+  }
+  .water-playback {
+    position: absolute; z-index: 3; left: 50%; bottom: 48px;
+    translate: -50% 0; padding: 7px 10px; border-radius: 5px;
+    border: 1px solid rgba(188,239,255,.34);
+    background: rgba(3,4,6,.82); color: #bcefff;
+    font: 600 10px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    letter-spacing: .10em; text-transform: uppercase; cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  .water-playback:hover { border-color: rgba(188,239,255,.66); }
+  .water-playback:focus-visible { outline: 2px solid #bcefff; outline-offset: 3px; }
+  .water-playback[hidden] { display: none; }
+  .copy { padding: 16px 18px 19px; border-top: 1px solid var(--line); }
+  h2 { margin: 0 0 5px; font-size: 20px; font-weight: 600; letter-spacing: .02em; }
+  .copy p { margin: 0; color: #8d95a0; font-size: 13px; line-height: 1.55; }
+  .interaction { color: #b7bec8 !important; margin-top: 8px !important; }
+  @media (max-width: 820px) {
+    .proofs { grid-template-columns: 1fr; }
+  }
+  html[data-focus] body { padding: 0; }
+  html[data-focus] main { width: 100%; }
+  html[data-focus] header,
+  html[data-focus] .copy { display: none; }
+  html[data-focus] .proofs { display: block; }
+  html[data-focus="earth"] article.water,
+  html[data-focus="water"] article.earth { display: none; }
+  html[data-focus] article { border: 0; border-radius: 0; box-shadow: none; }
+  html[data-focus] .screen { width: 100vw; height: 100vh; aspect-ratio: auto; }
+  html[data-focus="water"] article.water { height: 300svh; overflow: visible; }
+  html[data-focus="water"] article.water .screen { position: sticky; top: 0; height: 100svh; }
+  html[data-focus="water"] .water-states { display: flex; }
+  html[data-scroll-test] { scrollbar-width: none; }
+  html[data-scroll-test]::-webkit-scrollbar { display: none; }
+  html[data-scroll-test] .water-states span { transition: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .interaction { display: none; }
+    .water-states span { transition: none; }
+    .water-poster { transition: none; }
+  }
+  html[data-reduced] .water-states span { transition: none; }
+  html[data-reduced] .water-poster,
+  html[data-scroll-test] .water-poster { transition: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Performing Fire · shape / motion proof 01</span>
+    <h1>Keep the canonical form. Put the machine inside it.</h1>
+    <p>
+      The gorintō sequence is square, sphere, pyramid, half-moon, jewel.
+      These proofs establish the first two browser layers without turning
+      “element” into a pictogram or faking the material with a flat shader.
+    </p>
+    <ul class="canonical" aria-label="Canonical gorinto form sequence">
+      <li><strong>地 Earth</strong> · square</li>
+      <li><strong>水 Water</strong> · sphere</li>
+      <li><strong>火 Fire</strong> · pyramid</li>
+      <li><strong>風 Wind</strong> · half-moon</li>
+      <li><strong>空 Void</strong> · jewel</li>
+    </ul>
+  </header>
+
+  <section class="proofs" aria-label="Earth and Water browser proofs">
+    <article class="earth">
+      <div class="screen">
+        <span class="tag">Earth · square / archive</span>
+        <canvas id="earthCanvas" aria-label="Side-by-side comparison of one upright Earth data slab and four upright Earth data slabs"></canvas>
+      </div>
+      <div class="copy">
+        <h2>One slab / multiple slabs</h2>
+        <p>Left: one upright granite record. Right: four separate upright records in the same squared archive language. Every feed is a complete monolith—not a notch, stripe, or glowing crack.</p>
+        <p class="interaction">The comparison stays still so silhouette, spacing, and depth can be judged directly.</p>
+      </div>
+    </article>
+
+    <article class="water">
+      <div class="screen">
+        <span class="tag">Water · sphere / fluid</span>
+        <div
+          class="water-media"
+          id="waterMedia"
+          role="img"
+          aria-label="Blender-simulated water falling onto and breaking around a granite sphere"
+          data-motion="poster"
+        >
+          <img
+            class="water-poster"
+            id="waterPoster"
+            src="renders/browser-proofs/water-bearing.png"
+            alt=""
+          >
+          <video
+            data-water-clip="low"
+            data-src="renders/browser-proofs/water-fluid-low.mp4"
+            poster="renders/browser-proofs/water-fluid-low.webp"
+            muted autoplay loop playsinline preload="metadata"
+            disablepictureinpicture disableremoteplayback
+            aria-hidden="true"
+          ></video>
+          <video
+            data-water-clip="impact"
+            data-src="renders/browser-proofs/water-fluid-impact.mp4"
+            poster="renders/browser-proofs/water-fluid-impact.webp"
+            muted autoplay loop playsinline preload="metadata"
+            disablepictureinpicture disableremoteplayback
+            aria-hidden="true"
+          ></video>
+          <video
+            data-water-clip="splash"
+            data-src="renders/browser-proofs/water-fluid-splash.mp4"
+            poster="renders/browser-proofs/water-fluid-splash.webp"
+            muted autoplay loop playsinline preload="metadata"
+            disablepictureinpicture disableremoteplayback
+            aria-hidden="true"
+          ></video>
+        </div>
+        <div class="water-states" id="waterStates" aria-hidden="true">
+          <span data-water-stage="low" aria-current="step">low flow</span>
+          <span data-water-stage="impact">impact</span>
+          <span data-water-stage="splash">splash</span>
+          <i class="water-meter" aria-hidden="true"></i>
+        </div>
+        <button class="water-playback" id="waterPlayback" type="button" hidden>
+          Start water motion
+        </button>
+      </div>
+      <div class="copy">
+        <h2>Water falls, collides, and breaks</h2>
+        <p>A Blender-baked liquid inflow strikes the granite sphere, wraps its surface, throws sheets and droplets, then drains through the basin. The browser preserves those simulated frames instead of drawing a water-shaped mask.</p>
+        <p class="interaction">Scroll from low flow to impact to splash; the playback clock keeps running inside every state.</p>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const proofParams = new URLSearchParams(location.search);
+  const scrollTest = proofParams.has("scrolltest");
+  const forceReduced = proofParams.has("reduced");
+  if (scrollTest) document.documentElement.dataset.scrollTest = "true";
+  if (forceReduced) document.documentElement.dataset.reduced = "true";
+  let reducedMotion = reduced.matches || forceReduced;
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+  /* ---------- EARTH: one upright slab versus multiple upright slabs ---------- */
+  const earthCanvas = document.getElementById("earthCanvas");
+  const earth = earthCanvas.getContext("2d");
+  let earthW = 0;
+  let earthH = 0;
+
+  function resize2D() {
+    const rect = earthCanvas.getBoundingClientRect();
+    earthW = Math.max(1, Math.round(rect.width * DPR));
+    earthH = Math.max(1, Math.round(rect.height * DPR));
+    if (earthCanvas.width !== earthW || earthCanvas.height !== earthH) {
+      earthCanvas.width = earthW;
+      earthCanvas.height = earthH;
+    }
+  }
+
+  function seeded(n) {
+    const x = Math.sin(n * 91.731 + 17.17) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function polygon(ctx, points, fill) {
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+
+  function drawGraniteSlab(x, top, width, height, depth, seed, unit) {
+    const floorY = top + height;
+
+    earth.save();
+    earth.shadowColor = "rgba(0,0,0,.90)";
+    earth.shadowBlur = unit * .035;
+    earth.shadowOffsetX = depth * .35;
+    earth.shadowOffsetY = unit * .018;
+    earth.fillStyle = "#030405";
+    earth.fillRect(x - depth * .20, floorY - unit * .006, width + depth * 1.25, unit * .024);
+    earth.restore();
+
+    polygon(earth, [
+      [x + width, top],
+      [x + width + depth, top - depth * .46],
+      [x + width + depth, floorY - depth * .46],
+      [x + width, floorY]
+    ], "#111419");
+    polygon(earth, [
+      [x, top],
+      [x + depth, top - depth * .46],
+      [x + width + depth, top - depth * .46],
+      [x + width, top]
+    ], "#3b3e42");
+
+    const face = earth.createLinearGradient(x, top, x + width, floorY);
+    face.addColorStop(0, "#34373b");
+    face.addColorStop(.44, "#24272b");
+    face.addColorStop(1, "#15181c");
+    earth.fillStyle = face;
+    earth.fillRect(x, top, width, height);
+
+    earth.save();
+    earth.beginPath();
+    earth.rect(x, top, width, height);
+    earth.clip();
+    for (let i = 0; i < 44; i++) {
+      const grainX = x + seeded(seed * 101 + i * 2.13) * width;
+      const grainY = top + seeded(seed * 173 + i * 3.71) * height;
+      const grainSize = Math.max(DPR, unit * (.0008 + seeded(seed * 211 + i) * .0012));
+      const warm = seeded(seed * 47 + i * 5.9) > .72;
+      earth.fillStyle = warm
+        ? `rgba(107,72,53,${.08 + seeded(i + seed) * .10})`
+        : `rgba(205,210,213,${.025 + seeded(i * 7 + seed) * .055})`;
+      earth.fillRect(grainX, grainY, grainSize, grainSize);
+    }
+    earth.fillStyle = "rgba(255,255,255,.055)";
+    earth.fillRect(x, top, Math.max(DPR, unit * .0015), height);
+    earth.fillStyle = "rgba(0,0,0,.32)";
+    earth.fillRect(x + width - Math.max(DPR, unit * .002), top, Math.max(DPR, unit * .002), height);
+    earth.restore();
+  }
+
+  function drawEarth() {
+    resize2D();
+    const w = earthW;
+    const h = earthH;
+    const unit = Math.min(w, h);
+    earth.setTransform(1, 0, 0, 1, 0, 0);
+    earth.clearRect(0, 0, w, h);
+
+    const bg = earth.createRadialGradient(w * .5, h * .45, 0, w * .5, h * .45, h * .82);
+    bg.addColorStop(0, "#101319");
+    bg.addColorStop(.48, "#07090d");
+    bg.addColorStop(1, "#010203");
+    earth.fillStyle = bg;
+    earth.fillRect(0, 0, w, h);
+
+    const slabW = unit * .090;
+    const slabH = unit * .50;
+    const slabGap = unit * .027;
+    const slabDepth = unit * .025;
+    const floorY = h * .70;
+    const top = floorY - slabH;
+    const oneCenter = w * .30;
+    const manyCenter = w * .70;
+    const manyCount = 4;
+    const manyW = slabW * manyCount + slabGap * (manyCount - 1);
+    const oneX = oneCenter - slabW * .5;
+    const manyX = manyCenter - manyW * .5;
+
+    drawGraniteSlab(oneX, top, slabW, slabH, slabDepth, 1, unit);
+    for (let i = manyCount - 1; i >= 0; i--) {
+      drawGraniteSlab(
+        manyX + i * (slabW + slabGap),
+        top,
+        slabW,
+        slabH,
+        slabDepth,
+        10 + i,
+        unit
+      );
+    }
+
+    const ground = earth.createLinearGradient(0, floorY, 0, h);
+    ground.addColorStop(0, "rgba(35,39,46,.22)");
+    ground.addColorStop(.18, "rgba(20,24,30,.24)");
+    ground.addColorStop(1, "rgba(0,0,0,0)");
+    earth.fillStyle = ground;
+    earth.fillRect(0, floorY, w, h - floorY);
+
+    earth.textAlign = "center";
+    earth.textBaseline = "middle";
+    earth.font = `600 ${Math.max(10 * DPR, unit * .018)}px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace`;
+    earth.fillStyle = "#a1a8b1";
+    earth.fillText("ONE FEED", oneCenter, floorY + unit * .078);
+    earth.fillText("MULTIPLE FEEDS", manyCenter, floorY + unit * .078);
+
+    earth.font = `500 ${Math.max(9 * DPR, unit * .014)}px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace`;
+    earth.fillStyle = "#626a75";
+    earth.fillText("1 UPRIGHT SLAB", oneCenter, floorY + unit * .112);
+    earth.fillText("4 UPRIGHT SLABS", manyCenter, floorY + unit * .112);
+  }
+
+  /* ---------- WATER: Blender fluid loops; scroll selects, time stays autonomous ---------- */
+  const waterArticle = document.querySelector("article.water");
+  const waterScreen = waterArticle.querySelector(".screen");
+  const waterMedia = document.getElementById("waterMedia");
+  const waterPoster = document.getElementById("waterPoster");
+  const waterPlayback = document.getElementById("waterPlayback");
+  const waterStates = document.getElementById("waterStates");
+  const waterStageNodes = Array.from(waterStates.querySelectorAll("[data-water-stage]"));
+  const waterVideos = Array.from(waterMedia.querySelectorAll("[data-water-clip]"));
+  const stageNames = ["low", "impact", "splash"];
+  const posterSources = [
+    "renders/browser-proofs/water-fluid-low.webp",
+    "renders/browser-proofs/water-fluid-impact.webp",
+    "renders/browser-proofs/water-fluid-splash.webp"
+  ];
+  const legacyPoster = "renders/browser-proofs/water-bearing.png";
+
+  let waterScrollTarget = 0;
+  let waterScrollState = 0;
+  let waterStageIndex = -1;
+  let lastPublishedWaterProgress = -1;
+  let waterPosterReady = false;
+  let waterInView = true;
+  let mediaSourcesRequested = false;
+  let posterRequestId = 0;
+  let lastFrame = performance.now();
+  let waterWeights = [0, 0, 0];
+  const mediaEpoch = performance.now();
+  const readyClips = new Set();
+  const failedClips = new Set();
+  const activeClips = new Set();
+  const blockedClips = new Set();
+  const pendingPlay = new Set();
+
+  function clamp01(value) {
+    return Math.max(0, Math.min(1, value));
+  }
+
+  function smooth01(value) {
+    const t = clamp01(value);
+    return t * t * (3 - 2 * t);
+  }
+
+  function hasWaterFallback() {
+    return waterPosterReady || readyClips.size > 0;
+  }
+
+  function publishWaterTestState(force = false) {
+    const readyNames = Array.from(readyClips)
+      .sort((a, b) => a - b)
+      .map(index => stageNames[index]);
+    document.documentElement.dataset.waterMedia =
+      readyNames.length > 0 ? readyNames.join(",") : "poster";
+
+    if (!scrollTest) return;
+    if (force || Math.abs(waterScrollState - lastPublishedWaterProgress) >= .001) {
+      lastPublishedWaterProgress = waterScrollState;
+      document.documentElement.dataset.waterProgress = waterScrollState.toFixed(4);
+      document.documentElement.dataset.waterTarget = waterScrollTarget.toFixed(4);
+      document.documentElement.dataset.waterReady = String(hasWaterFallback());
+      document.documentElement.dataset.waterPointerDisturbances = "0";
+      document.documentElement.dataset.waterPlayback = waterMedia.dataset.motion || "poster";
+    }
+  }
+
+  function setPosterForStage(stageIndex) {
+    const requestId = ++posterRequestId;
+    const candidates = Array.from(new Set([
+      posterSources[stageIndex],
+      posterSources[0],
+      legacyPoster
+    ]));
+    let candidateIndex = 0;
+    waterPosterReady = false;
+    publishWaterTestState(true);
+
+    function tryCandidate() {
+      if (requestId !== posterRequestId) return;
+      if (candidateIndex >= candidates.length) {
+        waterPoster.removeAttribute("src");
+        waterPoster.dataset.status = "missing";
+        publishWaterTestState(true);
+        return;
+      }
+
+      const source = candidates[candidateIndex++];
+      waterPoster.onload = () => {
+        if (requestId !== posterRequestId) return;
+        waterPosterReady = true;
+        waterPoster.dataset.status = "ready";
+        waterPoster.dataset.source = source;
+        publishWaterTestState(true);
+        updatePosterVisibility();
+      };
+      waterPoster.onerror = tryCandidate;
+      waterPosterReady = false;
+      waterPoster.dataset.status = "loading";
+      waterPoster.src = source;
+
+      if (waterPoster.complete) {
+        if (waterPoster.naturalWidth > 0) waterPoster.onload();
+        else tryCandidate();
+      }
+    }
+
+    tryCandidate();
+  }
+
+  function updateWaterStage(progress) {
+    const stageIndex = progress < .28 ? 0 : progress < .68 ? 1 : 2;
+    if (stageIndex !== waterStageIndex) {
+      waterStageIndex = stageIndex;
+      const stageName = stageNames[stageIndex];
+      waterArticle.dataset.waterStage = stageName;
+      waterMedia.setAttribute(
+        "aria-label",
+        "Blender-simulated water in the " + stageName +
+        " stage, falling onto and breaking around a granite sphere"
+      );
+      waterStageNodes.forEach((node, index) => {
+        if (index === stageIndex) node.setAttribute("aria-current", "step");
+        else node.removeAttribute("aria-current");
+      });
+      setPosterForStage(stageIndex);
+    }
+    waterStates.style.setProperty("--water-progress", progress.toFixed(4));
+  }
+
+  function measureWaterScroll() {
+    const rect = waterArticle.getBoundingClientRect();
+    if (proofFocus === "water") {
+      const travel = Math.max(1, waterArticle.offsetHeight - innerHeight);
+      waterScrollTarget = clamp01(-rect.top / travel);
+    } else {
+      const travel = Math.max(1, innerHeight + rect.height);
+      waterScrollTarget = clamp01((innerHeight - rect.top) / travel);
+    }
+
+    if (reducedMotion) {
+      waterScrollTarget =
+        waterScrollTarget < .28 ? 0 :
+        waterScrollTarget < .68 ? .5 : 1;
+    }
+
+    updateWaterStage(waterScrollTarget);
+    if (reducedMotion || scrollTest) {
+      waterScrollState = waterScrollTarget;
+      applyWaterBlend();
+    }
+    publishWaterTestState();
+  }
+
+  function computeWaterWeights(progress) {
+    const available = Array.from(readyClips).sort((a, b) => a - b);
+    const weights = [0, 0, 0];
+    if (available.length === 0) return weights;
+    if (available.length === 1) {
+      weights[available[0]] = 1;
+      return weights;
+    }
+
+    const position = clamp01(progress) * 2;
+    let lower = available[0];
+    let upper = available[available.length - 1];
+
+    if (position <= lower) {
+      upper = lower;
+    } else if (position >= upper) {
+      lower = upper;
+    } else {
+      for (let index = 0; index < available.length; index++) {
+        if (available[index] <= position) lower = available[index];
+        if (available[index] >= position) {
+          upper = available[index];
+          break;
+        }
+      }
+    }
+
+    if (lower === upper) {
+      weights[lower] = 1;
+      return weights;
+    }
+
+    const mixAmount = smooth01((position - lower) / (upper - lower));
+    weights[lower] = 1 - mixAmount;
+    weights[upper] = mixAmount;
+    return weights;
+  }
+
+  function shouldAnimateWater() {
+    return !reducedMotion && !scrollTest && waterInView && !document.hidden;
+  }
+
+  function updatePlaybackButton() {
+    const blockedActiveClip = Array.from(blockedClips)
+      .some(index => activeClips.has(index));
+    waterPlayback.hidden = !(shouldAnimateWater() && blockedActiveClip);
+  }
+
+  function updatePosterVisibility() {
+    const hasPresentedFrame = waterVideos.some((video, index) =>
+      waterWeights[index] > .001 &&
+      video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+      !video.paused
+    );
+    waterMedia.dataset.motion =
+      shouldAnimateWater() && hasPresentedFrame ? "playing" : "poster";
+    publishWaterTestState(true);
+  }
+
+  function alignClipPhase(video) {
+    if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+    const elapsedSeconds = (performance.now() - mediaEpoch) * .001;
+    const targetTime = elapsedSeconds % video.duration;
+    if (Math.abs(video.currentTime - targetTime) > .18) {
+      try {
+        video.currentTime = targetTime;
+      } catch (_) {
+        // Metadata can race source activation; normal playback still recovers.
+      }
+    }
+  }
+
+  function requestClipPlayback(video, index) {
+    if (pendingPlay.has(index) || !video.paused) return;
+    pendingPlay.add(index);
+    let playResult;
+    try {
+      playResult = video.play();
+    } catch (_) {
+      pendingPlay.delete(index);
+      if (activeClips.has(index) && shouldAnimateWater()) {
+        blockedClips.add(index);
+      }
+      updatePlaybackButton();
+      return;
+    }
+
+    if (!playResult || typeof playResult.then !== "function") {
+      pendingPlay.delete(index);
+      blockedClips.delete(index);
+      updatePlaybackButton();
+      return;
+    }
+
+    playResult.then(() => {
+      pendingPlay.delete(index);
+      blockedClips.delete(index);
+      updatePlaybackButton();
+      updatePosterVisibility();
+    }).catch(error => {
+      pendingPlay.delete(index);
+      if (error && error.name === "AbortError") return;
+      if (!activeClips.has(index) || !shouldAnimateWater()) return;
+      blockedClips.add(index);
+      updatePlaybackButton();
+      updatePosterVisibility();
+    });
+  }
+
+  function syncWaterPlayback() {
+    const animate = shouldAnimateWater();
+
+    waterVideos.forEach((video, index) => {
+      const wanted =
+        animate &&
+        readyClips.has(index) &&
+        waterWeights[index] > .001;
+
+      if (wanted) {
+        if (!activeClips.has(index)) {
+          activeClips.add(index);
+          alignClipPhase(video);
+        }
+        requestClipPlayback(video, index);
+      } else {
+        activeClips.delete(index);
+        blockedClips.delete(index);
+        if (!video.paused) video.pause();
+      }
+    });
+
+    updatePlaybackButton();
+    updatePosterVisibility();
+  }
+
+  function applyWaterBlend() {
+    waterWeights = computeWaterWeights(waterScrollState);
+    waterVideos.forEach((video, index) => {
+      const weight =
+        reducedMotion ||
+        scrollTest ||
+        video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
+          ? 0
+          : waterWeights[index];
+      video.style.opacity = weight.toFixed(4);
+      video.dataset.weight = weight.toFixed(4);
+    });
+    syncWaterPlayback();
+  }
+
+  function ensureMediaSources() {
+    if (mediaSourcesRequested || reducedMotion || scrollTest) return;
+    mediaSourcesRequested = true;
+    waterVideos.forEach(video => {
+      video.muted = true;
+      video.playsInline = true;
+      video.src = video.dataset.src;
+      video.load();
+    });
+  }
+
+  function recoverWaterPlayback() {
+    if (blockedClips.size === 0) return;
+    blockedClips.clear();
+    activeClips.forEach(index => {
+      const video = waterVideos[index];
+      alignClipPhase(video);
+      requestClipPlayback(video, index);
+    });
+    updatePlaybackButton();
+  }
+
+  waterVideos.forEach((video, index) => {
+    video.dataset.status = "pending";
+
+    video.addEventListener("loadedmetadata", () => {
+      readyClips.add(index);
+      failedClips.delete(index);
+      video.dataset.status = "ready";
+      applyWaterBlend();
+      publishWaterTestState(true);
+    });
+
+    video.addEventListener("loadeddata", () => {
+      readyClips.add(index);
+      video.dataset.status = "ready";
+      applyWaterBlend();
+      publishWaterTestState(true);
+    });
+
+    video.addEventListener("playing", () => {
+      blockedClips.delete(index);
+      updatePlaybackButton();
+      updatePosterVisibility();
+    });
+
+    video.addEventListener("error", () => {
+      readyClips.delete(index);
+      failedClips.add(index);
+      activeClips.delete(index);
+      blockedClips.delete(index);
+      video.dataset.status = "missing";
+      video.style.opacity = "0";
+      applyWaterBlend();
+      publishWaterTestState(true);
+    });
+  });
+
+  waterPlayback.addEventListener("click", recoverWaterPlayback);
+  document.addEventListener("pointerdown", recoverWaterPlayback, { passive: true });
+  document.addEventListener("touchstart", recoverWaterPlayback, { passive: true });
+  document.addEventListener("keydown", recoverWaterPlayback);
+
+  addEventListener("scroll", measureWaterScroll, { passive: true });
+  addEventListener("resize", measureWaterScroll, { passive: true });
+
+  reduced.addEventListener("change", event => {
+    reducedMotion = event.matches || forceReduced;
+    measureWaterScroll();
+    if (!reducedMotion) ensureMediaSources();
+    applyWaterBlend();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    syncWaterPlayback();
+  });
+
+  const initialWaterRect = waterScreen.getBoundingClientRect();
+  waterInView =
+    initialWaterRect.bottom > 0 &&
+    initialWaterRect.top < innerHeight;
+
+  if ("IntersectionObserver" in window) {
+    const waterObserver = new IntersectionObserver(entries => {
+      waterInView = entries.some(entry => entry.isIntersecting);
+      if (waterInView) ensureMediaSources();
+      syncWaterPlayback();
+    }, { threshold: .01 });
+    waterObserver.observe(waterScreen);
+  }
+
+  if (scrollTest) {
+    window.__PF_WATER_TEST__ = {
+      get ready() {
+        return hasWaterFallback();
+      },
+      get pointerDisturbances() {
+        return 0;
+      },
+      getState() {
+        return {
+          progress: waterScrollState,
+          target: waterScrollTarget,
+          stage: waterArticle.dataset.waterStage || "low",
+          reduced: reducedMotion,
+          sceneReady: hasWaterFallback(),
+          playback: waterMedia.dataset.motion || "poster",
+          availableClips: Array.from(readyClips)
+            .sort((a, b) => a - b)
+            .map(index => stageNames[index]),
+          weights: waterWeights.slice()
+        };
+      }
+    };
+  }
+
+  updateWaterStage(0);
+  measureWaterScroll();
+  if (waterInView) ensureMediaSources();
+  applyWaterBlend();
+  publishWaterTestState(true);
+
+  function waterFrame(now) {
+    const elapsed = Math.min(50, Math.max(0, now - lastFrame));
+    lastFrame = now;
+
+    if (reducedMotion || scrollTest) {
+      waterScrollState = waterScrollTarget;
+    } else {
+      const ease = 1 - Math.exp(-elapsed * .012);
+      waterScrollState +=
+        (waterScrollTarget - waterScrollState) * ease;
+    }
+
+    applyWaterBlend();
+    publishWaterTestState();
+    requestAnimationFrame(waterFrame);
+  }
+  requestAnimationFrame(waterFrame);
+
+  function frame(time) {
+    drawEarth(reducedMotion ? 2800 : time);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
